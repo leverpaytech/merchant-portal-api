@@ -34,7 +34,8 @@ class User extends Authenticatable
         'password',
         'updated_at',
         'created-at',
-        'role_id'
+        'role_id',
+        'remember_token'
     ];
 
     /**
@@ -107,6 +108,6 @@ class User extends Authenticatable
         return self::where('email', $email)->first();
     }
 
-    
-    
+
+
 }

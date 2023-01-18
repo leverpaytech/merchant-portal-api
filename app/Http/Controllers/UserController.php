@@ -15,6 +15,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendEmailVerificationCode;
 
 class UserController extends BaseController
 {
@@ -53,7 +55,7 @@ class UserController extends BaseController
      *   tags={"Merchants"},
      *   summary="Get a merchant",
      *   operationId="get a merchant",
-     * 
+     *
      *   @OA\Parameter(
      *      name="id",
      *      in="path",
@@ -197,32 +199,31 @@ class UserController extends BaseController
         //$data['password'] = Hash::make($password);
 
         $user = $this->createUser($data);
-        
+
         $data2['activity']="Sign Up";
         $data2['user_id']=$user->id;
-        
+
         ActivityLog::createActivity($data2);
 
         return $this->successfulResponse(new UserResource($user), 'Merchant successfully sign-up');
     }
-    
+
     private function createUser($data)
     {
         $data['status'] = 1;
         $data['role_id'] = 3;
+
+        $verifyToken = bin2hex(random_bytes(15));
+        $verifyLink = env('FRONTEND_BASE_URL').'/verify-email?token='.$verifyToken;
+
+        $data['remember_token'] = $verifyToken;
         $user = $this->userModel->createUser($data);
 
-        $email = $user->email;
-
-        $password = $user->password;
-        
         // send email
-        $details['email'] = $email;
-        $details['password'] = $password;
-        $details['user'] = $user;
-       
+        Mail::to($data['email'])->queue(new SendEmailVerificationCode($data['name'], $verifyLink));
+
         return $user;
     }
 
-    
+
 }

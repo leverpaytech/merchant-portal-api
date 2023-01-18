@@ -99,7 +99,7 @@ class AuthController extends BaseController
 
             $data2['activity']="Login";
             $data2['user_id']=$user->id;
-            
+
             ActivityLog::createActivity($data2);
 
             return $this->successfulResponse([
@@ -151,11 +151,30 @@ class AuthController extends BaseController
         Auth::user()->token()->revoke();
         $data2['activity']="Login";
         $data2['user_id']=Auth::user()->id;
-        
+
         ActivityLog::createActivity($data2);
 
         return response([ 'message' => 'logged out successfully'],200);
     }
 
-    
+    public function verifyEmail(Request $request){
+        $this->validate($request, [
+            'token'=>'required'
+        ]);
+
+        $user = User::where('remember_token', $request->token)->first();
+        if(!$user){
+            return $this->sendError("invalid token, please try again",[], 401);
+        }
+
+        $user->remember_token = bin2hex(random_bytes(15));
+        $user->save();
+
+        $data2['activity']="VerifyEmail";
+        $data2['user_id']=$user->id;
+        ActivityLog::createActivity($data2);
+
+        return $this->successfulResponse(new UserResource($user), 'Email verified successfully');
+
+    }
 }
