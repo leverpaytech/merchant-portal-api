@@ -23,7 +23,7 @@ Route::post('/login',[AuthController::class, 'login'])->name('login');
 
 Route::prefix('/merchants')->group( function() {
     Route::post('/sign-up', [UserController::class, 'create'])->name('merchant.sign-up');
-    Route::get('/verify-email/{token}', [AuthController::class, 'verifyEmail'])->name('verify-email');
+    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
 
     Route::middleware('auth:api')->group( function () {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

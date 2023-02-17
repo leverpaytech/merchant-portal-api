@@ -216,7 +216,7 @@ class UserController extends BaseController
         $verifyToken = bin2hex(random_bytes(15));
         $verifyLink = env('FRONTEND_BASE_URL').'/verify-email?token='.$verifyToken;
 
-        $data['remember_token'] = $verifyToken;
+        $data['verify_email_token'] = $verifyToken;
         $user = $this->userModel->createUser($data);
 
         // send email
