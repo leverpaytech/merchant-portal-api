@@ -157,12 +157,12 @@ class AuthController extends BaseController
         return response([ 'message' => 'logged out successfully'],200);
     }
 
-    public function verifyEmail(Request $request){
-        $this->validate($request, [
-            'token'=>'required'
-        ]);
+    public function verifyEmail($token){
+        if(!$token){
+            return $this->sendError('Token field is required',[],401);
+        }
 
-        $user = User::where('remember_token', $request->token)->first();
+        $user = User::where('remember_token', $token)->first();
         if(!$user){
             return $this->sendError("invalid token, please try again",[], 401);
         }
