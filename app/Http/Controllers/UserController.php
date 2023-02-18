@@ -84,8 +84,8 @@ class UserController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/merchants/sign-up",
-     *   tags={"Merchants"},
+     ** path="/api/user/register",
+     *   tags={"User"},
      *   summary="Create a new merchant account",
      *   operationId="create a new merchant",
      *
@@ -220,6 +220,8 @@ class UserController extends BaseController
         $details['email'] = $email;
         $details['password'] = $password;
         $details['user'] = $user;
+
+        // dispatch(new \App\Jobs\NewUserJob($details));
        
         return $user;
     }
