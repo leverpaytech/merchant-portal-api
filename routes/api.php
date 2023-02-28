@@ -18,10 +18,11 @@ use App\Http\Controllers\Admin\AdminController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/login',[AuthController::class, 'login'])->name('login');
 
-Route::prefix('/merchants')->group( function() {
-    Route::post('/sign-up', [UserController::class, 'create'])->name('merchant.sign-up');
+
+Route::prefix('/user')->group( function() {
+    Route::post('/login',[AuthController::class, 'login'])->name('login');
+    Route::post('/register', [UserController::class, 'create'])->name('merchant.sign-up');
 
     Route::middleware('auth:api')->group( function () {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -29,7 +30,7 @@ Route::prefix('/merchants')->group( function() {
     });
 });
 
-Route::prefix('/admin')->group( function() {
+Route::prefix('/admin-dashboard')->group( function() {
     Route::middleware('auth:api')->group( function () {
         Route::get('/', [UserController::class, 'index'])->name('merchants.all');
     });
@@ -41,3 +42,16 @@ Route::prefix('/activities')->group( function() {
         Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
     });
 });
+
+Route::prefix('/currencies')->group( function() {
+    Route::middleware('auth:api')->group( function () {
+        Route::post('/', [CurrencyController::class, 'create'])->name('create.currency');
+    });
+});
+
+Route::prefix('/payment-option')->group( function() {
+    Route::middleware('auth:api')->group( function () {
+        Route::put('/{uuid}/currencies', [PaymentOptionController::class, 'create'])->name('create.currency');
+    });
+});
+
