@@ -99,7 +99,7 @@ class AuthController extends BaseController
 
             $data2['activity']="Login";
             $data2['user_id']=$user->id;
-            
+
             ActivityLog::createActivity($data2);
 
             return $this->successfulResponse([
@@ -151,11 +151,11 @@ class AuthController extends BaseController
         Auth::user()->token()->revoke();
         $data2['activity']="Login";
         $data2['user_id']=Auth::user()->id;
-        
+
         ActivityLog::createActivity($data2);
 
         return response([ 'message' => 'logged out successfully'],200);
     }
 
-    
+
 }

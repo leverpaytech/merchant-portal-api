@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    // dd(rand(1,999));
+    $rand = rand(1,999);
+    $a = rand(1,999).rand(1,999).rand(1,999);
+    dd($a);
     return view('welcome');
 });
 #Route::get('/home', [HomeController::class, 'index'])->name('home');

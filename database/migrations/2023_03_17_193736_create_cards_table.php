@@ -13,9 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('payment_options', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->string('currency_id');
+        Schema::create('cards', function (Blueprint $table) {
+            $table->id();
+            $table->integer('user_id');
+            $table->bigInteger('card_number');
+            $table->string('cvv');
+            $table->string('pin');
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }
@@ -27,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payment_options');
+        Schema::dropIfExists('cards');
     }
 };
