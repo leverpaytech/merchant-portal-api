@@ -31,10 +31,10 @@ class AuthController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/login",
+     ** path="/api/user/login",
      *   tags={"Authentication"},
-     *   summary="Login",
-     *   operationId="login",
+     *   summary="User",
+     *   operationId="user login",
      *
      *   @OA\Parameter(
      *      name="email",

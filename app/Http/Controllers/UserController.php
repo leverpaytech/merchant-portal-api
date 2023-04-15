@@ -86,8 +86,8 @@ class UserController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/merchants/sign-up",
-     *   tags={"Merchants"},
+     ** path="/api/user/register",
+     *   tags={"User"},
      *   summary="Create a new merchant account",
      *   operationId="create a new merchant",
      *
@@ -221,6 +221,8 @@ class UserController extends BaseController
 
         // send email
         Mail::to($data['email'])->queue(new SendEmailVerificationCode($data['name'], $verifyLink));
+
+        // dispatch(new \App\Jobs\NewUserJob($details));
 
         return $user;
     }
