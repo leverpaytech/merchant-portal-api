@@ -46,9 +46,4 @@ Route::prefix('/currencies')->group( function() {
     });
 });
 
-Route::prefix('/payment-option')->group( function() {
-    Route::middleware('auth:api')->group( function () {
-        //Route::put('/{uuid}/currencies', [PaymentOptionController::class, 'create'])->name('create.currency');
-    });
-});
 
