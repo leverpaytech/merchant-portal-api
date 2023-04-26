@@ -148,7 +148,8 @@ return [
              *
              * @see \OpenApi\scan
              */
-            'pattern' => null,
+            //'pattern' => null,
+            'pattern' => ['*Controller.php', '*Schema.php'],
 
             /*
              * Absolute path to directories that should be exclude from scanning
