@@ -226,5 +226,114 @@ class UserController extends BaseController
         return $user;
     }
 
+        /**
+     * @OA\Patch(
+     ** path="/api/user/update-merchant-profile/{id}",
+     *   tags={"User"},
+     *   summary="Update merchant profile",
+     *   operationId="update merchant profile",
+     *
+     *   @OA\Parameter(
+     *      name="name",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *          type="string"
+     *      )
+     *   ),
+     *   @OA\Parameter(
+     *      name="address",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *          type="string"
+     *      )
+     *   ),
+     *   @OA\Parameter(
+     *      name="email",
+     *      in="query",
+     *      required=false,
+     *      @OA\Schema(
+     *          type="string"
+     *      )
+     *   ),
+     *    @OA\Parameter(
+     *      name="phone",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *   @OA\Parameter(
+     *      name="state",
+     *      in="query",
+     *      required=false,
+     *      @OA\Schema(
+     *          type="string"
+     *      )
+     *   ),
+     *   @OA\Parameter(
+     *      name="city",
+     *      in="query",
+     *      required=false,
+     *      @OA\Schema(
+     *          type="string",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"api_key": {}}
+     *   }
+     *)
+     **/
+    public function updateUser(Request $request, $id)
+    {
+    
+        $user = $this->userModel->find($id);
+
+        $data = $request->validate( 
+          [
+            'name' => 'required',
+            'address' => 'required',
+            'phone' => 'unique:users',
+            'state' => 'required',
+            'city' => 'required'
+        ]);
+
+        $user->update($data);
+          
+        $log['activity']= 'Merchant Updated'; 
+        $log['description']= 'User Profile Updated';
+        $log['user_id']= Auth::user()->id;
+
+        ActivityLog::createActivity($log);
+    
+        return $this->successfulResponse(new UserResource($user), 'Merchant profile updated successfully');
+
+    }
+
     
 }
