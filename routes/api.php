@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\UserController;
 use \App\Http\Controllers\ActivityLogController;
+use \App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\Admin\AdminController;
 
 
@@ -20,41 +21,29 @@ use App\Http\Controllers\Admin\AdminController;
 */
 
 
-
-Route::prefix('/merchants')->group( function() {
-    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
-
+Route::prefix('/merchant')->group( function() {
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/register', [UserController::class, 'create'])->name('merchant.sign-up');
+    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
 
     Route::middleware('auth:api')->group( function () {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/get/{id}', [UserController::class, 'get'])->name('merchant.get');
-    });
-});
-
-Route::prefix('/admin-dashboard')->group( function() {
-    Route::middleware('auth:api')->group( function () {
+        Route::put('/update-merchant-profile/{id}', [UserController::class, 'updateUser'])->name('merchant.update');
         Route::get('/', [UserController::class, 'index'])->name('merchants.all');
+
+        Route::post('/payment-option', [AdminController::class, 'createPaymentOption']);
+
+        Route::post('/currencies', [CurrencyController::class, 'create'])->name('create.currency');
+
+        Route::prefix('/activities')->group( function() {
+            Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
+        });
     });
-    Route::post('/payment-option', [AdminController::class, 'createPaymentOption']);
+
 });
 
-Route::prefix('/activities')->group( function() {
-    Route::middleware('auth:api')->group( function () {
-        Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
-    });
-});
 
-Route::prefix('/currencies')->group( function() {
-    Route::middleware('auth:api')->group( function () {
-        Route::post('/', [CurrencyController::class, 'create'])->name('create.currency');
-    });
-});
 
-Route::prefix('/payment-option')->group( function() {
-    Route::middleware('auth:api')->group( function () {
-        Route::put('/{uuid}/currencies', [PaymentOptionController::class, 'create'])->name('create.currency');
-    });
-});
+
 

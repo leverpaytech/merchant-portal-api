@@ -219,6 +219,10 @@ class UserController extends BaseController
         $data['verify_email_token'] = $verifyToken;
         $user = $this->userModel->createUser($data);
 
+        $email = $user->email;
+
+        $password = $user->password;
+
         // send email
         Mail::to($data['email'])->queue(new SendEmailVerificationCode($data['name'], $verifyLink));
 
@@ -226,6 +230,5 @@ class UserController extends BaseController
 
         return $user;
     }
-
 
 }
