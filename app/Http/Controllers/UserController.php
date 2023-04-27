@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Currency;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendEmailVerificationCode;
@@ -221,4 +223,20 @@ class UserController extends BaseController
         return $user;
     }
 
+    public function getCurrencies(){
+        $currency = Currency::where('status', 1)->get();
+        return $this->successfulResponse($currency,'');
+    }
+
+    public function getUserCurrencies(){
+        return $this->successfulResponse(Auth::user()->currencies,'');
+    }
+
+    public function addCurrencies(Request $request){
+        $this->validate($request, [
+            'currencies'=>'required|array'
+        ]);
+        $user = Auth::user()->currencies()->sync($request['currencies']);
+        return $this->successfulResponse(Auth::user()->currencies,'');
+    }
 }

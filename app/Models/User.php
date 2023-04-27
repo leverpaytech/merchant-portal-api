@@ -54,6 +54,9 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
+    public function currencies(){
+        return $this->belongsToMany(Currency::class, 'currency_user');
+    }
     /**
      * The attributes that should be cast.
      *

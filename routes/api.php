@@ -32,18 +32,26 @@ Route::prefix('/merchant')->group( function() {
     Route::middleware('auth:api')->group( function () {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/get/{id}', [UserController::class, 'get'])->name('merchant.get');
-        Route::put('/update-merchant-profile/{id}', [UserController::class, 'updateUser'])->name('merchant.update');
+        Route::put('/update-merchant-profile', [UserController::class, 'updateUser'])->name('merchant.update');
         Route::get('/', [UserController::class, 'index'])->name('merchants.all');
 
-        Route::post('/payment-option', [AdminController::class, 'createPaymentOption']);
+        Route::get('/currencies', [UserController::class, 'getCurrencies']);
+        Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
+        Route::post('/add-currencies', [UserController::class, 'addCurrencies']);
 
-        Route::post('/currencies', [CurrencyController::class, 'create'])->name('create.currency');
 
         Route::prefix('/activities')->group( function() {
             Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
         });
     });
 
+});
+
+Route::prefix('admin')->group(function(){
+    Route::middleware('auth:api')->group( function () {
+        Route::post('/payment-option', [AdminController::class, 'createPaymentOption']);
+        Route::post('/currencies', [CurrencyController::class, 'create'])->name('create.currency');
+    });
 });
 
 
