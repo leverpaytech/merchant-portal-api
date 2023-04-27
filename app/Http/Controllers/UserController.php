@@ -53,7 +53,7 @@ class UserController extends BaseController
      *   tags={"Merchants"},
      *   summary="Get a merchant",
      *   operationId="get a merchant",
-     * 
+     *
      *   @OA\Parameter(
      *      name="id",
      *      in="path",
@@ -197,15 +197,15 @@ class UserController extends BaseController
         //$data['password'] = Hash::make($password);
 
         $user = $this->createUser($data);
-        
+
         $data2['activity']="Sign Up";
         $data2['user_id']=$user->id;
-        
+
         ActivityLog::createActivity($data2);
 
         return $this->successfulResponse(new UserResource($user), 'Merchant successfully sign-up');
     }
-    
+
     private function createUser($data)
     {
         $data['status'] = 1;
@@ -215,14 +215,14 @@ class UserController extends BaseController
         $email = $user->email;
 
         $password = $user->password;
-        
+
         // send email
         $details['email'] = $email;
         $details['password'] = $password;
         $details['user'] = $user;
 
         // dispatch(new \App\Jobs\NewUserJob($details));
-       
+
         return $user;
     }
 
@@ -311,10 +311,10 @@ class UserController extends BaseController
      **/
     public function updateUser(Request $request, $id)
     {
-    
+
         $user = $this->userModel->find($id);
 
-        $data = $request->validate( 
+        $data = $request->validate(
           [
             'name' => 'required',
             'address' => 'required',
@@ -324,16 +324,16 @@ class UserController extends BaseController
         ]);
 
         $user->update($data);
-          
-        $log['activity']= 'Merchant Updated'; 
+
+        $log['activity']= 'Merchant Updated';
         $log['description']= 'User Profile Updated';
         $log['user_id']= Auth::user()->id;
 
         ActivityLog::createActivity($log);
-    
+
         return $this->successfulResponse(new UserResource($user), 'Merchant profile updated successfully');
 
     }
 
-    
+
 }
