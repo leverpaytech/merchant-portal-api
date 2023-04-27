@@ -32,5 +32,9 @@ class RoleTableSeeder extends Seeder
             'id'        => 3,
             'name'      => 'merchant',
         ]);
+        Role::insert([
+            'id'        => 4,
+            'name'      => 'user',
+        ]);
     }
 }

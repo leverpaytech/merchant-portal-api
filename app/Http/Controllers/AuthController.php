@@ -7,11 +7,8 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\{User,ActivityLog};
-use App\Http\Requests\ForgotPasswordRequest;
-use App\Http\Requests\ResetPasswordRequest;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendEmailVerificationCode;
 
 class AuthController extends BaseController
 {
@@ -89,6 +86,10 @@ class AuthController extends BaseController
         {
             return $this->sendError("invalid login credentials",[], 401);
         }
+
+        if(!Auth::user()->verify_email_status){
+            return $this->sendError("Email verification required",[], 400);
+        }
         $accessToken = Auth::user()->createToken('access token');
 
         $user = Auth::user();
@@ -157,6 +158,26 @@ class AuthController extends BaseController
         return response([ 'message' => 'logged out successfully'],200);
     }
 
+    public function resendVerificationEmail(Request $request){
+        $this->validate($request, [
+            'email'=>'required|email'
+        ]);
+        $user = User::where('email', $request['email'])->first();
+        if($user->verify_email_status){
+            return $this->sendError('Email is already verified',[],400);
+        }
+
+        $verifyToken = bin2hex(random_bytes(15));
+        $verifyLink = env('FRONTEND_BASE_URL').'/verify-email?token='.$verifyToken;
+
+        $user->verify_email_token = $verifyToken;
+        $user->save();
+
+        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['name'], $verifyLink));
+
+        return response()->json('Email sent sucessfully', 200);
+    }
+
     public function verifyEmail(){
         $token = request()->query('token');
         if(!$token){
@@ -169,6 +190,7 @@ class AuthController extends BaseController
         }
 
         $user->verify_email_token = bin2hex(random_bytes(15));
+        $user->verify_email_status = true;
         $user->save();
 
         $data2['activity']="VerifyEmail";

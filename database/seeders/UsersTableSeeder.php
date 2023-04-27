@@ -20,16 +20,18 @@ class UsersTableSeeder extends Seeder
             'email' => 'admin@leverpay.io',
             'password' => Hash::make('password'),
             'phone' => '07038635986',
-            'role_id' => 1       
+            'verify_email_token'=>'22233',
+            'role_id' => 1
         ];
         \App\Models\User::create($data);
-        
+
         $data = [
             'name' => 'Abdul',
             'email' => 'abdul@leverpay.io',
             'password' => Hash::make('password'),
             'phone' => '07038655985',
-            'role_id' => 1       
+            'verify_email_token'=>'122333',
+            'role_id' => 1
         ];
         \App\Models\User::create($data);
     }

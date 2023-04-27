@@ -35,7 +35,7 @@ class User extends Authenticatable
         'updated_at',
         'created-at',
         'role_id',
-        'verify_email_token'
+        'verify_email_status'
     ];
 
     /**

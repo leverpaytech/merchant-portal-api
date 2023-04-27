@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\AdminController;
 Route::prefix('/merchant')->group( function() {
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/register', [UserController::class, 'create'])->name('merchant.sign-up');
+    Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
     Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
 
     Route::middleware('auth:api')->group( function () {

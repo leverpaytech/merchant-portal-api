@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('zip_code')->nullable();
             $table->rememberToken();
             $table->boolean('status')->default(true);
+            $table->boolean('verify_email_status')->default(false);
             $table->timestamp('last_seen_at')->nullable();
             $table->foreignId('role_id')->constrained();
             $table->timestamps();

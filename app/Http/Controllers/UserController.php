@@ -4,17 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\ActivityLog;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use App\Http\Resources\GeneralResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendEmailVerificationCode;
 
@@ -190,10 +182,10 @@ class UserController extends BaseController
         ]);
 
         if ($validator->fails())
-            return $this->sendError('Error',$validator->errors());
+            return $this->sendError('Error',$validator->errors(),422);
 
         if (User::where('email',$request->email)->first())
-            return $this->sendError('Merchant with same email exists');
+            return $this->sendError('Merchant with same email exists',[],400);
 
         //$password = Str::random(6);
         //$data['password'] = Hash::make($password);
@@ -217,14 +209,11 @@ class UserController extends BaseController
         $verifyLink = env('FRONTEND_BASE_URL').'/verify-email?token='.$verifyToken;
 
         $data['verify_email_token'] = $verifyToken;
+        $data['password'] = bcrypt($data['password']);
         $user = $this->userModel->createUser($data);
 
-        $email = $user->email;
-
-        $password = $user->password;
-
         // send email
-        Mail::to($data['email'])->queue(new SendEmailVerificationCode($data['name'], $verifyLink));
+        Mail::to($data['email'])->send(new SendEmailVerificationCode($data['name'], $verifyLink));
 
         // dispatch(new \App\Jobs\NewUserJob($details));
 
