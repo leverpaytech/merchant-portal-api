@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendEmailVerificationCode;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends BaseController
 {
@@ -178,7 +179,7 @@ class UserController extends BaseController
             'phone' => 'unique:users',
             'state' => 'required',
             'city' => 'required',
-            'password' => 'required'
+            'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
         if ($validator->fails())

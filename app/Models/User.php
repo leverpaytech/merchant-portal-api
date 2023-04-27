@@ -35,7 +35,9 @@ class User extends Authenticatable
         'updated_at',
         'created-at',
         'role_id',
-        'verify_email_status'
+        'verify_email_status',
+        'verify_email_token',
+        'forgot_password_token'
     ];
 
     /**
@@ -44,6 +46,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'verify_email_token',
+        'forgot_password_token',
         'password',
         'remember_token',
         'two_factor_recovery_codes',

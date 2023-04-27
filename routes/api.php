@@ -26,6 +26,8 @@ Route::prefix('/merchant')->group( function() {
     Route::post('/register', [UserController::class, 'create'])->name('merchant.sign-up');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
     Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
+    Route::post('forgot-password', [AuthController::class, 'sendForgotPasswordToken']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
 
     Route::middleware('auth:api')->group( function () {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
