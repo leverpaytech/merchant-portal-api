@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000",
+            "url": "http://merchant.leverpay.io",
             "description": "Test server"
         }
     ],
@@ -18,7 +18,7 @@
         "/api/admin-dashboard/activity-logs": {
             "get": {
                 "tags": [
-                    "AdminDashboard"
+                    "Merchant"
                 ],
                 "summary": "Get authenticated user logs",
                 "operationId": "get authenticated user logs",
@@ -86,12 +86,12 @@
                 ]
             }
         },
-        "/api/user/login": {
+        "/api/merchant/login": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Merchant"
                 ],
-                "summary": "User",
+                "summary": "Authentication",
                 "operationId": "user login",
                 "parameters": [
                     {
@@ -133,10 +133,10 @@
                 }
             }
         },
-        "/api/merchants/logout": {
+        "/api/merchant/logout": {
             "get": {
                 "tags": [
-                    "Authentication"
+                    "Merchant"
                 ],
                 "summary": "Logout",
                 "operationId": "logout",
@@ -219,10 +219,10 @@
                 ]
             }
         },
-        "/api/merchants/": {
+        "/api/merchant/": {
             "get": {
                 "tags": [
-                    "Merchants"
+                    "Merchant"
                 ],
                 "summary": "Get all merchants",
                 "operationId": "get all merchants",
@@ -238,10 +238,10 @@
                 ]
             }
         },
-        "/api/merchants/get/{id}": {
+        "/api/merchant/get/{id}": {
             "get": {
                 "tags": [
-                    "Merchants"
+                    "Merchant"
                 ],
                 "summary": "Get a merchant",
                 "operationId": "get a merchant",
@@ -267,10 +267,10 @@
                 ]
             }
         },
-        "/api/user/register": {
+        "/api/merchant/register": {
             "post": {
                 "tags": [
-                    "User"
+                    "Merchant"
                 ],
                 "summary": "Create a new merchant account",
                 "operationId": "create a new merchant",
@@ -359,58 +359,56 @@
                 ]
             }
         },
-        "/api/user/update-merchant-profile/{id}": {
-            "patch": {
+        "/api/merchant/currencies}": {
+            "get": {
                 "tags": [
-                    "User"
+                    "Merchant"
                 ],
-                "summary": "Update merchant profile",
-                "operationId": "update merchant profile",
+                "summary": "Get all currencies",
+                "operationId": "get all currencies",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/merchant/get-user-currencies}": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get user currencies",
+                "operationId": "get user currencies",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/merchant/add-currencies": {
+            "post": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Create a user curriencies",
+                "operationId": "create a user new curriencies",
                 "parameters": [
                     {
-                        "name": "name",
+                        "name": "curriencies",
                         "in": "query",
                         "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "address",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "phone",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "city",
-                        "in": "query",
-                        "required": false,
                         "schema": {
                             "type": "string"
                         }
@@ -462,9 +460,9 @@
                 "scheme": "https",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://localhost:8000/oauth/authorize",
-                        "tokenUrl": "http://localhost:8000/oauth/token",
-                        "refreshUrl": "http://localhost:8000/token/refresh",
+                        "authorizationUrl": "http://merchant.leverpay.io/oauth/authorize",
+                        "tokenUrl": "http://merchant.leverpay.io/oauth/token",
+                        "refreshUrl": "http://merchant.leverpay.io/token/refresh",
                         "scopes": []
                     }
                 }
