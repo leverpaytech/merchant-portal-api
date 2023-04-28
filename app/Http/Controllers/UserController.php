@@ -3,18 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Currency;
 use App\Models\ActivityLog;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use App\Http\Resources\GeneralResource;
 use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendEmailVerificationCode;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends BaseController
 {
@@ -53,7 +50,7 @@ class UserController extends BaseController
      *   tags={"Merchants"},
      *   summary="Get a merchant",
      *   operationId="get a merchant",
-     * 
+     *
      *   @OA\Parameter(
      *      name="id",
      *      in="path",
@@ -184,156 +181,62 @@ class UserController extends BaseController
             'phone' => 'unique:users',
             'state' => 'required',
             'city' => 'required',
-            'password' => 'required'
+            'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
         if ($validator->fails())
-            return $this->sendError('Error',$validator->errors());
+            return $this->sendError('Error',$validator->errors(),422);
 
         if (User::where('email',$request->email)->first())
-            return $this->sendError('Merchant with same email exists');
+            return $this->sendError('Merchant with same email exists',[],400);
 
         //$password = Str::random(6);
         //$data['password'] = Hash::make($password);
 
         $user = $this->createUser($data);
-        
+
         $data2['activity']="Sign Up";
         $data2['user_id']=$user->id;
-        
+
         ActivityLog::createActivity($data2);
 
         return $this->successfulResponse(new UserResource($user), 'Merchant successfully sign-up');
     }
-    
+
     private function createUser($data)
     {
         $data['status'] = 1;
         $data['role_id'] = 3;
+
+        $verifyToken = bin2hex(random_bytes(15));
+        $verifyLink = env('FRONTEND_BASE_URL').'/verify-email?token='.$verifyToken;
+
+        $data['verify_email_token'] = $verifyToken;
+        $data['password'] = bcrypt($data['password']);
         $user = $this->userModel->createUser($data);
 
-        $email = $user->email;
-
-        $password = $user->password;
-        
         // send email
-        $details['email'] = $email;
-        $details['password'] = $password;
-        $details['user'] = $user;
+        Mail::to($data['email'])->send(new SendEmailVerificationCode($data['name'], $verifyLink));
 
         // dispatch(new \App\Jobs\NewUserJob($details));
-       
+
         return $user;
     }
 
-        /**
-     * @OA\Patch(
-     ** path="/api/user/update-merchant-profile/{id}",
-     *   tags={"User"},
-     *   summary="Update merchant profile",
-     *   operationId="update merchant profile",
-     *
-     *   @OA\Parameter(
-     *      name="name",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="address",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="email",
-     *      in="query",
-     *      required=false,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *    @OA\Parameter(
-     *      name="phone",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="state",
-     *      in="query",
-     *      required=false,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="city",
-     *      in="query",
-     *      required=false,
-     *      @OA\Schema(
-     *          type="string",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"api_key": {}}
-     *   }
-     *)
-     **/
-    public function updateUser(Request $request, $id)
-    {
-    
-        $user = $this->userModel->find($id);
-
-        $data = $request->validate( 
-          [
-            'name' => 'required',
-            'address' => 'required',
-            'phone' => 'unique:users',
-            'state' => 'required',
-            'city' => 'required'
-        ]);
-
-        $user->update($data);
-          
-        $log['activity']= 'Merchant Updated'; 
-        $log['description']= 'User Profile Updated';
-        $log['user_id']= Auth::user()->id;
-
-        ActivityLog::createActivity($log);
-    
-        return $this->successfulResponse(new UserResource($user), 'Merchant profile updated successfully');
-
+    public function getCurrencies(){
+        $currency = Currency::where('status', 1)->get();
+        return $this->successfulResponse($currency,'');
     }
 
-    
+    public function getUserCurrencies(){
+        return $this->successfulResponse(Auth::user()->currencies,'');
+    }
+
+    public function addCurrencies(Request $request){
+        $this->validate($request, [
+            'currencies'=>'required|array'
+        ]);
+        $user = Auth::user()->currencies()->sync($request['currencies']);
+        return $this->successfulResponse(Auth::user()->currencies,'');
+    }
 }

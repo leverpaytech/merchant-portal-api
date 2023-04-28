@@ -34,7 +34,10 @@ class User extends Authenticatable
         'password',
         'updated_at',
         'created-at',
-        'role_id'
+        'role_id',
+        'verify_email_status',
+        'verify_email_token',
+        'forgot_password_token'
     ];
 
     /**
@@ -43,12 +46,17 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'verify_email_token',
+        'forgot_password_token',
         'password',
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
     ];
 
+    public function currencies(){
+        return $this->belongsToMany(Currency::class, 'currency_user');
+    }
     /**
      * The attributes that should be cast.
      *
@@ -107,6 +115,6 @@ class User extends Authenticatable
         return self::where('email', $email)->first();
     }
 
-    
-    
+
+
 }
