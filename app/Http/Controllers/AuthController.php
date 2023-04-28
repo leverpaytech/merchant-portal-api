@@ -30,9 +30,9 @@ class AuthController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/user/login",
-     *   tags={"Authentication"},
-     *   summary="User",
+     ** path="/api/merchant/login",
+     *   tags={"Merchant"},
+     *   summary="Authentication",
      *   operationId="user login",
      *
      *   @OA\Parameter(
@@ -116,8 +116,8 @@ class AuthController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/merchants/logout",
-     *   tags={"Authentication"},
+     ** path="/api/merchant/logout",
+     *   tags={"Merchant"},
      *   summary="Logout",
      *   operationId="logout",
      *
@@ -160,7 +160,8 @@ class AuthController extends BaseController
         return response([ 'message' => 'logged out successfully'],200);
     }
 
-    public function resendVerificationEmail(Request $request){
+    public function resendVerificationEmail(Request $request)
+    {
         $this->validate($request, [
             'email'=>'required|email'
         ]);
@@ -180,9 +181,11 @@ class AuthController extends BaseController
         return response()->json('Email sent sucessfully', 200);
     }
 
-    public function verifyEmail(){
+    public function verifyEmail()
+    {
         $token = request()->query('token');
-        if(!$token){
+        if(!$token)
+        {
             return $this->sendError('Token field is required',[],401);
         }
 
@@ -203,7 +206,8 @@ class AuthController extends BaseController
 
     }
 
-    public function sendForgotPasswordToken(Request $request){
+    public function sendForgotPasswordToken(Request $request)
+    {
         $this->validate($request, [
             'email'=>'required|email'
         ]);
@@ -220,7 +224,8 @@ class AuthController extends BaseController
         return response()->json('Email sent sucessfully', 200);
     }
 
-    public function resetPassword(Request $request){
+    public function resetPassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'token' => 'required|string',
             'new_password' => ['required', Password::min(8)->symbols()->uncompromised() ]
