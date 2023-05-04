@@ -24,8 +24,8 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/merchants/",
-     *   tags={"Merchants"},
+     ** path="/api/merchant/",
+     *   tags={"Merchant"},
      *   summary="Get all merchants",
      *   operationId="get all merchants",
      *
@@ -46,8 +46,8 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/merchants/get/{id}",
-     *   tags={"Merchants"},
+     ** path="/api/merchant/get/{id}",
+     *   tags={"Merchant"},
      *   summary="Get a merchant",
      *   operationId="get a merchant",
      *
@@ -81,8 +81,8 @@ class UserController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/user/register",
-     *   tags={"User"},
+     ** path="/api/merchant/register",
+     *   tags={"Merchant"},
      *   summary="Create a new merchant account",
      *   operationId="create a new merchant",
      *
@@ -218,21 +218,99 @@ class UserController extends BaseController
         // send email
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['name'], $verifyLink));
 
-        // dispatch(new \App\Jobs\NewUserJob($details));
 
         return $user;
     }
 
-    public function getCurrencies(){
+    /**
+     * @OA\Get(
+     ** path="/api/merchant/currencies}",
+     *   tags={"Merchant"},
+     *   summary="Get all currencies",
+     *   operationId="get all currencies",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getCurrencies()
+    {
         $currency = Currency::where('status', 1)->get();
         return $this->successfulResponse($currency,'');
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/merchant/get-user-currencies}",
+     *   tags={"Merchant"},
+     *   summary="Get user currencies",
+     *   operationId="get user currencies",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
     public function getUserCurrencies(){
         return $this->successfulResponse(Auth::user()->currencies,'');
     }
 
-    public function addCurrencies(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/merchant/add-currencies",
+     *   tags={"Merchant"},
+     *   summary="Create a user curriencies",
+     *   operationId="create a user new curriencies",
+     *
+     *   @OA\Parameter(
+     *      name="curriencies",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *          type="string"
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"api_key": {}}
+     *   }
+     *)
+     **/
+    public function addCurrencies(Request $request)
+    {
         $this->validate($request, [
             'currencies'=>'required|array'
         ]);

@@ -14,7 +14,7 @@ class ActivityLogController extends BaseController
     /**
      * @OA\Get(
      ** path="/api/admin-dashboard/activity-logs",
-     *   tags={"AdminDashboard"},
+     *   tags={"Merchant"},
      *   summary="Get authenticated user logs",
      *   operationId="get authenticated user logs",
      *
