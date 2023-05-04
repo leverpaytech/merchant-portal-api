@@ -19,26 +19,19 @@ class CurrencyController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/currencies",
-     *   tags={"Currencies"},
+     ** path="/api/admin/add-new-currency",
+     *   tags={"Admin"},
      *   summary="create multiple currency",
      *   operationId="create multiple currency",
      *
-     *   @OA\Parameter(
-     *      name="name",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="currency_code",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"name","currency_code"},
+     *              @OA\Property( property="name", type="string"),
+     *              @OA\Property( property="currency_code", type="string")
+     *          ),
+     *      ),
      *   ),
      *   @OA\Response(
      *      response=200,

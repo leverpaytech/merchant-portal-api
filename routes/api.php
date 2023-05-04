@@ -21,7 +21,8 @@ use App\Http\Controllers\Admin\AdminController;
 */
 
 
-Route::prefix('/merchant')->group( function() {
+Route::prefix('/merchant')->group( function() 
+{
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/register', [UserController::class, 'create'])->name('merchant.sign-up');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
@@ -31,9 +32,8 @@ Route::prefix('/merchant')->group( function() {
 
     Route::middleware('auth:api')->group( function () {
         Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-        Route::get('/get/{id}', [UserController::class, 'get'])->name('merchant.get');
-        Route::put('/update-merchant-profile', [UserController::class, 'updateUser'])->name('merchant.update');
-        Route::get('/', [UserController::class, 'index'])->name('merchants.all');
+        Route::get('/get-merchant-profile', [UserController::class, 'getMerchantProfile'])->name('merchant.get');
+        Route::post('/update-merchant-profile', [UserController::class, 'updateMerchantProfile'])->name('merchant.update');
 
         Route::get('/currencies', [UserController::class, 'getCurrencies']);
         Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
@@ -49,8 +49,9 @@ Route::prefix('/merchant')->group( function() {
 
 Route::prefix('admin')->group(function(){
     Route::middleware('auth:api')->group( function () {
-        Route::post('/payment-option', [AdminController::class, 'createPaymentOption']);
-        Route::post('/currencies', [CurrencyController::class, 'create'])->name('create.currency');
+        Route::get('/get-all-merchants', [UserController::class, 'index'])->name('merchants.all');
+        Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
+        Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
     });
 });
 

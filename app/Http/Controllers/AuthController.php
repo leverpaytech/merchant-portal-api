@@ -35,21 +35,14 @@ class AuthController extends BaseController
      *   summary="Authentication",
      *   operationId="user login",
      *
-     *   @OA\Parameter(
-     *      name="email",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="password",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email", "password"},
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="password", type="string"),
+     *          ),
+     *      ),
      *   ),
      *   @OA\Response(
      *      response=200,
@@ -78,7 +71,6 @@ class AuthController extends BaseController
      **/
     public function login(Request $request)
     {
-
         $user = $request->validate([
             'email' => 'required|string',
             'password' => 'required|string'
@@ -160,8 +152,55 @@ class AuthController extends BaseController
         return response([ 'message' => 'logged out successfully'],200);
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/merchant/resend-verification-email",
+     *   tags={"Merchant"},
+     *   summary="Resend email verification link",
+     *   operationId="Resend email verification link",
+     *
+     *   @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email"},
+     *              @OA\Property( property="email", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *  
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
     public function resendVerificationEmail(Request $request)
     {
+        /*\Artisan::call('route:cache');
+        \Artisan::call('config:cache');
+        \Artisan::call('cache:clear');
+        \Artisan::call('view:clear');
+        \Artisan::call('optimize:clear');*/
+
         $this->validate($request, [
             'email'=>'required|email'
         ]);
@@ -177,10 +216,50 @@ class AuthController extends BaseController
         $user->save();
 
         Mail::to($request['email'])->send(new SendEmailVerificationCode($user['name'], $verifyLink));
-
+    
         return response()->json('Email sent sucessfully', 200);
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/merchant/verify-email",
+     *   tags={"Merchant"},
+     *   summary="email verification",
+     *   operationId="verfifying email",
+     *
+     *   @OA\Parameter(
+     *      name="token",
+     *      in="query",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
     public function verifyEmail()
     {
         $token = request()->query('token');
@@ -206,6 +285,46 @@ class AuthController extends BaseController
 
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/merchant/forgot-password",
+     *   tags={"Merchant"},
+     *   summary="Send forgot password token",
+     *   operationId="Send forgot password token",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email"},
+     *              @OA\Property( property="email", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
     public function sendForgotPasswordToken(Request $request)
     {
         $this->validate($request, [
@@ -224,6 +343,47 @@ class AuthController extends BaseController
         return response()->json('Email sent sucessfully', 200);
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/merchant/reset-password",
+     *   tags={"Merchant"},
+     *   summary="Reset password",
+     *   operationId="Reset password",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"new_password","token"},
+     *              @OA\Property( property="token", type="string"),
+     *              @OA\Property( property="new_password", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [

@@ -11,26 +11,19 @@ class AdminController extends Controller
 {
     /**
      * @OA\Post(
-     ** path="/api/user/payment-option",
-     *   tags={"Payment Option"},
+     ** path="/api/admin/add-payment-option",
+     *   tags={"Admin"},
      *   summary="Create new payment option",
      *   operationId="create payment option",
      *
-     *   @OA\Parameter(
-     *      name="name",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="icon",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"name","icon"},
+     *              @OA\Property( property="name", type="string"),
+     *              @OA\Property( property="icon", type="string")
+     *          ),
+     *      ),
      *   ),
      *   @OA\Response(
      *      response=200,
@@ -65,7 +58,6 @@ class AdminController extends Controller
             'name'=>'required|string',
             'icon'=>'required|string'
         ]);
-
         $payment = new PaymentOption();
         $payment->uuid = Uuid::generate()->string;
         $payment->name = $request['name'];
