@@ -193,7 +193,7 @@ class UserController extends BaseController
         //$password = Str::random(6);
         //$data['password'] = Hash::make($password);
 
-        $user = $this->createUser($data);
+        $user = $this->createMerchant($data);
 
         $data2['activity']="Sign Up";
         $data2['user_id']=$user->id;
@@ -203,7 +203,7 @@ class UserController extends BaseController
         return $this->successfulResponse(new UserResource($user), 'Merchant successfully sign-up');
     }
 
-    private function createUser($data)
+    private function createMerchant($data)
     {
         $data['status'] = 1;
         $data['role_id'] = 3;
@@ -213,7 +213,7 @@ class UserController extends BaseController
 
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
-        $user = $this->userModel->createUser($data);
+        $user = $this->userModel->createMerchant($data);
 
         // send email
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['name'], $verifyLink));

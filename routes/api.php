@@ -3,6 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AuthController;
+// use \App\Http\Controllers\User\UserController;
+use \App\Http\Controllers\Merchant\MerchantController;
+use \App\Http\Controllers\Merchant\AuthController as MerchantAuthController;
+use \App\Http\Controllers\User\AuthController as UserAuthController;
 use \App\Http\Controllers\UserController;
 use \App\Http\Controllers\ActivityLogController;
 use \App\Http\Controllers\CurrencyController;
@@ -22,7 +26,7 @@ use App\Http\Controllers\Admin\AdminController;
 
 
 Route::prefix('/merchant')->group( function() {
-    Route::post('/login',[AuthController::class, 'login'])->name('login');
+    Route::post('/login',[MerchantAuthController::class, 'login'])->name('login');
     Route::post('/register', [UserController::class, 'create'])->name('merchant.sign-up');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
     Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
@@ -45,6 +49,11 @@ Route::prefix('/merchant')->group( function() {
         });
     });
 
+});
+
+Route::prefix('/user')->group( function() {
+    Route::post('/login',[UserAuthController::class, 'login'])->name('login');
+    Route::post('/register', [UserAuthController::class, 'create'])->name('user.sign-up');
 });
 
 Route::prefix('admin')->group(function(){

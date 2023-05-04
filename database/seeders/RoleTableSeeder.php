@@ -36,5 +36,9 @@ class RoleTableSeeder extends Seeder
             'id'        => 4,
             'name'      => 'user',
         ]);
+        Role::insert([
+            'id'        => 5,
+            'name'      => 'business',
+        ]);
     }
 }
