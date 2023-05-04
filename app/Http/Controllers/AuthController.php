@@ -28,12 +28,13 @@ class AuthController extends BaseController
         $this->userModel = $user;
     }
 
+    /************************merchant services*********************************** */
     /**
      * @OA\Post(
      ** path="/api/merchant/login",
      *   tags={"Merchant"},
      *   summary="Authentication",
-     *   operationId="user login",
+     *   operationId="merchant login",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
@@ -402,4 +403,6 @@ class AuthController extends BaseController
         $user->save();
         return response()->json('Password reset successfully', 200);
     }
+
+    
 }
