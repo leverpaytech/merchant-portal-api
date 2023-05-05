@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendEmailVerificationCode;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 class UserController extends BaseController
 {
@@ -21,11 +22,11 @@ class UserController extends BaseController
     {
         $this->userModel = $user;
     }
-
+    /****************************merchants services****************************/
     /**
      * @OA\Get(
-     ** path="/api/merchant/",
-     *   tags={"Merchant"},
+     ** path="/api/admin/get-all-merchants",
+     *   tags={"Admin"},
      *   summary="Get all merchants",
      *   operationId="get all merchants",
      *
@@ -44,21 +45,14 @@ class UserController extends BaseController
         return $this->successfulResponse(User::where('role_id',3)->get(), "Merchants retrieved successfully");
     }
 
+
     /**
      * @OA\Get(
-     ** path="/api/merchant/get/{id}",
+     ** path="/api/merchant/get-merchant-profile",
      *   tags={"Merchant"},
-     *   summary="Get a merchant",
-     *   operationId="get a merchant",
-     *
-     *   @OA\Parameter(
-     *      name="id",
-     *      in="path",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string"
-     *      )
-     *   ),
+     *   summary="Get merchant profile",
+     *   operationId="get merchant profile details",
+     * 
      *
      *   @OA\Response(
      *      response=200,
@@ -70,13 +64,118 @@ class UserController extends BaseController
      *
      *)
      **/
-    public function get($id)
+    public function getMerchantProfile()
     {
-        $user = User::find($id);
+        $userId = Auth::user()->id;
+        $user = User::where('id', $userId)->with('currencies')->get()->first();
 
         if(!$user)
             return $this->sendError('Merchant not found',[],404);
         return $this->successfulResponse($user,'Merchant found successfully');
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/merchant/update-merchant-profile",
+     *   tags={"Merchant"},
+     *   summary="Update merchant profile",
+     *   operationId="Update merchant profile",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email","password", "name", "address", "phone", "state", "city"},
+     *              @OA\Property( property="name", type="string"),
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="address", type="string"),
+     *              @OA\Property( property="phone", type="string"),
+     *              @OA\Property( property="password", type="string"),
+     *              @OA\Property( property="state", type="string"),
+     *              @OA\Property( property="city", type="string"),
+     *              @OA\Property( property="passport", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"api_key": {}}
+     *   }
+     *)
+     **/
+    public function updateMerchantProfile(Request $request)
+    {
+        $userId = Auth::user()->id;
+
+        $data = $request->all();
+
+        /*$validator = Validator::make($data, [
+            'name' => 'required',
+            'address' => 'required',
+            'email' => 'required',
+            'phone' => 'required',
+            'state' => 'required',
+            'city' => 'nullable',
+            'passport' => 'nullable'
+        ]);*/
+
+        if(!$user = User::find($userId))
+            return $this->sendError('User not found',[],404);
+        if(isset($request->email))
+        {
+            $validator = Validator::make($request->all(),[
+                'email' =>  Rule::unique('users')->ignore($userId),
+                //'unique:users,email|required|email',
+            ]);
+            if ($validator->fails())
+                return $this->sendError('Merchant with the same email exists already',$validator->errors(),400);
+
+        }
+        if(isset($request->passport))
+        {
+            try
+            {
+                $newname= $id.''.time().'.'.$request->passport->extension();
+                 $request->passport->move(public_path('passports'), $newname);
+           
+                $data['passport']= $newname;
+               
+                //add new image
+                $request->passport->move(public_path('passports'), $nimgname);
+            } catch (\Exception $ex) {
+                return $this->sendError($ex->getMessage());
+            } 
+        }
+  
+        $user = $this->userModel->updateUser($data,$userId);
+        $data2['activity']="Profile Update";
+        $data2['user_id']=$userId;
+
+        ActivityLog::createActivity($data2);
+
+        return $this->successfulResponse(new UserResource($user), 'Merchant profile successfully updated');
     }
 
     /**
@@ -86,62 +185,21 @@ class UserController extends BaseController
      *   summary="Create a new merchant account",
      *   operationId="create a new merchant",
      *
-     *   @OA\Parameter(
-     *      name="name",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email","password", "name", "address", "phone", "state", "city"},
+     *              @OA\Property( property="name", type="string"),
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="address", type="string"),
+     *              @OA\Property( property="phone", type="string"),
+     *              @OA\Property( property="password", type="string"),
+     *              @OA\Property( property="state", type="string"),
+     *              @OA\Property( property="city", type="string"),
+     *          ),
+     *      ),
      *   ),
-     *   @OA\Parameter(
-     *      name="address",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="email",
-     *      in="query",
-     *      required=false,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *    @OA\Parameter(
-     *      name="phone",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="password",
-     *      in="query",
-     *      required=false,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="state",
-     *      in="query",
-     *      required=false,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="city",
-     *      in="query",
-     *      required=false,
-     *      @OA\Schema(
-     *          type="string",
-     *      )
-     *   ),
+     * 
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -273,13 +331,13 @@ class UserController extends BaseController
      *   summary="Create a user curriencies",
      *   operationId="create a user new curriencies",
      *
-     *   @OA\Parameter(
-     *      name="curriencies",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"curriencies"},
+     *              @OA\Property( property="curriencies", type="array",@OA\Items( type="integer"), )
+     *          ),
+     *      ),
      *   ),
      *   @OA\Response(
      *      response=200,
@@ -317,4 +375,6 @@ class UserController extends BaseController
         $user = Auth::user()->currencies()->sync($request['currencies']);
         return $this->successfulResponse(Auth::user()->currencies,'');
     }
+
+    
 }

@@ -32,6 +32,7 @@ class User extends Authenticatable
         'city',
         'zip_code',
         'password',
+        'passport',
         'updated_at',
         'created-at',
         'role_id',

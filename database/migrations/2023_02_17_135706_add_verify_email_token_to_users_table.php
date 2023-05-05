@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('verify_email_token');
-            $table->string('passport')->nullable();;
+            $table->string('passport')->nullable();
         });
     }
 
