@@ -25,46 +25,48 @@ use App\Http\Controllers\Admin\AdminController;
 */
 
 
-Route::prefix('/merchant')->group( function()
-{
-    Route::post('/login',[MerchantAuthController::class, 'login'])->name('login');
-    Route::post('/register', [UserController::class, 'create'])->name('merchant.sign-up');
+Route::prefix('v1')->group( function(){
+    Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
-    Route::get('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
+    Route::post('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');
     Route::post('forgot-password', [AuthController::class, 'sendForgotPasswordToken']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
 
-    Route::middleware('auth:api')->group( function () {
-        Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-        Route::get('/get-merchant-profile', [UserController::class, 'getMerchantProfile'])->name('merchant.get');
-        Route::post('/update-merchant-profile', [UserController::class, 'updateMerchantProfile'])->name('merchant.update');
+    Route::prefix('/merchant')->group( function(){
 
-        Route::get('/currencies', [UserController::class, 'getCurrencies']);
-        Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
-        Route::post('/add-currencies', [UserController::class, 'addCurrencies']);
+        Route::post('/register', [MerchantAuthController::class, 'create'])->name('merchant.sign-up');
 
 
-        Route::prefix('/activities')->group( function() {
-            Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
+        Route::middleware('auth:api')->group( function () {
+            Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+            Route::get('/get-merchant-profile', [MerchantController::class, 'getMerchantProfile'])->name('merchant.get');
+            Route::post('/update-merchant-profile', [MerchantController::class, 'updateMerchantProfile'])->name('merchant.update');
+
+            Route::get('/currencies', [MerchantController::class, 'getCurrencies']);
+            Route::get('/get-user-currencies', [MerchantController::class, 'getUserCurrencies']);
+            Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
+
+
+            Route::prefix('/activities')->group( function() {
+                Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
+            });
+        });
+
+    });
+
+    Route::prefix('/user')->group( function() {
+        Route::post('/register', [UserAuthController::class, 'create'])->name('user.sign-up');
+    });
+
+    Route::prefix('admin')->group(function(){
+        Route::middleware('auth:api')->group( function () {
+            Route::get('/get-all-merchants', [UserController::class, 'index'])->name('merchants.all');
+            Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
+            Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
         });
     });
 
 });
-
-Route::prefix('/user')->group( function() {
-    Route::post('/login',[UserAuthController::class, 'login'])->name('login');
-    Route::post('/register', [UserAuthController::class, 'create'])->name('user.sign-up');
-});
-
-Route::prefix('admin')->group(function(){
-    Route::middleware('auth:api')->group( function () {
-        Route::get('/get-all-merchants', [UserController::class, 'index'])->name('merchants.all');
-        Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
-        Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
-    });
-});
-
-
 
 
 

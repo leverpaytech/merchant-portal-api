@@ -99,7 +99,7 @@ class AuthController extends BaseController
             ActivityLog::createActivity($data2);
 
             return $this->successfulResponse([
-                "user" => $user,
+                "user" => new UserResource($user),
                 "token" => $accessToken->accessToken,
                 "expires_at" => Carbon::parse($accessToken->token->expires_at)->toDateTimeString()
             ], 'Logged in successfully');
@@ -168,7 +168,7 @@ class AuthController extends BaseController
      *          ),
      *      ),
      *   ),
-     *  
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -210,14 +210,13 @@ class AuthController extends BaseController
             return $this->sendError('Email is already verified',[],400);
         }
 
-        $verifyToken = bin2hex(random_bytes(15));
-        $verifyLink = env('FRONTEND_BASE_URL').'/verify-email?token='.$verifyToken;
+        $verifyToken = rand(1000, 9999);
 
         $user->verify_email_token = $verifyToken;
         $user->save();
 
-        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['name'], $verifyLink));
-    
+        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['name'], $verifyToken));
+
         return response()->json('Email sent sucessfully', 200);
     }
 
@@ -261,15 +260,16 @@ class AuthController extends BaseController
      *   )
      *)
      **/
-    public function verifyEmail()
+    public function verifyEmail(Request $request)
     {
-        $token = request()->query('token');
-        if(!$token)
-        {
-            return $this->sendError('Token field is required',[],401);
-        }
+        $this->validate($request, [
+            'email'=>'required|email',
+            'token'=>'required|string'
+        ]);
 
-        $user = User::where('verify_email_token', $token)->first();
+        $user = User::where('email',$request['email'])
+                        ->where('verify_email_token', $request['token'])
+                        ->first();
         if(!$user){
             return $this->sendError("invalid token, please try again",[], 401);
         }
@@ -335,12 +335,11 @@ class AuthController extends BaseController
         if(!$user){
             return $this->sendError('Invalid email',[],400);
         }
-        $verifyToken = bin2hex(random_bytes(15));
-        $verifyLink = env('FRONTEND_BASE_URL').'/forgot-password?token='.$verifyToken;
+        $verifyToken = rand(1000, 9999);
 
         $user->forgot_password_token = $verifyToken;
         $user->save();
-        Mail::to($request['email'])->send(new ForgotPasswordMail($user['name'], $verifyLink));
+        Mail::to($request['email'])->send(new ForgotPasswordMail($user['name'], $verifyToken));
         return response()->json('Email sent sucessfully', 200);
     }
 
@@ -404,5 +403,5 @@ class AuthController extends BaseController
         return response()->json('Password reset successfully', 200);
     }
 
-    
+
 }

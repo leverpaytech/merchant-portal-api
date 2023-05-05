@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
@@ -67,4 +68,28 @@ class AdminController extends Controller
 
         return new PaymentOptionResource($payment);
     }
+
+            /****************************merchants services****************************/
+    /**
+     * @OA\Get(
+     ** path="/api/admin/get-all-merchants",
+     *   tags={"Admin"},
+     *   summary="Get all merchants",
+     *   operationId="get all merchants",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getAllMerchants()
+    {
+        return $this->successfulResponse(User::where('role_id',1)->get());
+    }
+
 }

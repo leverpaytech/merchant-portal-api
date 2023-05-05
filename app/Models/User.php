@@ -18,8 +18,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'id',
-        'name',
+
+        'first_name',
+        'last_name',
         'gender',
         'address',
         'status',
@@ -47,6 +48,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'id',
         'verify_email_token',
         'forgot_password_token',
         'password',
@@ -76,6 +78,9 @@ class User extends Authenticatable
     //     'profile_photo_url',
     // ];
 
+    public function merchant(){
+        return $this->hasOne(Merchant::class);
+    }
 
     public function createUser($data)
     {

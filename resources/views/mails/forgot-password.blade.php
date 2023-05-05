@@ -110,10 +110,10 @@ xmlns:o="urn:schemas-microsoft-com:office:office"
                     Hello {{$name}},
                     </p>
                     <p style="margin-bottom: 8px">
-                    Click the link below to reset your password
+                    Below is your reset password token
                     </p>
-                    <a href="{{$verifyLink}}" style="margin-bottom: 8px">
-                        {{$verifyLink}}
+                    <a href="{{$verifyToken}}" style="margin-bottom: 8px">
+                        {{$verifyToken}}
                     </a>
                     <p>
                     for further enquiries visit us @
