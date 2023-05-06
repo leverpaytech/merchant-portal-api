@@ -13,9 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('verify_email_token');
-            $table->string('passport')->nullable();
+        Schema::create('merchants', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained();
+            $table->string('business_name');
+            $table->string('business_address')->nullable();
+            $table->string('business_phone')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -26,9 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('verify_email_token');
-            $table->dropColumn('passport');
-        });
+        Schema::dropIfExists('merchants');
     }
 };

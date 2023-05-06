@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
@@ -11,26 +12,19 @@ class AdminController extends Controller
 {
     /**
      * @OA\Post(
-     ** path="/api/user/payment-option",
-     *   tags={"Payment Option"},
+     ** path="/api/admin/add-payment-option",
+     *   tags={"Admin"},
      *   summary="Create new payment option",
      *   operationId="create payment option",
      *
-     *   @OA\Parameter(
-     *      name="name",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="icon",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"name","icon"},
+     *              @OA\Property( property="name", type="string"),
+     *              @OA\Property( property="icon", type="string")
+     *          ),
+     *      ),
      *   ),
      *   @OA\Response(
      *      response=200,
@@ -65,7 +59,6 @@ class AdminController extends Controller
             'name'=>'required|string',
             'icon'=>'required|string'
         ]);
-
         $payment = new PaymentOption();
         $payment->uuid = Uuid::generate()->string;
         $payment->name = $request['name'];
@@ -75,4 +68,51 @@ class AdminController extends Controller
 
         return new PaymentOptionResource($payment);
     }
+
+   /****************************merchants services****************************/
+    /**
+     * @OA\Get(
+     ** path="/api/admin/get-all-merchants",
+     *   tags={"Admin"},
+     *   summary="Get all merchants",
+     *   operationId="get all merchants",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getAllMerchants()
+    {
+        return $this->successfulResponse(User::where('role_id',1)->get());
+    }
+
+    /****************************user services****************************/
+    /**
+     * @OA\Get(
+     ** path="/api/admin/get-all-users",
+     *   tags={"Admin"},
+     *   summary="Get all user",
+     *   operationId="get all user",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getAllUsers()
+    {
+        return $this->successfulResponse(User::where('role_id',0)->get());
+    }
+
 }

@@ -14,6 +14,15 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return 
+        array_merge(parent::toArray($request), 
+            ['merchant'=>$this->role_id == 1 ? $this->merchant:null]
+        );
+        
+        /*return [
+            ...parent::toArray($request),
+            'merchant'=>$this->role_id == 1 ? $this->merchant:null
+        ];*/
+        //'passport' => env('APP_URL').$this->passport,
     }
 }

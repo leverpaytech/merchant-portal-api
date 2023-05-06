@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
+Route::get('/', function () 
+{
+    //dd(env('MAIL_USERNAME'));
     return view('welcome');
 });
 #Route::get('/home', [HomeController::class, 'index'])->name('home');

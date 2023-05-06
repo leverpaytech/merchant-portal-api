@@ -10,18 +10,18 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000",
+            "url": "http://api.leverpay.io",
             "description": "Test server"
         }
     ],
     "paths": {
-        "/api/admin-dashboard/activity-logs": {
+        "/api/v1/activities/logs": {
             "get": {
                 "tags": [
-                    "AdminDashboard"
+                    "Logs"
                 ],
-                "summary": "Get authenticated user logs",
-                "operationId": "get authenticated user logs",
+                "summary": "Get system logs",
+                "operationId": "get system logs",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -34,31 +34,34 @@
                 ]
             }
         },
-        "/api/user/payment-option": {
+        "/api/admin/add-payment-option": {
             "post": {
                 "tags": [
-                    "Payment Option"
+                    "Admin"
                 ],
                 "summary": "Create new payment option",
                 "operationId": "create payment option",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "icon",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "icon"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "icon": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -86,31 +89,72 @@
                 ]
             }
         },
-        "/api/user/login": {
+        "/api/admin/get-all-merchants": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all merchants",
+                "operationId": "get all merchants",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/get-all-users": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all user",
+                "operationId": "get all user",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/login": {
             "post": {
                 "tags": [
-                    "Authentication"
+                    "Authentication & Verification"
                 ],
-                "summary": "User",
-                "operationId": "user login",
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "password",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                "summary": "Authentication",
+                "operationId": "login Authentication",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -133,13 +177,30 @@
                 }
             }
         },
-        "/api/merchants/logout": {
-            "get": {
+        "/api/v1/resend-verification-email": {
+            "post": {
                 "tags": [
-                    "Authentication"
+                    "Authentication & Verification"
                 ],
-                "summary": "Logout",
-                "operationId": "logout",
+                "summary": "Resend email verification link",
+                "operationId": "Resend email verification link",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -159,39 +220,183 @@
                     "403": {
                         "description": "Forbidden"
                     }
-                },
-                "security": [
-                    {
-                        "api_key": []
-                    }
-                ]
+                }
             }
         },
-        "/api/currencies": {
+        "/api/v1/verify-email": {
             "post": {
                 "tags": [
-                    "Currencies"
+                    "Authentication & Verification"
+                ],
+                "summary": "verify email",
+                "operationId": "verify email",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "token"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/v1/forgot-password": {
+            "post": {
+                "tags": [
+                    "Authentication & Verification"
+                ],
+                "summary": "Send forgot password token",
+                "operationId": "Send forgot password token",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/v1/reset-password": {
+            "post": {
+                "tags": [
+                    "Authentication & Verification"
+                ],
+                "summary": "Reset password",
+                "operationId": "Reset password",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "new_password",
+                                    "token"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "new_password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/admin/add-new-currency": {
+            "post": {
+                "tags": [
+                    "Admin"
                 ],
                 "summary": "create multiple currency",
                 "operationId": "create multiple currency",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "currency_code",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "currency_code"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "currency_code": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -219,13 +424,13 @@
                 ]
             }
         },
-        "/api/merchants/": {
+        "/api/v1/currencies}": {
             "get": {
                 "tags": [
-                    "Merchants"
+                    "Currencies"
                 ],
-                "summary": "Get all merchants",
-                "operationId": "get all merchants",
+                "summary": "Get all currencies",
+                "operationId": "get all currencies",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -238,23 +443,130 @@
                 ]
             }
         },
-        "/api/merchants/get/{id}": {
+        "/api/v1/merchant/logout": {
             "get": {
                 "tags": [
-                    "Merchants"
+                    "Merchant"
                 ],
-                "summary": "Get a merchant",
-                "operationId": "get a merchant",
-                "parameters": [
+                "summary": "Merchant Logout",
+                "operationId": "Merchant Logout",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/register": {
+            "post": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Create a new merchant account",
+                "operationId": "create a new merchant",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "first_name",
+                                    "last_name",
+                                    "address",
+                                    "business_name",
+                                    "phone",
+                                    "state",
+                                    "city"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "business_name": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "state": {
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-profile": {
+            "get": {
+                "tags": [
+                    "Merchant"
                 ],
+                "summary": "Get merchant profile",
+                "operationId": "get merchant profile details",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -267,71 +579,239 @@
                 ]
             }
         },
-        "/api/user/register": {
+        "/api/v1/merchant/update-merchant-profile": {
+            "post": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Update merchant profile",
+                "operationId": "Update merchant profile",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "first_name",
+                                    "last_name",
+                                    "address",
+                                    "business_name",
+                                    "phone",
+                                    "state",
+                                    "city"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "business_name": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "state": {
+                                        "type": "string"
+                                    },
+                                    "city": {
+                                        "type": "string"
+                                    },
+                                    "passport": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-currencies}": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant's currencies",
+                "operationId": "get merchant's currencies",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/add-currencies": {
+            "post": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Add merchant curriencies",
+                "operationId": "Add merchant curriencies",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "curriencies"
+                                ],
+                                "properties": {
+                                    "curriencies": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/logout": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "User Logout",
+                "operationId": "User logout",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/register": {
             "post": {
                 "tags": [
                     "User"
                 ],
-                "summary": "Create a new merchant account",
-                "operationId": "create a new merchant",
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "address",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "phone",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "password",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "city",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
+                "summary": "Create a new user account",
+                "operationId": "create a new user",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "first_name",
+                                    "last_name",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -359,63 +839,141 @@
                 ]
             }
         },
-        "/api/user/update-merchant-profile/{id}": {
-            "patch": {
+        "/api/v1/user/get-user-profile": {
+            "get": {
                 "tags": [
                     "User"
                 ],
-                "summary": "Update merchant profile",
-                "operationId": "update merchant profile",
-                "parameters": [
+                "summary": "Get user profile",
+                "operationId": "get user profile details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
                     {
-                        "name": "name",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "address",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "phone",
-                        "in": "query",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "state",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "city",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/update-user-profile": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user profile",
+                "operationId": "Update user profile",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "first_name",
+                                    "last_name",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "passport": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
                         }
                     }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-user-currencies}": {
+            "get": {
+                "tags": [
+                    "Merchant"
                 ],
+                "summary": "Get user's currencies",
+                "operationId": "get user's currencies",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/add-currencies": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Add user curriencies",
+                "operationId": "Add user curriencies",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "curriencies"
+                                ],
+                                "properties": {
+                                    "curriencies": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -462,9 +1020,9 @@
                 "scheme": "https",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://localhost:8000/oauth/authorize",
-                        "tokenUrl": "http://localhost:8000/oauth/token",
-                        "refreshUrl": "http://localhost:8000/token/refresh",
+                        "authorizationUrl": "http://api.leverpay.io/oauth/authorize",
+                        "tokenUrl": "http://api.leverpay.io/oauth/token",
+                        "refreshUrl": "http://api.leverpay.io/token/refresh",
                         "scopes": []
                     }
                 }

@@ -20,4 +20,9 @@ class Currency extends Model
         return self::create($data);
     }
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'currency_user');
+    }
+
 }

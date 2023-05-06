@@ -110,10 +110,10 @@ xmlns:o="urn:schemas-microsoft-com:office:office"
                     Hello {{$name}},
                     </p>
                     <p style="margin-bottom: 8px">
-                    We are excited to have you here. Click the link below to verify your email
+                    We are excited to have you here. Below is your verification token
                     </p>
-                    <a href="{{$verifyLink}}" style="margin-bottom: 8px">
-                        {{$verifyLink}}
+                    <a href="{{$verifyToken}}" style="margin-bottom: 8px">
+                        {{$verifyToken}}
                     </a>
                     <p>
                     for further enquiries visit us @

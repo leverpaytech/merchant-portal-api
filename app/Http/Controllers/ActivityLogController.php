@@ -13,10 +13,10 @@ class ActivityLogController extends BaseController
 {
     /**
      * @OA\Get(
-     ** path="/api/admin-dashboard/activity-logs",
-     *   tags={"AdminDashboard"},
-     *   summary="Get authenticated user logs",
-     *   operationId="get authenticated user logs",
+     ** path="/api/v1/activities/logs",
+     *   tags={"Logs"},
+     *   summary="Get system logs",
+     *   operationId="get system logs",
      *
      *   @OA\Response(
      *      response=200,
@@ -43,7 +43,7 @@ class ActivityLogController extends BaseController
         $response = [
             'success' => true,
             'data' => $result,
-            'message' => "Retrieved successfully."
+            'message' => "Activity logs retrieved successfully."
         ];
 
         return response()->json($response, 200);

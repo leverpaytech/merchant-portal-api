@@ -18,8 +18,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'id',
-        'name',
+
+        'first_name',
+        'last_name',
         'gender',
         'address',
         'status',
@@ -32,6 +33,7 @@ class User extends Authenticatable
         'city',
         'zip_code',
         'password',
+        'passport',
         'updated_at',
         'created-at',
         'role_id',
@@ -46,6 +48,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'id',
         'verify_email_token',
         'forgot_password_token',
         'password',
@@ -54,6 +57,9 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
+    public function currencies(){
+        return $this->belongsToMany(Currency::class, 'currency_user');
+    }
     /**
      * The attributes that should be cast.
      *
@@ -72,6 +78,9 @@ class User extends Authenticatable
     //     'profile_photo_url',
     // ];
 
+    public function merchant(){
+        return $this->hasOne(Merchant::class);
+    }
 
     public function createUser($data)
     {

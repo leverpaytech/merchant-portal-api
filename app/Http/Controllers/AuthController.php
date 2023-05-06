@@ -30,26 +30,19 @@ class AuthController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/user/login",
-     *   tags={"Authentication"},
-     *   summary="User",
-     *   operationId="user login",
+     ** path="/api/v1/login",
+     *   tags={"Authentication & Verification"},
+     *   summary="Authentication",
+     *   operationId="login Authentication",
      *
-     *   @OA\Parameter(
-     *      name="email",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *      name="password",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *          type="string"
-     *      )
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email", "password"},
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="password", type="string"),
+     *          ),
+     *      ),
      *   ),
      *   @OA\Response(
      *      response=200,
@@ -78,7 +71,6 @@ class AuthController extends BaseController
      **/
     public function login(Request $request)
     {
-
         $user = $request->validate([
             'email' => 'required|string',
             'password' => 'required|string'
@@ -106,20 +98,28 @@ class AuthController extends BaseController
             ActivityLog::createActivity($data2);
 
             return $this->successfulResponse([
-                "user" => $user,
+                "user" => new UserResource($user),
                 "token" => $accessToken->accessToken,
                 "expires_at" => Carbon::parse($accessToken->token->expires_at)->toDateTimeString()
             ], 'Logged in successfully');
 
         }else return $this->sendError('Your account has been deactivated, contact the admin',[],401);
     }
-
     /**
-     * @OA\Get(
-     ** path="/api/merchants/logout",
-     *   tags={"Authentication"},
-     *   summary="Logout",
-     *   operationId="logout",
+     * @OA\Post(
+     ** path="/api/v1/resend-verification-email",
+     *   tags={"Authentication & Verification"},
+     *   summary="Resend email verification link",
+     *   operationId="Resend email verification link",
+     *
+     *   @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email"},
+     *              @OA\Property( property="email", type="string")
+     *          ),
+     *      ),
+     *   ),
      *
      *   @OA\Response(
      *      response=200,
@@ -140,27 +140,20 @@ class AuthController extends BaseController
      *      response=404,
      *      description="not found"
      *   ),
-     *      @OA\Response(
-     *          response=403,
-     *          description="Forbidden"
-     *      ),
-     *     security={
-     *       {"api_key": {}}
-     *     }
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
      *)
      **/
-    public function logout(Request $request)
+    public function resendVerificationEmail(Request $request)
     {
-        Auth::user()->token()->revoke();
-        $data2['activity']="Login";
-        $data2['user_id']=Auth::user()->id;
+        /*\Artisan::call('route:cache');
+        \Artisan::call('config:cache');
+        \Artisan::call('cache:clear');
+        \Artisan::call('view:clear');
+        \Artisan::call('optimize:clear');*/
 
-        ActivityLog::createActivity($data2);
-
-        return response([ 'message' => 'logged out successfully'],200);
-    }
-
-    public function resendVerificationEmail(Request $request){
         $this->validate($request, [
             'email'=>'required|email'
         ]);
@@ -169,24 +162,68 @@ class AuthController extends BaseController
             return $this->sendError('Email is already verified',[],400);
         }
 
-        $verifyToken = bin2hex(random_bytes(15));
-        $verifyLink = env('FRONTEND_BASE_URL').'/verify-email?token='.$verifyToken;
+        $verifyToken = rand(1000, 9999);
 
         $user->verify_email_token = $verifyToken;
         $user->save();
 
-        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['name'], $verifyLink));
+        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['name'], $verifyToken));
 
         return response()->json('Email sent sucessfully', 200);
     }
 
-    public function verifyEmail(){
-        $token = request()->query('token');
-        if(!$token){
-            return $this->sendError('Token field is required',[],401);
-        }
+    /**
+     * @OA\Post(
+     ** path="/api/v1/verify-email",
+     *   tags={"Authentication & Verification"},
+     *   summary="verify email",
+     *   operationId="verify email",
+     *
+     *   @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email", "token"},
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="token", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
+    public function verifyEmail(Request $request)
+    {
+        $this->validate($request, [
+            'email'=>'required|email',
+            'token'=>'required|string'
+        ]);
 
-        $user = User::where('verify_email_token', $token)->first();
+        $user = User::where('email',$request['email'])
+                        ->where('verify_email_token', $request['token'])
+                        ->first();
         if(!$user){
             return $this->sendError("invalid token, please try again",[], 401);
         }
@@ -203,7 +240,48 @@ class AuthController extends BaseController
 
     }
 
-    public function sendForgotPasswordToken(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/forgot-password",
+     *   tags={"Authentication & Verification"},
+     *   summary="Send forgot password token",
+     *   operationId="Send forgot password token",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email"},
+     *              @OA\Property( property="email", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
+    public function sendForgotPasswordToken(Request $request)
+    {
         $this->validate($request, [
             'email'=>'required|email'
         ]);
@@ -211,16 +289,57 @@ class AuthController extends BaseController
         if(!$user){
             return $this->sendError('Invalid email',[],400);
         }
-        $verifyToken = bin2hex(random_bytes(15));
-        $verifyLink = env('FRONTEND_BASE_URL').'/forgot-password?token='.$verifyToken;
+        $verifyToken = rand(1000, 9999);
 
         $user->forgot_password_token = $verifyToken;
         $user->save();
-        Mail::to($request['email'])->send(new ForgotPasswordMail($user['name'], $verifyLink));
+        Mail::to($request['email'])->send(new ForgotPasswordMail($user['name'], $verifyToken));
         return response()->json('Email sent sucessfully', 200);
     }
 
-    public function resetPassword(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/reset-password",
+     *   tags={"Authentication & Verification"},
+     *   summary="Reset password",
+     *   operationId="Reset password",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"new_password","token"},
+     *              @OA\Property( property="token", type="string"),
+     *              @OA\Property( property="new_password", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
+    public function resetPassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'token' => 'required|string',
             'new_password' => ['required', Password::min(8)->symbols()->uncompromised() ]
@@ -237,4 +356,6 @@ class AuthController extends BaseController
         $user->save();
         return response()->json('Password reset successfully', 200);
     }
+
+
 }
