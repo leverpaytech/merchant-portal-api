@@ -52,11 +52,7 @@ class MerchantController extends BaseController
 
     /**
      * @OA\Post(
-<<<<<<< HEAD
      ** path="/api/v1/merchant/update-merchant-profile",
-=======
-     ** path="/api/merchant/update-merchant-profile",
->>>>>>> ad8daac16599046a77d84b29bd1efdc1ef8d2b32
      *   tags={"Merchant"},
      *   summary="Update merchant profile",
      *   operationId="Update merchant profile",
