@@ -427,7 +427,7 @@
         "/api/v1/currencies}": {
             "get": {
                 "tags": [
-                    "Currencies"
+                    "Merchant"
                 ],
                 "summary": "Get all currencies",
                 "operationId": "get all currencies",
@@ -450,6 +450,14 @@
                 ],
                 "summary": "Merchant Logout",
                 "operationId": "Merchant Logout",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -842,7 +850,7 @@
         "/api/v1/user/get-user-profile": {
             "get": {
                 "tags": [
-                    "User"
+                    "Merchant"
                 ],
                 "summary": "Get user profile",
                 "operationId": "get user profile details",
