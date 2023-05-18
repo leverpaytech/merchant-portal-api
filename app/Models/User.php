@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasOne(Merchant::class);
     }
 
+    public function userLedger()
+    {
+        return $this->belongsTo(UserLedger::class);
+    }
+
     public function createUser($data)
     {
         /**

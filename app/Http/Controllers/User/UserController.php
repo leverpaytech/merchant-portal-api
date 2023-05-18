@@ -216,4 +216,9 @@ class UserController extends Controller
         $user = Auth::user()->currencies()->sync($request['currencies']);
         return $this->successfulResponse(Auth::user()->currencies,'');
     }
+
+    public function userLedgerDetails()
+    {
+
+    }
 }

@@ -148,11 +148,11 @@ class AuthController extends BaseController
      **/
     public function resendVerificationEmail(Request $request)
     {
-        /*\Artisan::call('route:cache');
+        \Artisan::call('route:cache');
         \Artisan::call('config:cache');
         \Artisan::call('cache:clear');
         \Artisan::call('view:clear');
-        \Artisan::call('optimize:clear');*/
+        \Artisan::call('optimize:clear');
 
         $this->validate($request, [
             'email'=>'required|email'
@@ -167,7 +167,7 @@ class AuthController extends BaseController
         $user->verify_email_token = $verifyToken;
         $user->save();
 
-        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['name'], $verifyToken));
+        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
 
         return response()->json('Email sent sucessfully', 200);
     }
@@ -293,7 +293,7 @@ class AuthController extends BaseController
 
         $user->forgot_password_token = $verifyToken;
         $user->save();
-        Mail::to($request['email'])->send(new ForgotPasswordMail($user['name'], $verifyToken));
+        Mail::to($request['email'])->send(new ForgotPasswordMail($user['first_name'], $verifyToken));
         return response()->json('Email sent sucessfully', 200);
     }
 
