@@ -13,15 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_ledgers', function (Blueprint $table) {
+        Schema::create('wallets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('reference_no');
-            $table->decimal('debit_amount')->nullable();
-            $table->decimal('credit_amount')->nullable();
-            $table->text('transaction_details')->nullable();
-            $table->decimal('balance');
-            $table->integer('status')->default(1);
+            $table->string('currency')->default('Ngn');
+            $table->decimal('amount',13,5)->default(0);
+            $table->decimal('withdrawable_amount',13,5)->default(0);
             $table->timestamps();
         });
     }
@@ -33,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_ledgers');
+        Schema::dropIfExists('wallets');
     }
 };

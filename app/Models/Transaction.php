@@ -5,20 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserLedger extends Model
+class Transaction extends Model
 {
     use HasFactory;
     protected $fillable = [
         'user_id',
         'reference_no',
-        'debit_amount',
-        'credit_amount',
+        'amount',
         'transaction_details',
-        'balance'
+        'balance',
+        'status',
+        'type',
+        'extra'
     ];
+
+    protected $hidden = ['balance'];
 
     public function user()
     {
-        return $this->hasMany(User::class,'user_id');
+        return $this->hasOne(User::class,'user_id');
     }
 }
