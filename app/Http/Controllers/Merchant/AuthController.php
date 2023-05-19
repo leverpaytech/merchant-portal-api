@@ -64,7 +64,7 @@ class AuthController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/v1/merchant/register",
+     ** path="/api/v1/merchant/signup",
      *   tags={"Merchant"},
      *   summary="Create a new merchant account",
      *   operationId="create a new merchant",

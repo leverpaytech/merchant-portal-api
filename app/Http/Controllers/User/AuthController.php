@@ -63,7 +63,7 @@ class AuthController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/v1/user/register",
+     ** path="/api/v1/user/signup",
      *   tags={"User"},
      *   summary="Create a new user account",
      *   operationId="create a new user",

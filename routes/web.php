@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function ()
 {
-    dd("dddk");
+    dd(env('PAYSTACK_SECRET_TEST_KEY'));
     // return view('welcome');
 });
 #Route::get('/home', [HomeController::class, 'index'])->name('home');

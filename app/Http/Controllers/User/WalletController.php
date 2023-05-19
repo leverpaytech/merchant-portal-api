@@ -24,7 +24,7 @@ class WalletController extends Controller
         $reference = Uuid::generate()->string;
         $response = Http::withHeaders([
             'Authorization' => 'Bearer '.env('PAYSTACK_SECRET_TEST_KEY'),
-            "Cache-Control"=> "no-cache",
+            'Cache-Control'=> 'no-cache',
             'content-type'=>'application/json'
         ])->post('https://api.paystack.co/transaction/initialize', [
             'email' => $user->email,
@@ -35,8 +35,9 @@ class WalletController extends Controller
         $trans = new Transaction();
         $trans->user_id = $user->id;
         $trans->amount = $request['amount'];
-        $trans->reference = $reference;
+        $trans->reference_no = $reference;
         $trans->type = 'credit';
+        $trans->save();
 
         return($response);
     }
