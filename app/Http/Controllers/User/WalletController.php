@@ -16,6 +16,12 @@ use App\Services\WalletService;
 
 class WalletController extends BaseController
 {
+
+    public function getWallet(){
+        // $user = User::find(1);
+        // return(Auth::user());
+        return $this->successfulResponse(Auth::user()->wallet, '');
+    }
     public function fundWallet(Request $request){
         $this->validate($request, [
             'amount'=>'required|numeric'

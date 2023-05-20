@@ -3,16 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
-use App\Models\Transaction;
+use App\Models\User;
 #use App\Http\Controllers\HomeController;
 
 Route::get('/', function ()
 {
-    $a = Transaction::find(1);
-    dd($a->user->wallet);
-    // Log::info(url()->full());
-    // dd('get post');
-    // dd(env('PAYSTACK_SECRET_TEST_KEY'));
+    $user = User::find(1);
+        dd($user->wallet->amount);
     // return view('welcome');
 });
 #Route::get('/home', [HomeController::class, 'index'])->name('home');

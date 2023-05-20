@@ -8,5 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Wallet extends Model
 {
     use HasFactory;
+    protected $hidden = [
+        'id',
+        'user_id'
+    ];
 
 }

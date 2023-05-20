@@ -65,8 +65,11 @@ Route::prefix('v1')->group( function(){
 
             Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
             Route::post('/add-currencies', [UserController::class, 'addCurrencies']);
+            Route::get('get-wallet', [WalletController::class, 'getWallet']);
 
             Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
+
+
         });
     });
 
