@@ -29,7 +29,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -84,7 +84,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -103,7 +103,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -122,7 +122,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -161,18 +161,6 @@
                         "content": {
                             "application/json": {}
                         }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
                     }
                 }
             }
@@ -419,7 +407,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -438,7 +426,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -472,7 +460,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -555,7 +543,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -574,7 +562,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -660,7 +648,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -679,7 +667,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -733,7 +721,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -767,7 +755,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -834,7 +822,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -853,7 +841,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -923,7 +911,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -942,7 +930,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -996,7 +984,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -1015,7 +1003,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -1066,7 +1054,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -1103,7 +1091,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -1111,8 +1099,10 @@
     },
     "components": {
         "securitySchemes": {
-            "api_key": {
-                "type": "apiKey",
+           "bearer_token": {
+                "type": "http",
+                "scheme": "bearer",
+                "description": "Enter token in format (Bearer <token>)",
                 "name": "Authorization",
                 "in": "header"
             }

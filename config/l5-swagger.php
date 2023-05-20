@@ -164,6 +164,13 @@ return [
         */
         'securityDefinitions' => [
             'securitySchemes' => [
+                "bearer_token" => [
+                    "type" => "http",
+                    "scheme"=>"bearer",
+                    "description"=>"Enter token in format (Bearer <token>)",
+                    "name" =>"Authorization",
+                    "in" => "header"
+                ],
                 /*
                  * Examples of Security schemes
                 */
