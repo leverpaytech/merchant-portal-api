@@ -50,7 +50,7 @@ class AdminController extends Controller
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/
@@ -82,7 +82,7 @@ class AdminController extends Controller
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -105,7 +105,7 @@ class AdminController extends Controller
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)

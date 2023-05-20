@@ -20,7 +20,7 @@ class AuthController extends BaseController
      * @OA\SecurityScheme(
      *     type="apiKey",
      *     in="header",
-     *     securityScheme="api_key",
+     *     securityScheme="bearer_token",
      *     name="Authorization"
      * )
      */

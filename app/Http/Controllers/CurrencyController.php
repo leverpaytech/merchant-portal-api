@@ -57,7 +57,7 @@ class CurrencyController extends BaseController
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/
@@ -93,7 +93,7 @@ class CurrencyController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)

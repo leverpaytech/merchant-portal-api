@@ -47,7 +47,7 @@ class AuthController extends BaseController
      *          description="Forbidden"
      *      ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *)
      **/
@@ -106,7 +106,7 @@ class AuthController extends BaseController
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/

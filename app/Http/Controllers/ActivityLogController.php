@@ -23,7 +23,7 @@ class ActivityLogController extends BaseController
      *       description="Success",
      *     ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *)
      **/

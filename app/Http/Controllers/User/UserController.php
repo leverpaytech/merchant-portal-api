@@ -27,7 +27,7 @@ class UserController extends Controller
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -87,7 +87,7 @@ class UserController extends Controller
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/
@@ -156,7 +156,7 @@ class UserController extends Controller
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -204,7 +204,7 @@ class UserController extends Controller
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/

@@ -35,7 +35,7 @@ class MerchantController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -99,7 +99,7 @@ class MerchantController extends BaseController
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/
@@ -168,7 +168,7 @@ class MerchantController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -216,7 +216,7 @@ class MerchantController extends BaseController
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/
