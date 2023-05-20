@@ -1059,10 +1059,10 @@
                 ]
             }
         },
-        "/api/v1/user/verify-transaction": {
+        "/api/v1/verify-transaction": {
             "get": {
                 "tags": [
-                    "User"
+                    "Authentication & Verification"
                 ],
                 "summary": "Verify transaction",
                 "operationId": "Verify wallet transaction",

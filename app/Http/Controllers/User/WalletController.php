@@ -123,8 +123,8 @@ class WalletController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/user/verify-transaction",
-     *   tags={"User"},
+     ** path="/api/v1/verify-transaction",
+     *   tags={"Authentication & Verification"},
      *   summary="Verify transaction",
      *   operationId="Verify wallet transaction",
      * 
