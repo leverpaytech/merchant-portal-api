@@ -16,12 +16,75 @@ use App\Services\WalletService;
 
 class WalletController extends BaseController
 {
-
-    public function getWallet(){
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-wallet",
+     *   tags={"User"},
+     *   summary="Get user wallet",
+     *   operationId="get user  wallet details",
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getWallet()
+    {
         // $user = User::find(1);
         // return(Auth::user());
         return $this->successfulResponse(Auth::user()->wallet, '');
     }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/fund-wallet",
+     *   tags={"User"},
+     *   summary="Fund wallet",
+     *   operationId="Fund wallet",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"amount"},
+     *              @OA\Property( property="amount", type="number"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"api_key": {}}
+     *   }
+     *)
+     **/
     public function fundWallet(Request $request){
         $this->validate($request, [
             'amount'=>'required|numeric'
@@ -29,8 +92,8 @@ class WalletController extends BaseController
 
         $amount = $request['amount'] * 100;
 
-        // $user = Auth::user();
-        $user = User::find(1);
+        $user = Auth::user();
+        //$user = User::find(1);
         $reference = Uuid::generate()->string;
 
         $response = Http::withHeaders([
@@ -58,6 +121,41 @@ class WalletController extends BaseController
         return $this->successfulResponse(['authorization_url'=> $response['data']['authorization_url']], '');
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/verify-transaction",
+     *   tags={"User"},
+     *   summary="Verify transaction",
+     *   operationId="Verify wallet transaction",
+     * 
+     *   @OA\Parameter(
+     *      name="trxref",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     * 
+     *  @OA\Parameter(
+     *      name="reference",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string"
+     *      )
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
     public function verifyTransaction(Request $request){
         $trxref = strval($request->query('trxref'));
         $ref = strval($request->query('reference'));
