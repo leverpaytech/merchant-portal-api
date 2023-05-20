@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
@@ -144,6 +145,10 @@ class AuthController extends BaseController
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
         $user = User::create($data);
+
+        $wallet = new Wallet();
+        $wallet->user_id = $user->id;
+        $wallet->save();
 
         // send email
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));

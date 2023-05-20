@@ -35,6 +35,8 @@ Route::prefix('v1')->group( function(){
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('reset-password');
     Route::get('/currencies', [CurrencyController::class, 'getCurrencies']);
 
+    Route::get('verify-transaction', [WalletController::class, 'verifyTransaction']);
+
     Route::prefix('/merchant')->group( function(){
 
         Route::post('/signup', [MerchantAuthController::class, 'create'])->name('merchant.sign-up');
