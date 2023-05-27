@@ -369,10 +369,61 @@
                 }
             }
         },
+        "/api/v1/get-cities": {
+            "post": {
+                "tags": [
+                    "Countries, States and Cities"
+                ],
+                "summary": "Get cities",
+                "operationId": "Get cities",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "state_id"
+                                ],
+                                "properties": {
+                                    "state_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/get-countries": {
             "get": {
                 "tags": [
-                    "Country"
+                    "Countries, States and Cities"
                 ],
                 "summary": "Get all countries",
                 "operationId": "get country list",
@@ -801,6 +852,57 @@
                                         "items": {
                                             "type": "integer"
                                         }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/get-states": {
+            "post": {
+                "tags": [
+                    "Countries, States and Cities"
+                ],
+                "summary": "Get states",
+                "operationId": "Get states",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "country_id"
+                                ],
+                                "properties": {
+                                    "country_id": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"

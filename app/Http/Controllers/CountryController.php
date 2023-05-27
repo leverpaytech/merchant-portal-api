@@ -15,7 +15,7 @@ class CountryController extends BaseController
     /**
      * @OA\Get(
      ** path="/api/v1/get-countries",
-     *   tags={"Country"},
+     *   tags={"Countries, States and Cities"},
      *   summary="Get all countries",
      *   operationId="get country list",
      *
