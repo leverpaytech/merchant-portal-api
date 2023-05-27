@@ -34,7 +34,7 @@
                 ]
             }
         },
-        "/api/admin/add-payment-option": {
+        "/api/v1/admin/add-payment-option": {
             "post": {
                 "tags": [
                     "Admin"
@@ -89,7 +89,7 @@
                 ]
             }
         },
-        "/api/admin/get-all-merchants": {
+        "/api/v1/admin/get-all-merchants": {
             "get": {
                 "tags": [
                     "Admin"
@@ -108,7 +108,7 @@
                 ]
             }
         },
-        "/api/admin/get-all-users": {
+        "/api/v1/admin/get-all-users": {
             "get": {
                 "tags": [
                     "Admin"
@@ -161,6 +161,18 @@
                         "content": {
                             "application/json": {}
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 }
             }
@@ -357,6 +369,25 @@
                 }
             }
         },
+        "/api/v1/get-countries": {
+            "get": {
+                "tags": [
+                    "Country"
+                ],
+                "summary": "Get all countries",
+                "operationId": "get country list",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/admin/add-new-currency": {
             "post": {
                 "tags": [
@@ -412,13 +443,87 @@
                 ]
             }
         },
-        "/api/v1/currencies}": {
+        "/api/v1/currencies": {
             "get": {
                 "tags": [
                     "Currencies"
                 ],
                 "summary": "Get all currencies",
                 "operationId": "get all currencies",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/add-kyc": {
+            "post": {
+                "tags": [
+                    "KYC"
+                ],
+                "summary": "Add KYC document",
+                "operationId": "Add KYC document",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "document_name",
+                                    "document_link"
+                                ],
+                                "properties": {
+                                    "document_name": {
+                                        "type": "string"
+                                    },
+                                    "document_link": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/kyc-details": {
+            "get": {
+                "tags": [
+                    "KYC"
+                ],
+                "summary": "Get all kyc details",
+                "operationId": "Get all kyc details",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -484,6 +589,7 @@
                                     "address",
                                     "business_name",
                                     "phone",
+                                    "country_id",
                                     "state",
                                     "city"
                                 ],
@@ -508,6 +614,9 @@
                                     },
                                     "password": {
                                         "type": "string"
+                                    },
+                                    "country_id": {
+                                        "enum": "[Nigeria]"
                                     },
                                     "state": {
                                         "type": "string"
@@ -776,7 +885,8 @@
                                     "password",
                                     "first_name",
                                     "last_name",
-                                    "phone"
+                                    "phone",
+                                    "country_id"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -790,6 +900,9 @@
                                     },
                                     "phone": {
                                         "type": "string"
+                                    },
+                                    "country_id": {
+                                        "enum": "[Nigeria]"
                                     },
                                     "password": {
                                         "type": "string"
@@ -1003,7 +1116,7 @@
                 },
                 "security": [
                     {
-                        "bearer_token": []
+                        "api_key": []
                     }
                 ]
             }
@@ -1054,7 +1167,7 @@
                 },
                 "security": [
                     {
-                        "bearer_token": []
+                        "api_key": []
                     }
                 ]
             }
@@ -1091,7 +1204,7 @@
                 },
                 "security": [
                     {
-                        "bearer_token": []
+                        "api_key": []
                     }
                 ]
             }
@@ -1099,7 +1212,7 @@
     },
     "components": {
         "securitySchemes": {
-           "bearer_token": {
+            "bearer_token": {
                 "type": "http",
                 "scheme": "bearer",
                 "description": "Enter token in format (Bearer <token>)",

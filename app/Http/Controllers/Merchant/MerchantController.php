@@ -135,13 +135,16 @@ class MerchantController extends BaseController
         {
             try
             {
-                $newname= $userId.''.time().'.'.$request->passport->extension();
-                 $request->passport->move(public_path('passports'), $newname);
-
+                //$newname= $userId.''.time().'.'.$request->passport->extension();
+                //$request->passport->move(public_path('passports'), $newname);
+                $newname = cloudinary()->upload($request->file('passport')->getRealPath(),
+                    ['folder'=>'leverpay/profile_picture']
+                )->getSecurePath();
+                
                 $data['passport']= $newname;
 
                 //add new image
-                $request->passport->move(public_path('passports'), $newname);
+                //$request->passport->move(public_path('passports'), $newname);
             } catch (\Exception $ex) {
                 return $this->sendError($ex->getMessage());
             }

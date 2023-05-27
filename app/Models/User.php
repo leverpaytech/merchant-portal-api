@@ -38,6 +38,7 @@ class User extends Authenticatable
         'updated_at',
         'created-at',
         'role_id',
+        'kyc_status',
         'verify_email_status',
         'verify_email_token',
         'forgot_password_token'

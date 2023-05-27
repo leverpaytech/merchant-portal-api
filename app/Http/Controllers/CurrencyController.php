@@ -83,7 +83,7 @@ class CurrencyController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/currencies}",
+     ** path="/api/v1/currencies",
      *   tags={"Currencies"},
      *   summary="Get all currencies",
      *   operationId="get all currencies",

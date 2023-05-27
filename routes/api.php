@@ -14,6 +14,7 @@ use \App\Http\Controllers\ActivityLogController;
 use \App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\CountryController;
+use App\Http\Controllers\KycController;
 
 
 /*
@@ -30,6 +31,10 @@ use App\Http\Controllers\CountryController;
 
 Route::prefix('v1')->group( function(){
     //get countries
+    
+    Route::post('/add-kyc', [KycController::class, 'addKyc']);
+    Route::get('/kyc-details', [KycController::class, 'getKycDocument']);
+
     Route::get('/get-countries', [CountryController::class, 'index']);
     
 
