@@ -12,7 +12,7 @@ class AdminController extends Controller
 {
     /**
      * @OA\Post(
-     ** path="/api/admin/add-payment-option",
+     ** path="/api/v1/admin/add-payment-option",
      *   tags={"Admin"},
      *   summary="Create new payment option",
      *   operationId="create payment option",
@@ -72,7 +72,7 @@ class AdminController extends Controller
    /****************************merchants services****************************/
     /**
      * @OA\Get(
-     ** path="/api/admin/get-all-merchants",
+     ** path="/api/v1/admin/get-all-merchants",
      *   tags={"Admin"},
      *   summary="Get all merchants",
      *   operationId="get all merchants",
@@ -89,13 +89,13 @@ class AdminController extends Controller
      **/
     public function getAllMerchants()
     {
-        return $this->successfulResponse(User::where('role_id',1)->get());
+        return $this->successfulResponse(User::where('role_id',1)->get(), 'success');
     }
 
     /****************************user services****************************/
     /**
      * @OA\Get(
-     ** path="/api/admin/get-all-users",
+     ** path="/api/v1/admin/get-all-users",
      *   tags={"Admin"},
      *   summary="Get all user",
      *   operationId="get all user",
@@ -112,7 +112,7 @@ class AdminController extends Controller
      **/
     public function getAllUsers()
     {
-        return $this->successfulResponse(User::where('role_id',0)->get());
+        return $this->successfulResponse(User::where('role_id',0)->get(), 'success');
     }
 
 }

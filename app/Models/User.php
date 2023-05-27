@@ -29,6 +29,7 @@ class User extends Authenticatable
         'email',
         'dob',
         'picture',
+        'country_id',
         'state',
         'city',
         'zip_code',
@@ -90,6 +91,11 @@ class User extends Authenticatable
     public function wallet()
     {
         return $this->belongsTo(Wallet::class, 'id','user_id');
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country_id');
     }
 
     public function createUser($data)

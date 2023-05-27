@@ -13,6 +13,7 @@ use \App\Http\Controllers\User\AuthController as UserAuthController;
 use \App\Http\Controllers\ActivityLogController;
 use \App\Http\Controllers\CurrencyController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\CountryController;
 
 
 /*
@@ -28,6 +29,10 @@ use App\Http\Controllers\Admin\AdminController;
 
 
 Route::prefix('v1')->group( function(){
+    //get countries
+    Route::get('/get-countries', [CountryController::class, 'index']);
+    
+
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
     Route::post('/verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email');

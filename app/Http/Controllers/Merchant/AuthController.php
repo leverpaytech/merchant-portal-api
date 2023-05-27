@@ -72,7 +72,7 @@ class AuthController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "state", "city"},
+     *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "country_id", "state", "city"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="email", type="string"),
@@ -80,6 +80,7 @@ class AuthController extends BaseController
      *              @OA\Property( property="business_name", type="string"),
      *              @OA\Property( property="phone", type="string"),
      *              @OA\Property( property="password", type="string"),
+     *              @OA\Property( property="country_id", enum="[Nigeria]"),
      *              @OA\Property( property="state", type="string"),
      *              @OA\Property( property="city", type="string"),
      *          ),
