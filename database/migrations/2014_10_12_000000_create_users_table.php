@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('picture')->nullable();
-            $table->string('state')->nullable();
-            $table->string('city')->nullable();
+            $table->foreignId('state_id')->nullable()->constrained();
+            $table->foreignId('city_id')->nullable()->constrained();
             $table->string('zip_code')->nullable();
             $table->rememberToken();
             $table->boolean('status')->default(true);

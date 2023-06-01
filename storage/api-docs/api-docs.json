@@ -641,8 +641,8 @@
                                     "business_name",
                                     "phone",
                                     "country_id",
-                                    "state",
-                                    "city"
+                                    "state_id",
+                                    "city_id"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -669,11 +669,11 @@
                                     "country_id": {
                                         "enum": "[Nigeria]"
                                     },
-                                    "state": {
-                                        "type": "string"
+                                    "state_id": {
+                                        "enum": "[Abia]"
                                     },
-                                    "city": {
-                                        "type": "string"
+                                    "city_id": {
+                                        "enum": "[Aba North]"
                                     }
                                 },
                                 "type": "object"
@@ -746,8 +746,9 @@
                                     "address",
                                     "business_name",
                                     "phone",
-                                    "state",
-                                    "city"
+                                    "country_id",
+                                    "state_id",
+                                    "city_id"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -771,11 +772,14 @@
                                     "password": {
                                         "type": "string"
                                     },
-                                    "state": {
-                                        "type": "string"
+                                    "country_id": {
+                                        "enum": "[Nigeria]"
                                     },
-                                    "city": {
-                                        "type": "string"
+                                    "state_id": {
+                                        "enum": "[Abia]"
+                                    },
+                                    "city_id": {
+                                        "enum": "[Aba North]"
                                     },
                                     "passport": {
                                         "type": "file"
@@ -987,8 +991,7 @@
                                     "password",
                                     "first_name",
                                     "last_name",
-                                    "phone",
-                                    "country_id"
+                                    "phone"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -1002,9 +1005,6 @@
                                     },
                                     "phone": {
                                         "type": "string"
-                                    },
-                                    "country_id": {
-                                        "enum": "[Nigeria]"
                                     },
                                     "password": {
                                         "type": "string"

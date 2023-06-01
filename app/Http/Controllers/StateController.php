@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\state;
 use Illuminate\Http\Request;
 
-class StateController extends Controller
+class StateController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -59,7 +59,7 @@ class StateController extends Controller
     **/
     public function index(Request $request)
     {
-        $states=State::where('country_id', $request->state_id)->get();
+        $states=State::where('country_id', $request->country_id)->get();
         return $this->successfulResponse($states, 'States successfully retrieved');
     }
 }

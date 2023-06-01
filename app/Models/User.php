@@ -30,8 +30,8 @@ class User extends Authenticatable
         'dob',
         'picture',
         'country_id',
-        'state',
-        'city',
+        'state_id',
+        'city_id',
         'zip_code',
         'password',
         'passport',
@@ -99,6 +99,15 @@ class User extends Authenticatable
         return $this->belongsTo(Country::class, 'country_id');
     }
 
+    public function state()
+    {
+        return $this->belongsTo(State::class, 'state_id');
+    }
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
+    
     public function createUser($data)
     {
         /**
