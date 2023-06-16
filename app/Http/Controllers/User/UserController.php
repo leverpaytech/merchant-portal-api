@@ -25,6 +25,50 @@ class UserController extends BaseController
         $this->userModel = $user;
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/generate-card",
+     *   tags={"User"},
+     *   summary="Generate new card",
+     *   operationId="Add/Generate new card",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"pin"},
+     *              @OA\Property( property="pin", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
     public function generateCard(Request $request){
         $this->validate($request, [
             'pin'=>'required|integer'
@@ -36,7 +80,26 @@ class UserController extends BaseController
         return new CardResource($card);
     }
 
-    public function getCard(){
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-card",
+     *   tags={"User"},
+     *   summary="Get card",
+     *   operationId="get card",
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getCard()
+    {
         return new CardResource(Auth::user()->card);
     }
 
