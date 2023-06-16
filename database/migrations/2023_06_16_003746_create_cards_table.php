@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Carbon\Carbon;
 return new class extends Migration
 {
     /**
@@ -16,10 +16,12 @@ return new class extends Migration
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->bigInteger('card_number');
+            $table->bigInteger('card_number')->unique();
             $table->string('cvv');
             $table->string('pin');
+            $table->integer('type')->default(1);
             $table->integer('status')->default(1);
+            $table->dateTime("expiry")->default(Carbon::now()->addYears(3));
             $table->timestamps();
         });
     }

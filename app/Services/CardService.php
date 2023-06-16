@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Hash;
 
 class CardService
 {
-    public function createCard($pin){
+    public static function createCard($pin){
         $rand = rand(1,999);
         $card = new Card();
         $card->user_id = Auth::id();

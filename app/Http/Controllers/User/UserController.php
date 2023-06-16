@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\User;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Services\CardService;
 
 
 class UserController extends BaseController
@@ -21,6 +23,21 @@ class UserController extends BaseController
     public function __construct(User $user)
     {
         $this->userModel = $user;
+    }
+
+    public function generateCard(Request $request){
+        $this->validate($request, [
+            'pin'=>'required|integer'
+        ]);
+        if(Auth::user()->card){
+            return $this->sendError('Card has already been created',[],400);
+        }
+        $card = CardService::createCard($request['pin']);
+        return new CardResource($card);
+    }
+
+    public function getCard(){
+        return new CardResource(Auth::user()->card);
     }
 
     /**
