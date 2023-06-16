@@ -33,14 +33,14 @@ use App\Http\Controllers\KycController;
 
 Route::prefix('v1')->group( function(){
     //get countries
-    
+
     Route::post('/add-kyc', [KycController::class, 'addKyc']);
     Route::get('/kyc-details', [KycController::class, 'getKycDocument']);
 
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
-    
+
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
@@ -83,7 +83,8 @@ Route::prefix('v1')->group( function(){
 
             Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
 
-
+            Route::post('generate-card', [UserController::class, 'generateCard']);
+            Route::get('get-card', [UserController::class, 'getCard']);
         });
     });
 

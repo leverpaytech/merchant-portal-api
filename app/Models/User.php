@@ -18,7 +18,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-
         'first_name',
         'last_name',
         'gender',
@@ -84,6 +83,10 @@ class User extends Authenticatable
         return $this->hasOne(Merchant::class);
     }
 
+    public function card(){
+        return $this->hasOne(Card::class);
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
@@ -107,7 +110,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(City::class, 'city_id');
     }
-    
+
     public function createUser($data)
     {
         /**
