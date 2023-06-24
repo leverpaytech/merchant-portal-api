@@ -31,6 +31,12 @@ class CountryController extends BaseController
      **/
     public function index()
     {
+        \Artisan::call('route:cache');
+        \Artisan::call('config:cache');
+        \Artisan::call('cache:clear');
+        \Artisan::call('view:clear');
+        \Artisan::call('optimize:clear');
+        
         $countries=Country::all();
         return $this->successfulResponse($countries, 'Countries successfully retrieved');
     }

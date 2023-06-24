@@ -158,6 +158,10 @@ class AuthController extends BaseController
             'email'=>'required|email'
         ]);
         $user = User::where('email', $request['email'])->first();
+        if(!$user)
+        {
+           return $this->sendError('Email address not found',[],404); 
+        }
         if($user->verify_email_status){
             return $this->sendError('Email is already verified',[],400);
         }

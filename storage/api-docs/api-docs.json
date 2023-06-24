@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://api.leverpay.io",
+            "url": "https://api.leverpay.io",
             "description": "Test server"
         }
     ],
@@ -115,6 +115,25 @@
                 ],
                 "summary": "Get all user",
                 "operationId": "get all user",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-kyc-list": {
+            "get": {
+                "tags": [
+                    "KYC"
+                ],
+                "summary": "Get all KYC details",
+                "operationId": "Get all KYC",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -667,13 +686,13 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[Nigeria]"
+                                        "enum": "[1]"
                                     },
                                     "state_id": {
-                                        "enum": "[Abia]"
+                                        "enum": "[1]"
                                     },
                                     "city_id": {
-                                        "enum": "[Aba North]"
+                                        "enum": "[1]"
                                     }
                                 },
                                 "type": "object"
@@ -773,13 +792,13 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[Nigeria]"
+                                        "enum": "[1]"
                                     },
                                     "state_id": {
-                                        "enum": "[Abia]"
+                                        "enum": "[1]"
                                     },
                                     "city_id": {
-                                        "enum": "[Aba North]"
+                                        "enum": "[1]"
                                     },
                                     "passport": {
                                         "type": "file"
@@ -856,6 +875,76 @@
                                         "items": {
                                             "type": "integer"
                                         }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-keys}": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant's merchant keys",
+                "operationId": "get merchant's merchant keys",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/change-mode": {
+            "post": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Change to mode from test mode to live mode or vise versa",
+                "operationId": "Change test mode to live ",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "mode"
+                                ],
+                                "properties": {
+                                    "mode": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -1033,6 +1122,76 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/generate-card": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Generate new card",
+                "operationId": "Add/Generate new card",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "pin"
+                                ],
+                                "properties": {
+                                    "pin": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-card": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get card",
+                "operationId": "get card",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [
@@ -1332,9 +1491,9 @@
                 "scheme": "https",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://api.leverpay.io/oauth/authorize",
-                        "tokenUrl": "http://api.leverpay.io/oauth/token",
-                        "refreshUrl": "http://api.leverpay.io/token/refresh",
+                        "authorizationUrl": "https://api.leverpay.io/oauth/authorize",
+                        "tokenUrl": "https://api.leverpay.io/oauth/token",
+                        "refreshUrl": "https://api.leverpay.io/token/refresh",
                         "scopes": []
                     }
                 }

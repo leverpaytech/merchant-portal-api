@@ -57,10 +57,6 @@ class User extends Authenticatable
         'two_factor_recovery_codes',
         'two_factor_secret',
     ];
-
-    public function currencies(){
-        return $this->belongsToMany(Currency::class, 'currency_user');
-    }
     /**
      * The attributes that should be cast.
      *
@@ -79,11 +75,18 @@ class User extends Authenticatable
     //     'profile_photo_url',
     // ];
 
-    public function merchant(){
+    public function currencies()
+    {
+        return $this->belongsToMany(Currency::class, 'currency_user');
+    }
+
+    public function merchant()
+    {
         return $this->hasOne(Merchant::class);
     }
 
-    public function card(){
+    public function card()
+    {
         return $this->hasOne(Card::class);
     }
 
@@ -109,6 +112,11 @@ class User extends Authenticatable
     public function city()
     {
         return $this->belongsTo(City::class, 'city_id');
+    }
+
+    public function merchantKeys()
+    {
+        return $this->belongsTo(MerchantKeys::class, 'id','user_id');
     }
 
     public function createUser($data)

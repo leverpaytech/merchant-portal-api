@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\User;
+use App\Models\MerchantKeys;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -231,5 +232,94 @@ class MerchantController extends BaseController
         ]);
         $user = Auth::user()->currencies()->sync($request['currencies']);
         return $this->successfulResponse(Auth::user()->currencies,'');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-keys}",
+     *   tags={"Merchant"},
+     *   summary="Get merchant's merchant keys",
+     *   operationId="get merchant's merchant keys",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantKeys()
+    {
+        $userId=Auth::user()->id;
+        $testKeys=MerchantKeys::where('user_id', $userId)
+            ->get()
+            ->first();
+        return $this->successfulResponse($testKeys, '');
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/merchant/change-mode",
+     *   tags={"Merchant"},
+     *   summary="Change to mode from test mode to live mode or vise versa",
+     *   operationId="Change test mode to live ",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"mode"},
+     *              @OA\Property( property="mode", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function changeMode(Request $request)
+    {
+        $validator = Validator::make($data, [
+            'mode' => 'required'
+        ]);
+
+        $userId=Auth::user()->id;
+        $merchantKeys=getMerchantKeys::where('user_id',$userId)->get()->first();
+
+        if(!$merchantKeys)
+        {
+            return $this->sendError('Merchant key does not exists','',400);
+        }
+
+        $merchantKeys->stage = $request->mode;
+        $merchantKeys->save();
+
+        return $this->successfulResponse($merchantKeys, $request->mode.'mode successfully activated');
     }
 }

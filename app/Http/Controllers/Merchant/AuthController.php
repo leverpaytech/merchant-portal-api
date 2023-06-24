@@ -7,12 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
-use App\Models\Merchant;
+use App\Models\{Merchant,MerchantKeys};
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends BaseController
 {
@@ -142,6 +143,7 @@ class AuthController extends BaseController
         //$data['password'] = Hash::make($password);
 
         $user = $this->createMerchant($data);
+        
 
         $data2['activity']="Merchant Sign Up";
         $data2['user_id']=$user->id;
@@ -163,6 +165,8 @@ class AuthController extends BaseController
         // $user = $this->userModel->createMerchant($data);
         $user = User::create($data);
 
+        $merchantKeys=$this->createKeys($user->id);
+
         if($data['role_id'] == 1)
         {
             $merchant = new Merchant();
@@ -175,5 +179,23 @@ class AuthController extends BaseController
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
 
         return $user;
+    }
+
+    private function createKeys($userId)
+    {
+        $test_public="test_pk_".strtolower(Str::random(30));
+        $test_secrete="test_sk_".strtolower(Str::random(30));
+        $live_public=strtolower(Str::random(40));
+        $live_secrete=strtolower(Str::random(40));
+
+        $merchantKeys = new MerchantKeys();
+        $merchantKeys->user_id = $userId;
+        $merchantKeys->test_public_key = $test_public;
+        $merchantKeys->test_secrete_key = $test_secrete;
+        $merchantKeys->live_public_key = $live_public;
+        $merchantKeys->live_secrete_key = $live_secrete;
+        $merchantKeys->save();
+
+        return $merchantKeys;
     }
 }

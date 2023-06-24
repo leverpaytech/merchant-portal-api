@@ -10,7 +10,10 @@ class Wallet extends Model
     use HasFactory;
     protected $hidden = [
         'id',
-        'user_id'
+        'user_id',
+        'currency',
+        'amount',
+        'withdrawable_amount'
     ];
 
 }

@@ -1,14 +1,14 @@
 <?php
 namespace App\Http\Controllers\Admin;
-
+use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\{User,Kyc};
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
 use App\Http\Resources\PaymentOptionResource;
 
-class AdminController extends Controller
+class AdminController extends BaseController
 {
     /**
      * @OA\Post(
@@ -113,6 +113,31 @@ class AdminController extends Controller
     public function getAllUsers()
     {
         return $this->successfulResponse(User::where('role_id',0)->get(), 'success');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-kyc-list",
+     *   tags={"KYC"},
+     *   summary="Get all KYC details",
+     *   operationId="Get all KYC",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getKycs()
+    {
+        $kycs=Kyc::orderBy('status', 'DESC')->get();
+        
+        return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
+
     }
 
 }

@@ -100,6 +100,9 @@ class UserController extends BaseController
      **/
     public function getCard()
     {
+        if(!Auth::user()->card){
+            return $this->sendError('No Available card',[],404);
+        }
         return new CardResource(Auth::user()->card);
     }
 
@@ -123,6 +126,8 @@ class UserController extends BaseController
      **/
     public function getUserProfile()
     {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],404);
         $userId = Auth::user()->id;
         $user = User::where('id', $userId)->with('currencies')->get()->first();
 
@@ -309,8 +314,4 @@ class UserController extends BaseController
         return $this->successfulResponse(Auth::user()->currencies,'');
     }
 
-    public function userLedgerDetails()
-    {
-
-    }
 }

@@ -16,7 +16,8 @@ class UserResource extends JsonResource
     {
         return 
         array_merge(parent::toArray($request), 
-            ['merchant'=>$this->role_id == 1 ? $this->merchant:null]
+            ['merchant'=>$this->role_id == 1 ? $this->merchant:null],
+            ['merchantKeys'=>$this->role_id == 1 ? $this->merchantKeys:null]
         );
         
         /*return [

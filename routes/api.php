@@ -64,6 +64,10 @@ Route::prefix('v1')->group( function(){
 
             Route::get('/get-merchant-currencies', [MerchantController::class, 'getUserCurrencies']);
             Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
+            
+            Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
+            Route::post('/change-mode', [MerchantController::class, 'changeMode']);
+        
         });
 
     });
@@ -94,6 +98,9 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-all-users', [AdminController::class, 'getAllUsers'])->name('users.all');
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
+            
+            Route::get('/get-kyc-list', [AdminController::class, 'getKycs']);
+            
         });
     });
 

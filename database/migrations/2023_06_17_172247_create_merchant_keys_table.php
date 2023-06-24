@@ -13,15 +13,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('wallets', function (Blueprint $table) {
+        Schema::create('merchant_keys', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('currency')->default('Ngn');
-            $table->decimal('amount',13,5)->default(0);
-            $table->decimal('withdrawable_amount',13,5)->default(0);
+            $table->string('test_public_key');
+            $table->string('test_secrete_key');
+            $table->string('live_public_key');
+            $table->string('live_secrete_key');
+            $table->enum('stage',['test','live'])->default('test');
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }
+
     /**
      * Reverse the migrations.
      *
@@ -29,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('wallets');
+        Schema::dropIfExists('merchant_keys');
     }
 };
