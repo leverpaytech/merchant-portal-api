@@ -44,7 +44,7 @@ class MerchantController extends BaseController
     public function getMerchantProfile()
     {
         $userId = Auth::user()->id;
-        $user = User::where('id', $userId)->with('currencies')->get()->first();
+        $user = User::where('id', $userId)->with('currencies')->with('city')->with('state')->get()->first();
 
         if(!$user)
             return $this->sendError('Merchant not found',[],404);
@@ -61,14 +61,11 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "country_id", "state_id", "city_id"},
+     *              required={"first_name","last_name","address", "phone", "country_id", "state_id", "city_id"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
-     *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="address", type="string"),
-     *              @OA\Property( property="business_name", type="string"),
      *              @OA\Property( property="phone", type="string"),
-     *              @OA\Property( property="password", type="string"),
      *              @OA\Property( property="country_id", enum="[1]"),
      *              @OA\Property( property="state_id", enum="[1]"),
      *              @OA\Property( property="city_id", enum="[1]"),
@@ -109,30 +106,18 @@ class MerchantController extends BaseController
     {
         $userId = Auth::user()->id;
 
-        $data = $request->all();
+        // $data = $request->all();
 
-        /*$validator = Validator::make($data, [
-            'name' => 'required',
+        $data = $this->validate($request, [
+            'first_name' => 'required',
+            'last_name' => 'required',
             'address' => 'required',
-            'email' => 'required',
-            'phone' => 'required',
-            'state' => 'required',
-            'city' => 'nullable',
-            'passport' => 'nullable'
-        ]);*/
+            'phone' => 'unique:users,phone,'.$userId,
+            'state_id' => 'required',
+            'city_id' => 'required',
+            'country_id' => 'required',
+        ]);
 
-        if(!$user = User::find($userId))
-            return $this->sendError('User not found',[],404);
-        if(isset($request->email))
-        {
-            $validator = Validator::make($request->all(),[
-                'email' =>  Rule::unique('users')->ignore($userId),
-                //'unique:users,email|required|email',
-            ]);
-            if ($validator->fails())
-                return $this->sendError('Merchant with the same email exists already',$validator->errors(),400);
-
-        }
         if(isset($request->passport))
         {
             try
@@ -142,7 +127,7 @@ class MerchantController extends BaseController
                 $newname = cloudinary()->upload($request->file('passport')->getRealPath(),
                     ['folder'=>'leverpay/profile_picture']
                 )->getSecurePath();
-                
+
                 $data['passport']= $newname;
 
                 //add new image

@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\{User,ActivityLog};
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendEmailVerificationCode;
 use App\Mail\ForgotPasswordMail;
@@ -84,8 +85,14 @@ class AuthController extends BaseController
         if(!Auth::user()->verify_email_status){
             return $this->sendError("Email verification required",[], 400);
         }
-        $accessToken = Auth::user()->createToken('access_token');
 
+        if(Auth::user()->role_id == 1){
+            Log::info('merchant role');
+            $accessToken = Auth::user()->createToken('access_token', ['merchant']);
+        }else{
+            Log::info('user role');
+            $accessToken = Auth::user()->createToken('access_token');
+        }
         $user = Auth::user();
         if ($user->status==1)
         {
@@ -160,7 +167,7 @@ class AuthController extends BaseController
         $user = User::where('email', $request['email'])->first();
         if(!$user)
         {
-           return $this->sendError('Email address not found',[],404); 
+           return $this->sendError('Email address not found',[],404);
         }
         if($user->verify_email_status){
             return $this->sendError('Email is already verified',[],400);

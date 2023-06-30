@@ -9,6 +9,8 @@ use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
 use App\Models\{Merchant,MerchantKeys};
 use App\Models\User;
+use App\Models\Wallet;
+use App\Services\MerchantKeyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
@@ -118,32 +120,24 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
-        $data = $request->all();
-
-        $validator = Validator::make($data, [
+        $data = $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
             'address' => 'required',
             'email' => 'unique:users,email|required|email',
-            'phone' => 'unique:users',
-            'business_name'=>'required',
-            'state_id' => 'required',
-            'city_id' => 'required',
+            'phone' => 'unique:users,phone',
+            'business_name'=>'required|string|unique:merchants,business_name',
+            'state_id' => 'required|integer',
+            'city_id' => 'required|integer',
             'country_id' => 'required',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
-
-        if ($validator->fails())
-            return $this->sendError('Error',$validator->errors(),422);
-
-        if (User::where('email',$request->email)->first())
-            return $this->sendError('Merchant with same email exists',[],400);
 
         //$password = Str::random(6);
         //$data['password'] = Hash::make($password);
 
         $user = $this->createMerchant($data);
-        
+
 
         $data2['activity']="Merchant Sign Up";
         $data2['user_id']=$user->id;
@@ -165,7 +159,11 @@ class AuthController extends BaseController
         // $user = $this->userModel->createMerchant($data);
         $user = User::create($data);
 
-        $merchantKeys=$this->createKeys($user->id);
+        $wallet = new Wallet();
+        $wallet->user_id = $user['id'];
+        $wallet->save();
+
+        MerchantKeyService::createKeys($user->id);
 
         if($data['role_id'] == 1)
         {
@@ -179,23 +177,5 @@ class AuthController extends BaseController
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
 
         return $user;
-    }
-
-    private function createKeys($userId)
-    {
-        $test_public="test_pk_".strtolower(Str::random(30));
-        $test_secrete="test_sk_".strtolower(Str::random(30));
-        $live_public=strtolower(Str::random(40));
-        $live_secrete=strtolower(Str::random(40));
-
-        $merchantKeys = new MerchantKeys();
-        $merchantKeys->user_id = $userId;
-        $merchantKeys->test_public_key = $test_public;
-        $merchantKeys->test_secrete_key = $test_secrete;
-        $merchantKeys->live_public_key = $live_public;
-        $merchantKeys->live_secrete_key = $live_secrete;
-        $merchantKeys->save();
-
-        return $merchantKeys;
     }
 }

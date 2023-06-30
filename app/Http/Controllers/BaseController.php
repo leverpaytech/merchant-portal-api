@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 class BaseController extends Controller
 {
-    public function successfulResponse($result, $message)
+    public function successfulResponse($result, $message='')
     {
         $response = [
             'success' => true,

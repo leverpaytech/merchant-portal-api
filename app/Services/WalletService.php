@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Wallet;
-use App\Models\User;
 
 class WalletService
 {

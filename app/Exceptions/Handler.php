@@ -47,4 +47,13 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof \Laravel\Passport\Exceptions\MissingScopeException) {
+            return abort(400, "User can't access merchant information");
+        }
+
+        return parent::render($request, $exception);
+    }
 }

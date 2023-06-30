@@ -9,7 +9,9 @@ use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Services\CardService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
@@ -112,22 +114,15 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
-        $data = $request->all();
+        // $data = $request->all();
 
-        $validator = Validator::make($data, [
+        $data = $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'unique:users,email|required|email',
             'phone' => 'unique:users',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
-
-        if ($validator->fails())
-            return $this->sendError('Error',$validator->errors(),422);
-
-
-        //$password = Str::random(6);
-        //$data['password'] = Hash::make($password);
 
         $user = $this->createUser($data);
 
@@ -147,8 +142,10 @@ class AuthController extends BaseController
         $user = User::create($data);
 
         $wallet = new Wallet();
-        $wallet->user_id = $user->id;
+        $wallet->user_id = $user['id'];
         $wallet->save();
+
+        CardService::createCard($user['id']);
 
         // send email
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
