@@ -61,14 +61,13 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "country_id", "state_id", "city_id"},
+     *              required={"email", "first_name","last_name","address", "business_name", "phone", "country_id", "state_id", "city_id"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="address", type="string"),
      *              @OA\Property( property="business_name", type="string"),
      *              @OA\Property( property="phone", type="string"),
-     *              @OA\Property( property="password", type="string"),
      *              @OA\Property( property="country_id", enum="[1]"),
      *              @OA\Property( property="state_id", enum="[1]"),
      *              @OA\Property( property="city_id", enum="[1]"),
@@ -111,16 +110,7 @@ class MerchantController extends BaseController
 
         $data = $request->all();
 
-        /*$validator = Validator::make($data, [
-            'name' => 'required',
-            'address' => 'required',
-            'email' => 'required',
-            'phone' => 'required',
-            'state' => 'required',
-            'city' => 'nullable',
-            'passport' => 'nullable'
-        ]);*/
-
+        
         if(!$user = User::find($userId))
             return $this->sendError('User not found',[],404);
         if(isset($request->email))

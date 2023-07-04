@@ -146,12 +146,11 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","password", "first_name", "last_name","phone"},
+     *              required={"email","first_name", "last_name","phone"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="phone", type="string"),
-     *              @OA\Property( property="password", type="string"),
      *              @OA\Property( property="passport", type="file"),
      *          ),
      *      ),
@@ -190,16 +189,6 @@ class UserController extends BaseController
         $userId = Auth::user()->id;
 
         $data = $request->all();
-
-        /*$validator = Validator::make($data, [
-            'name' => 'required',
-            'address' => 'required',
-            'email' => 'required',
-            'phone' => 'required',
-            'state' => 'required',
-            'city' => 'nullable',
-            'passport' => 'nullable'
-        ]);*/
 
         if(!$user = User::find($userId))
             return $this->sendError('User not found',[],404);
