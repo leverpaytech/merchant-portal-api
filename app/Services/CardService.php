@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Hash;
 
 class CardService
 {
-    public static function createCard($pin){
+    public static function createCard($user_id){
         $rand = rand(1,999);
         $card = new Card();
-        $card->user_id = Auth::id();
+        $card->user_id = $user_id;
         $card->cvv = $rand < 10 ? "00".$rand : ($rand > 10 && $rand  < 100 ? "0".$rand : $rand);
-        $card->pin = bcrypt($pin);
+        // $card->pin = bcrypt($pin);
         $card->card_number=rand(1000,9999).rand(1000,9999).rand(1000,9999).rand(1000,9999);
         $card->save();
         return $card;

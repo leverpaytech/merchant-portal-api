@@ -12,12 +12,19 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    // Do not Delete
+    // Role_id
+    // 0 - normal user
+    // 1 - Merchant
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'email',
+        'password',
         'first_name',
         'last_name',
         'gender',
@@ -25,14 +32,12 @@ class User extends Authenticatable
         'status',
         'last_seen_at',
         'phone',
-        'email',
         'dob',
         'picture',
         'country_id',
         'state_id',
         'city_id',
         'zip_code',
-        'password',
         'passport',
         'updated_at',
         'created-at',
@@ -52,10 +57,14 @@ class User extends Authenticatable
         'id',
         'verify_email_token',
         'forgot_password_token',
+        'country_id',
+        'state_id',
+        'city_id',
         'password',
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'role_id'
     ];
     /**
      * The attributes that should be cast.

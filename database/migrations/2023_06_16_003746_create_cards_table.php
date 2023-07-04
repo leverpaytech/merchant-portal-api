@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('user_id');
             $table->bigInteger('card_number')->unique();
             $table->string('cvv');
-            $table->string('pin');
+            $table->string('pin')->nullable();
             $table->integer('type')->default(1);
             $table->integer('status')->default(1);
             $table->dateTime("expiry")->default(Carbon::now()->addYears(3));

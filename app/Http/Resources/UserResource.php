@@ -14,12 +14,20 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        return 
-        array_merge(parent::toArray($request), 
-            ['merchant'=>$this->role_id == 1 ? $this->merchant:null],
-            ['merchantKeys'=>$this->role_id == 1 ? $this->merchantKeys:null]
-        );
-        
+        // return
+        // array_merge(parent::toArray($request),
+        //     ['merchant'=>$this->role_id == 1 ? $this->merchant:null],
+        //     ['merchantKeys'=>$this->role_id == 1 ? $this->merchantKeys:null]
+        // );
+        if($this->role_id == 1){
+            return array_merge(parent::toArray($request),
+                ['merchant'=> $this->merchant],
+                ['merchantKeys'=> $this->merchantKeys]
+            );
+        }else{
+            return parent::toArray($request);
+        }
+
         /*return [
             ...parent::toArray($request),
             'merchant'=>$this->role_id == 1 ? $this->merchant:null

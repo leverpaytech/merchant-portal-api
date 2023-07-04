@@ -759,7 +759,6 @@
                             "schema": {
                                 "required": [
                                     "email",
-                                    "password",
                                     "first_name",
                                     "last_name",
                                     "address",
@@ -786,9 +785,6 @@
                                         "type": "string"
                                     },
                                     "phone": {
-                                        "type": "string"
-                                    },
-                                    "password": {
                                         "type": "string"
                                     },
                                     "country_id": {
@@ -1232,10 +1228,9 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "email",
-                                    "password",
                                     "first_name",
                                     "last_name",
+                                    "state_id",
                                     "phone"
                                 ],
                                 "properties": {
@@ -1245,13 +1240,13 @@
                                     "last_name": {
                                         "type": "string"
                                     },
-                                    "email": {
-                                        "type": "string"
-                                    },
                                     "phone": {
                                         "type": "string"
                                     },
-                                    "password": {
+                                    "city_id": {
+                                        "type": "string"
+                                    },
+                                    "state_id": {
                                         "type": "string"
                                     },
                                     "passport": {

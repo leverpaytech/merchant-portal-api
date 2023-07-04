@@ -70,13 +70,11 @@ class UserController extends BaseController
      *)
      **/
     public function generateCard(Request $request){
-        $this->validate($request, [
-            'pin'=>'required|integer'
-        ]);
+
         if(Auth::user()->card){
             return $this->sendError('Card has already been created',[],400);
         }
-        $card = CardService::createCard($request['pin']);
+        $card = CardService::createCard(Auth::id());
         return new CardResource($card);
     }
 
@@ -127,13 +125,13 @@ class UserController extends BaseController
     public function getUserProfile()
     {
         if(!Auth::user()->id)
-            return $this->sendError('Unauthorized Access',[],404);
+            return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
-        $user = User::where('id', $userId)->with('currencies')->get()->first();
+        $user = User::where('id', $userId)->with('currencies')->with('state')->with('city')->get()->first();
 
         if(!$user)
             return $this->sendError('User not found',[],404);
-        return $this->successfulResponse($user,'User found successfully');
+        return $this->successfulResponse(new UserResource($user));
     }
 
     /**
@@ -146,10 +144,9 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","first_name", "last_name","phone"},
+     *              required={"first_name","last_name","phone"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
-     *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="phone", type="string"),
      *              @OA\Property( property="passport", type="file"),
      *          ),
@@ -188,26 +185,18 @@ class UserController extends BaseController
     {
         $userId = Auth::user()->id;
 
-        $data = $request->all();
+        // $data = $request->all();
+        $data = $this->validate($request, [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'phone' => 'required|unique:users,phone,'.$userId,
+            'passport' => 'nullable'
+        ]);
 
-        if(!$user = User::find($userId))
-            return $this->sendError('User not found',[],404);
-        if(isset($request->email))
-        {
-            $validator = Validator::make($request->all(),[
-                'email' =>  Rule::unique('users')->ignore($userId),
-                //'unique:users,email|required|email',
-            ]);
-            if ($validator->fails())
-                return $this->sendError('User with the same email exists already',$validator->errors(),400);
-
-        }
         if(isset($request->passport))
         {
             try
             {
-                //$newname= $userId.''.time().'.'.$request->passport->extension();
-                //$request->passport->move(public_path('passports'), $newname);
                 $newname = cloudinary()->upload($request->file('passport')->getRealPath(),
                     ['folder'=>'leverpay/profile_picture']
                 )->getSecurePath();
@@ -220,13 +209,12 @@ class UserController extends BaseController
                 return $this->sendError($ex->getMessage());
             }
         }
-
         $user = $this->userModel->updateUser($data,$userId);
+        // $user->firstname
         $data2['activity']="User Profile Update";
         $data2['user_id']=$userId;
 
         ActivityLog::createActivity($data2);
-
         return $this->successfulResponse(new UserResource($user), 'User profile successfully updated');
     }
 

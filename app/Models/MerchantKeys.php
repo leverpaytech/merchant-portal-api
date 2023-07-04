@@ -20,6 +20,8 @@ class MerchantKeys extends Model
         'created-at'
     ];
 
+    protected $hidden = ['id', 'user_id'];
+
     public function user()
     {
         return $this->belongsTo(User::class,'user_id');
