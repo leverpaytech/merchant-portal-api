@@ -144,12 +144,10 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"first_name","last_name","state_id","phone"},
+     *              required={"first_name","last_name","phone"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="phone", type="string"),
-     *              @OA\Property( property="city_id", type="string"),
-     *              @OA\Property( property="state_id", type="string"),
      *              @OA\Property( property="passport", type="file"),
      *          ),
      *      ),
@@ -192,8 +190,6 @@ class UserController extends BaseController
             'first_name' => 'required',
             'last_name' => 'required',
             'phone' => 'required|unique:users,phone,'.$userId,
-            'state_id' => 'required|integer',
-            'city_id' => 'nullable',
             'passport' => 'nullable'
         ]);
 
