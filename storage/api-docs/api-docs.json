@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "https://api.leverpay.io",
+            "url": "https://leverpay-api.azurewebsites.net",
             "description": "Test server"
         }
     ],
@@ -1230,7 +1230,6 @@
                                 "required": [
                                     "first_name",
                                     "last_name",
-                                    "state_id",
                                     "phone"
                                 ],
                                 "properties": {
@@ -1241,12 +1240,6 @@
                                         "type": "string"
                                     },
                                     "phone": {
-                                        "type": "string"
-                                    },
-                                    "city_id": {
-                                        "type": "string"
-                                    },
-                                    "state_id": {
                                         "type": "string"
                                     },
                                     "passport": {
@@ -1486,9 +1479,9 @@
                 "scheme": "https",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "https://api.leverpay.io/oauth/authorize",
-                        "tokenUrl": "https://api.leverpay.io/oauth/token",
-                        "refreshUrl": "https://api.leverpay.io/token/refresh",
+                        "authorizationUrl": "https://leverpay-api.azurewebsites.net/oauth/authorize",
+                        "tokenUrl": "https://leverpay-api.azurewebsites.net/oauth/token",
+                        "refreshUrl": "https://leverpay-api.azurewebsites.net/token/refresh",
                         "scopes": []
                     }
                 }
