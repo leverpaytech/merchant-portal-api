@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\User;
-use App\Models\MerchantKeys;
+use App\Models\{MerchantKeys,Merchant};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -108,7 +108,23 @@ class MerchantController extends BaseController
     {
         $userId = Auth::user()->id;
 
-        $data = $request->all();
+        $data = $this->validate($request, [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required',
+            'address' => 'required',
+            'country_id' => 'required',
+            'state_id' => 'required',
+            'city_id' => 'required',
+            'dob' => 'nullable',
+            'gender' => 'nullable',
+            'phone' => 'required|unique:users,phone,'.$userId,
+            'passport' => 'nullable',
+            'business_name' => 'required',
+            'business_address'=> 'required',
+            'business_phone'=> 'required',
+            
+        ]);
 
         
         if(!$user = User::find($userId))
@@ -145,6 +161,12 @@ class MerchantController extends BaseController
         $user = $this->userModel->updateUser($data,$userId);
         $data2['activity']="Merchant Profile Update";
         $data2['user_id']=$userId;
+
+        Merchant::where('user_id', $userId)->update([
+            'business_name'=>$data['business_name'],
+            'business_address'=>$data['business_address'],
+            'business_phone'=>$data['business_phone'],
+        ]);
 
         ActivityLog::createActivity($data2);
 

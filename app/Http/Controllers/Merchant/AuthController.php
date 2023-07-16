@@ -130,6 +130,7 @@ class AuthController extends BaseController
             'state_id' => 'required|integer',
             'city_id' => 'required|integer',
             'country_id' => 'required',
+            'role_id' => 'nullable',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
@@ -149,16 +150,15 @@ class AuthController extends BaseController
 
     private function createMerchant($data)
     {
-        // $data['status'] = 1;
-        $data['role_id'] = 1;
-
+    
         $verifyToken = rand(1000,9999);
 
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
-        // $user = $this->userModel->createMerchant($data);
-        $user = User::create($data);
+        $data['role_id'] = 1;
 
+        $user = User::create($data);
+        
         $wallet = new Wallet();
         $wallet->user_id = $user['id'];
         $wallet->save();
@@ -171,6 +171,9 @@ class AuthController extends BaseController
             $merchant->user_id = $user->id;
             $merchant->business_name = $data['business_name'];
             $merchant->save();
+
+            //$user->role_id=1;
+            //$user->save();
         }
 
         // send email
