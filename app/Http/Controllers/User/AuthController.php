@@ -12,6 +12,7 @@ use App\Models\Wallet;
 use App\Services\CardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
@@ -53,11 +54,13 @@ class AuthController extends BaseController
      *     }
      *)
      **/
-    public function logout(Request $request)
+    public function logout()
     {
         Auth::user()->token()->revoke();
-        $data2['activity']="User Logout";
-        $data2['user_id']=Auth::user()->id;
+        $data2=array(
+            'activity' => 'User Logout',
+            'user_id' => Auth::user()->id
+        );
 
         ActivityLog::createActivity($data2);
 
