@@ -137,11 +137,7 @@ class AuthController extends BaseController
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
-        //$password = Str::random(6);
-        //$data['password'] = Hash::make($password);
-
         $user = $this->createMerchant($data);
-
 
         $data2['activity']="Merchant Sign Up";
         $data2['user_id']=$user->id;
@@ -153,31 +149,31 @@ class AuthController extends BaseController
 
     private function createMerchant($data)
     {
-    
         $verifyToken = rand(1000,9999);
 
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
-        $data['role_id'] = 1;
+        // $data['role_id'] = 1;
 
-        $user = User::create($data);
-        
-        $wallet = new Wallet();
-        $wallet->user_id = $user['id'];
-        $wallet->save();
+        // $user = User::create($data);
+        $user = new User();
+        $user->first_name = $data['first_name'];
+        $user->last_name = $data['last_name'];
+        $user->address = $data['address'];
+        $user->email = $data['email'];
+        $user->phone = $data['phone'];
+        $user->verify_email_token = $data['verify_email_token'];
+        $user->password = $data['password'];
+        $user->country_id = $data['country_id'];
+        $user->state_id = $data['state_id'];
+        $user->city_id = $data['city_id'];
+        $user->role_id = "1";
+        $user->save();
 
-        MerchantKeyService::createKeys($user->id);
-
-        if($data['role_id'] == 1)
-        {
-            $merchant = new Merchant();
-            $merchant->user_id = $user->id;
-            $merchant->business_name = $data['business_name'];
-            $merchant->save();
-
-            //$user->role_id=1;
-            //$user->save();
-        }
+        $merchant = new Merchant();
+        $merchant->user_id = $user->id;
+        $merchant->business_name = $data['business_name'];
+        $merchant->save();
 
         // send email
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));

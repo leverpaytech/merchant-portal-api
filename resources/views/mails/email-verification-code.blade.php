@@ -112,9 +112,9 @@ xmlns:o="urn:schemas-microsoft-com:office:office"
                     <p style="margin-bottom: 8px">
                     We are excited to have you here. Below is your verification token
                     </p>
-                    <a href="{{$verifyToken}}" style="margin-bottom: 8px">
+                    <h4 style="margin-bottom: 8px">
                         {{$verifyToken}}
-                    </a>
+                    </h4>
                     <p>
                     for further enquiries visit us @
                     <a href="https://www.leverpay.io"

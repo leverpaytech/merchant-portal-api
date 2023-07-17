@@ -69,14 +69,14 @@ class UserController extends BaseController
      *   }
      *)
      **/
-    public function generateCard(Request $request){
+    // public function generateCard(Request $request){
 
-        if(Auth::user()->card){
-            return $this->sendError('Card has already been created',[],400);
-        }
-        $card = CardService::createCard(Auth::id());
-        return new CardResource($card);
-    }
+    //     if(Auth::user()->card){
+    //         return $this->sendError('Card has already been created',[],400);
+    //     }
+    //     $card = CardService::createCard(Auth::id());
+    //     return new CardResource($card);
+    // }
 
     /**
      * @OA\Get(

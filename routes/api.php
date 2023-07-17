@@ -87,7 +87,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
 
-            Route::post('/generate-card', [UserController::class, 'generateCard']);
+            // Route::post('/generate-card', [UserController::class, 'generateCard']);
             Route::get('/get-card', [UserController::class, 'getCard']);
         });
     });

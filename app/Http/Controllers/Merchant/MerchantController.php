@@ -43,12 +43,7 @@ class MerchantController extends BaseController
      **/
     public function getMerchantProfile()
     {
-        $userId = Auth::user()->id;
-        $user = User::where('id', $userId)->with('currencies')->get()->first();
-
-        if(!$user)
-            return $this->sendError('Merchant not found',[],404);
-        return $this->successfulResponse($user,'Merchant found successfully');
+        return $this->successfulResponse(new UserResource(Auth::user()));
     }
 
     /**
@@ -111,7 +106,6 @@ class MerchantController extends BaseController
         $data = $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required',
             'address' => 'required',
             'country_id' => 'required',
             'state_id' => 'required',
@@ -120,35 +114,25 @@ class MerchantController extends BaseController
             'gender' => 'nullable',
             'phone' => 'required|unique:users,phone,'.$userId,
             'passport' => 'nullable',
-            'business_name' => 'required',
             'business_address'=> 'required',
             'business_phone'=> 'required',
-            
+
         ]);
 
-        
+
         if(!$user = User::find($userId))
             return $this->sendError('User not found',[],404);
-        if(isset($request->email))
-        {
-            $validator = Validator::make($request->all(),[
-                'email' =>  Rule::unique('users')->ignore($userId),
-                //'unique:users,email|required|email',
-            ]);
-            if ($validator->fails())
-                return $this->sendError('Merchant with the same email exists already',$validator->errors(),400);
-
-        }
         if(isset($request->passport))
         {
             try
             {
+
                 //$newname= $userId.''.time().'.'.$request->passport->extension();
                 //$request->passport->move(public_path('passports'), $newname);
                 $newname = cloudinary()->upload($request->file('passport')->getRealPath(),
                     ['folder'=>'leverpay/profile_picture']
                 )->getSecurePath();
-                
+
                 $data['passport']= $newname;
 
                 //add new image
@@ -162,11 +146,11 @@ class MerchantController extends BaseController
         $data2['activity']="Merchant Profile Update";
         $data2['user_id']=$userId;
 
-        Merchant::where('user_id', $userId)->update([
-            'business_name'=>$data['business_name'],
-            'business_address'=>$data['business_address'],
-            'business_phone'=>$data['business_phone'],
-        ]);
+
+        $merchant = Merchant::where('user_id', $userId)->first();
+        $merchant->business_address=$data['business_address'];
+        $merchant->business_phone=$data['business_phone'];
+        $merchant->save();
 
         ActivityLog::createActivity($data2);
 

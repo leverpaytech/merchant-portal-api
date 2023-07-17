@@ -11,9 +11,8 @@ class Wallet extends Model
     protected $hidden = [
         'id',
         'user_id',
-        'currency',
-        'amount',
-        'withdrawable_amount'
+        'created_at',
+        'updated_at'
     ];
 
 }

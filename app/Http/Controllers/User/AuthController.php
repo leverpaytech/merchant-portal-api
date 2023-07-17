@@ -144,12 +144,6 @@ class AuthController extends BaseController
         $data['password'] = bcrypt($data['password']);
         $user = User::create($data);
 
-        $wallet = new Wallet();
-        $wallet->user_id = $user['id'];
-        $wallet->save();
-
-        CardService::createCard($user['id']);
-
         // send email
         Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
 

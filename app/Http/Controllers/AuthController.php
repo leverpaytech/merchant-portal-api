@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Wallet;
+use App\Services\CardService;
+use App\Services\MerchantKeyService;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
@@ -243,12 +246,21 @@ class AuthController extends BaseController
         $user->verify_email_status = true;
         $user->save();
 
+        $wallet = new Wallet();
+        $wallet->user_id = $user['id'];
+        $wallet->save();
+
+        if($user->role_id == 1){
+            MerchantKeyService::createKeys($user->id);
+        }else{
+            CardService::createCard($user['id']);
+        }
+
         $data2['activity']="VerifyEmail";
         $data2['user_id']=$user->id;
         ActivityLog::createActivity($data2);
 
-        return $this->successfulResponse(new UserResource($user), 'Email verified successfully');
-
+        return $this->successfulResponse([], 'Email verified successfully');
     }
 
     /**

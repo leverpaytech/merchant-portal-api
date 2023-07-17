@@ -8,8 +8,8 @@ use App\Models\User;
 use App\Http\Controllers\KycController;
 
 Route::get('/', function (){
-    $user = User::find(1);
-    return($user);
+    // $user = User::find(1);
+    // return($user);
         //dd($user->wallet->amount);
         //return view('welcome');
         // dd('ddd');

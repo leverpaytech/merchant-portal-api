@@ -40,7 +40,7 @@ class User extends Authenticatable
         'zip_code',
         'passport',
         'updated_at',
-        'created-at',
+        'created_at',
         'kyc_status',
         'verify_email_status',
         'verify_email_token',
@@ -63,7 +63,7 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
-        'role_id'
+        // 'role_id'
     ];
     /**
      * The attributes that should be cast.
@@ -165,7 +165,5 @@ class User extends Authenticatable
     {
         return self::where('email', $email)->first();
     }
-
-
 
 }
