@@ -89,6 +89,25 @@
                 ]
             }
         },
+        "/api/v1/admin/get-payment-options": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all payment options",
+                "operationId": "get all payment options",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/get-all-merchants": {
             "get": {
                 "tags": [
@@ -1092,57 +1111,6 @@
                                         "type": "string"
                                     },
                                     "password": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/user/generate-card": {
-            "post": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "Generate new card",
-                "operationId": "Add/Generate new card",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "pin"
-                                ],
-                                "properties": {
-                                    "pin": {
                                         "type": "string"
                                     }
                                 },
