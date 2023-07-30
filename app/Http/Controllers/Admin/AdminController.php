@@ -69,6 +69,28 @@ class AdminController extends BaseController
         return new PaymentOptionResource($payment);
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-payment-options",
+     *   tags={"Admin"},
+     *   summary="Get all payment options",
+     *   operationId="get all payment options",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getPaymentOption()
+    {
+        return $this->successfulResponse(PaymentOption::where('status',1)->orWhere('status', 0)->get(), 'payment optons successfully retrieved');
+    }
+
    /****************************merchants services****************************/
     /**
      * @OA\Get(
