@@ -76,7 +76,7 @@ class AuthController extends BaseController
     public function login(Request $request)
     {
         $user = $request->validate([
-            'email' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string'
         ]);
 
