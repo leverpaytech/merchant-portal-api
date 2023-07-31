@@ -15,6 +15,7 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
+
         // $data = [
         //     'name' => 'Testimony',
         //     'email' => 'admin@leverpay.io',

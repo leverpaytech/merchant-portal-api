@@ -62,7 +62,7 @@ class KycController extends BaseController
 
         $validator = Validator::make($data, [
             'document_name' => 'required',
-            'document_link' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'document_link' => 'required|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         if ($validator->fails())
@@ -73,7 +73,7 @@ class KycController extends BaseController
         $user_id=Auth::user()->id;
         //$user_id=2;
         $data['user_id']=$user_id;
-        
+
         $uploadUrl = cloudinary()->upload($request->file('document_link')->getRealPath(),
             ['folder'=>'leverpay/kyc']
         )->getSecurePath();
@@ -86,7 +86,7 @@ class KycController extends BaseController
         $data2['user_id']=$user_id;
 
         ActivityLog::createActivity($data2);
-        
+
         $response = [
             'success' => true,
             'document_name' => $data['document_name'],
@@ -118,7 +118,7 @@ class KycController extends BaseController
     {
         $user_id=Auth::user()->id;
         $kycs=Kyc::where('user_id', $user_id)->get();
-        
+
         return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
 
     }

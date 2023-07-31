@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\User\UserController;
+use \App\Http\Controllers\User\CardController;
 use \App\Http\Controllers\User\WalletController;
 
 use \App\Http\Controllers\Merchant\MerchantController;
@@ -71,7 +72,7 @@ Route::prefix('v1')->group( function(){
         });
 
     });
-
+    Route::post('/set-pin', [CardController::class, 'setPin']);
     Route::prefix('/user')->group( function() {
         Route::post('/signup', [UserAuthController::class, 'create'])->name('user.sign-up');
 
@@ -88,7 +89,9 @@ Route::prefix('v1')->group( function(){
             Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
 
             // Route::post('/generate-card', [UserController::class, 'generateCard']);
-            Route::get('/get-card', [UserController::class, 'getCard']);
+            Route::get('/get-card', [CardController::class, 'getCard']);
+            Route::post('/set-pin', [CardController::class, 'setPin']);
+            // Route::post('/upgrade-card', [CardController::class, 'upgradeCard']);
         });
     });
 
@@ -100,8 +103,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-payment-options', [AdminController::class, 'getPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
 
-            Route::get('/get-kyc-list', [AdminController::class, 'getKycs']); 
-
+            Route::get('/get-kyc-list', [AdminController::class, 'getKycs']);
         });
     });
 

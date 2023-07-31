@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,14 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(CountriesTableSeeder::class);
-        $this->call(StateSeeder::class);
-        $this->call(CitySeeder::class);
-        // \App\Models\User::factory(10)->create();
+        // $this->call(CountriesTableSeeder::class);
+        // $this->call(StateSeeder::class);
+        // $this->call(CitySeeder::class);
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        DB::table('card_types')->insert([
+            ['name'=>'Silver', 'limit'=>1000],
+            ['name'=>'Gold', 'limit'=>2000],
+            ['name'=>'Diamond', 'limit'=>3000],
+            ['name'=>'Pink-Lady', 'limit'=>4000],
+            ['name'=>'Enterprise', 'limit'=>5000],
+        ]);
     }
 }

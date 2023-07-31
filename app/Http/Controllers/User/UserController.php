@@ -80,32 +80,6 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/user/get-card",
-     *   tags={"User"},
-     *   summary="Get card",
-     *   operationId="get card",
-     *
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *     ),
-     *     security={
-     *       {"bearer_token": {}}
-     *     }
-     *
-     *)
-     **/
-    public function getCard()
-    {
-        if(!Auth::user()->card){
-            return $this->sendError('No Available card',[],404);
-        }
-        return new CardResource(Auth::user()->card);
-    }
-
-    /**
-     * @OA\Get(
      ** path="/api/v1/user/get-user-profile",
      *   tags={"User"},
      *   summary="Get user profile",
