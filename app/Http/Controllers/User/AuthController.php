@@ -80,7 +80,7 @@ class AuthController extends BaseController
      *              required={"dob","email","password", "first_name", "last_name","phone"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
-     *              @OA\Property( property="dob", type="date"),
+     *              @OA\Property( property="dob", type="string", format="date"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="phone", type="string"),
      *              @OA\Property( property="password", type="string"),
