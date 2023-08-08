@@ -77,9 +77,10 @@ class AuthController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","password", "first_name", "last_name","phone"},
+     *              required={"dob","email","password", "first_name", "last_name","phone"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
+     *              @OA\Property( property="dob", type="date"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="phone", type="string"),
      *              @OA\Property( property="password", type="string"),
@@ -122,6 +123,7 @@ class AuthController extends BaseController
         $data = $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
+            'dob' => 'required',
             'email' => 'unique:users,email|required|email',
             'phone' => 'unique:users',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]

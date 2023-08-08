@@ -689,6 +689,10 @@
                                     "last_name": {
                                         "type": "string"
                                     },
+                                    "dob": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
                                     "email": {
                                         "type": "string"
                                     },
@@ -1091,6 +1095,7 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "dob",
                                     "email",
                                     "password",
                                     "first_name",
@@ -1103,6 +1108,10 @@
                                     },
                                     "last_name": {
                                         "type": "string"
+                                    },
+                                    "dob": {
+                                        "type": "string",
+                                        "format": "date"
                                     },
                                     "email": {
                                         "type": "string"

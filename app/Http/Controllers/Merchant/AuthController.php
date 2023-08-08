@@ -81,6 +81,7 @@ class AuthController extends BaseController
      *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "country_id", "state_id", "city_id"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
+     *              @OA\Property( property="dob", type="date"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="address", type="string"),
      *              @OA\Property( property="business_name", type="string"),
