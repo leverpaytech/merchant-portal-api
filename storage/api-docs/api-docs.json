@@ -1095,6 +1095,7 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "gender",
                                     "dob",
                                     "email",
                                     "password",
@@ -1109,6 +1110,9 @@
                                     "last_name": {
                                         "type": "string"
                                     },
+                                    "gender": {
+                                        "type": "string"
+                                    },
                                     "dob": {
                                         "type": "string",
                                         "format": "date"
@@ -1121,6 +1125,15 @@
                                     },
                                     "password": {
                                         "type": "string"
+                                    },
+                                    "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "state_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "city_id": {
+                                        "enum": "[1]"
                                     }
                                 },
                                 "type": "object"
