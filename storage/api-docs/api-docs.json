@@ -1358,20 +1358,33 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "required": [
-                                    "first_name",
-                                    "last_name",
-                                    "phone"
-                                ],
                                 "properties": {
-                                    "first_name": {
+                                    "other_name": {
                                         "type": "string"
                                     },
-                                    "last_name": {
+                                    "other_email": {
                                         "type": "string"
                                     },
-                                    "phone": {
+                                    "other_phone": {
                                         "type": "string"
+                                    },
+                                    "primary_email": {
+                                        "type": "string"
+                                    },
+                                    "primary_phone": {
+                                        "type": "string"
+                                    },
+                                    "gender": {
+                                        "type": "string"
+                                    },
+                                    "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "state_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "city_id": {
+                                        "enum": "[1]"
                                     },
                                     "passport": {
                                         "type": "file"

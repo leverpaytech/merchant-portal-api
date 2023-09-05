@@ -24,14 +24,19 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'email',
+        'other_email',
+        'primary_email',
         'password',
         'first_name',
         'last_name',
+        'other_name',
         'gender',
         'address',
         'status',
         'last_seen_at',
         'phone',
+        'other_phone',
+        'primary_phone',
         'dob',
         'country_id',
         'state_id',
@@ -63,6 +68,8 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'updated_at',
+        'created_at',
         // 'role_id'
     ];
     /**

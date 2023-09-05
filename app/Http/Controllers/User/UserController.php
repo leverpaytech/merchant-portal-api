@@ -108,7 +108,7 @@ class UserController extends BaseController
         $user->total_save=$getV1;
         $getV2=Transaction::where('user_id',$userId)->where('type','debit')->sum('amount');
         $user->total_spending=$getV2;
-        
+
 
         if(!$user)
             return $this->sendError('User not found',[],404);
@@ -125,10 +125,15 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"first_name","last_name","phone"},
-     *              @OA\Property( property="first_name", type="string"),
-     *              @OA\Property( property="last_name", type="string"),
-     *              @OA\Property( property="phone", type="string"),
+     *              @OA\Property( property="other_name", type="string"),
+     *              @OA\Property( property="other_email", type="string"),
+     *              @OA\Property( property="other_phone", type="string"),
+     *              @OA\Property( property="primary_email", type="string"),
+     *              @OA\Property( property="primary_phone", type="string"),
+     *              @OA\Property( property="gender", type="string"),
+     *              @OA\Property( property="country_id", enum="[1]"),
+     *              @OA\Property( property="state_id", enum="[1]"),
+     *              @OA\Property( property="city_id", enum="[1]"),
      *              @OA\Property( property="passport", type="file"),
      *          ),
      *      ),
@@ -166,15 +171,26 @@ class UserController extends BaseController
     {
         $userId = Auth::user()->id;
 
-        // $data = $request->all();
-        $data = $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'phone' => 'required|unique:users,phone,'.$userId,
-            'passport' => 'nullable'
-        ]);
+        $data = $request->all();
 
-        if(isset($request->passport))
+        $validator = Validator::make($data, [
+            'other_name' => 'nullable',
+            'other_email' => 'nullable',
+            'other_email' => 'nullable',
+            'other_phone' => 'nullable',
+            'country_id' => 'nullable',
+            'state_id' => 'nullable',
+            'city_id' => 'nullable',
+            'address' => 'nullable',
+            'gender' => 'nullable',
+            'passport' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+        
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+        if(!empty($data['passport']))
         {
             try
             {
