@@ -58,8 +58,7 @@ Route::prefix('v1')->group( function(){
         Route::post('/signup', [MerchantAuthController::class, 'create'])->name('merchant.sign-up');
 
 
-        //Route::middleware(['auth:api', 'scopes:merchant'])->group( function () {
-        Route::middleware('auth:api')->group( function () {
+        Route::middleware(['auth:api', 'scopes:merchant'])->group( function () {
             Route::get('/logout', [MerchantAuthController::class, 'logout'])->name('merchant.logout');
             Route::get('/get-merchant-profile', [MerchantController::class, 'getMerchantProfile'])->name('merchant.get');
             Route::post('/update-merchant-profile', [MerchantController::class, 'updateMerchantProfile'])->name('merchant.update');
