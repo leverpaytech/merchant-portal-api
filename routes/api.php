@@ -18,6 +18,7 @@ use App\Http\Controllers\CountryController;
 use App\Http\Controllers\StateController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\KycController;
+use \App\Http\Controllers\Merchant\InvoiceController;
 
 
 /*
@@ -57,7 +58,8 @@ Route::prefix('v1')->group( function(){
         Route::post('/signup', [MerchantAuthController::class, 'create'])->name('merchant.sign-up');
 
 
-        Route::middleware(['auth:api', 'scopes:merchant'])->group( function () {
+        //Route::middleware(['auth:api', 'scopes:merchant'])->group( function () {
+        Route::middleware('auth:api')->group( function () {
             Route::get('/logout', [MerchantAuthController::class, 'logout'])->name('merchant.logout');
             Route::get('/get-merchant-profile', [MerchantController::class, 'getMerchantProfile'])->name('merchant.get');
             Route::post('/update-merchant-profile', [MerchantController::class, 'updateMerchantProfile'])->name('merchant.update');
@@ -68,6 +70,9 @@ Route::prefix('v1')->group( function(){
 
             Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
             Route::post('/change-mode', [MerchantController::class, 'changeMode']);
+            
+            Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
+            Route::get('/product/{uuid}', [InvoiceController::class, 'getInvoice']);
 
         });
 
