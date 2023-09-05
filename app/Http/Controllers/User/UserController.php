@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\User;
+use App\Models\{User,Transaction};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -102,6 +102,13 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
         $user = User::where('id', $userId)->with('currencies')->with('state')->with('city')->get()->first();
+        $wallet=Auth::user()->wallet;
+        $user->wallet_balance=$wallet->amount;
+        $getV1=Transaction::where('user_id',$userId)->where('type','credit')->sum('amount');
+        $user->total_save=$getV1;
+        $getV2=Transaction::where('user_id',$userId)->where('type','debit')->sum('amount');
+        $user->total_spending=$getV2;
+        
 
         if(!$user)
             return $this->sendError('User not found',[],404);
