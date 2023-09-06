@@ -96,6 +96,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-card', [CardController::class, 'getCard']);
             Route::post('/set-pin', [CardController::class, 'setPin']);
             // Route::post('/upgrade-card', [CardController::class, 'upgradeCard']);
+            Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
+            
         });
     });
 

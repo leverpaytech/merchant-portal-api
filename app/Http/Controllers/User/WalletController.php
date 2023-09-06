@@ -194,4 +194,42 @@ class WalletController extends BaseController
         });
         return $this->successfulResponse([],"Payment successful");
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-user-transactions",
+     *   tags={"User"},
+     *   summary="Get user transactions",
+     *   operationId="get user transactions details",
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getUserTransaction()
+    {
+        $userId=Auth::user()->id;
+        $transaction=Transaction::where('user_id', $userId)
+            ->orderBy('created_at', 'DESC')
+            ->get([
+                'reference_no',
+                'tnx_reference_no',
+                'amount',
+                'transaction_details',
+                'balance',
+                'status',
+                'type',
+                'extra AS other_details',
+                'created_at'
+            ]);
+        
+        return $this->successfulResponse($transaction, 'User transactions successfully retrieved');
+    }
 }

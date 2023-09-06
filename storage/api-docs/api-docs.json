@@ -1601,6 +1601,25 @@
                     }
                 ]
             }
+        },
+        "/api/v1/user/get-user-transactions": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user transactions",
+                "operationId": "get user transactions details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
         }
     },
     "components": {
