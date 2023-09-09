@@ -171,9 +171,9 @@ class UserController extends BaseController
     {
         $userId = Auth::user()->id;
 
-        $data = $request->all();
+        //$data = $request->all();
 
-        $validator = Validator::make($data, [
+        $data = $this->validate($request, [
             'other_name' => 'nullable',
             'other_email' => 'nullable',
             'other_email' => 'nullable',
@@ -186,10 +186,7 @@ class UserController extends BaseController
             'passport' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
         
-        if ($validator->fails())
-        {
-            return $this->sendError('Error',$validator->errors(),422);
-        }
+        
         if(!empty($data['passport']))
         {
             try
