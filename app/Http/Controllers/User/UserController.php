@@ -12,6 +12,8 @@ use App\Models\{User,Transaction};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ChangePhoneAndEmailVerifier;
 use Illuminate\Validation\Rule;
 use App\Services\CardService;
 
@@ -170,14 +172,17 @@ class UserController extends BaseController
     public function updateUserProfile(Request $request)
     {
         $userId = Auth::user()->id;
+        $email = Auth::user()->email;
+        $name = Auth::user()->first_name;
 
         //$data = $request->all();
 
         $data = $this->validate($request, [
             'other_name' => 'nullable',
             'other_email' => 'nullable',
-            'other_email' => 'nullable',
+            'primary_email' => 'nullable',
             'other_phone' => 'nullable',
+            'primary_phone' => 'nullable',
             'country_id' => 'nullable',
             'state_id' => 'nullable',
             'city_id' => 'nullable',
@@ -203,12 +208,23 @@ class UserController extends BaseController
                 return $this->sendError($ex->getMessage());
             }
         }
+
+        if(!empty($data['primary_email']) || !empty($data['primary_phone']))
+        {
+            $verifyToken = rand(1000, 9999);
+            $data['change_email_phone_token'] = $verifyToken;
+            // send email
+            Mail::to($email)->send(new ChangePhoneAndEmailVerifier($name, $verifyToken));
+        }
+        
         $user = $this->userModel->updateUser($data,$userId);
         // $user->firstname
         $data2['activity']="User Profile Update";
         $data2['user_id']=$userId;
 
         ActivityLog::createActivity($data2);
+
+
         return $this->successfulResponse(new UserResource($user), 'User profile successfully updated');
     }
 

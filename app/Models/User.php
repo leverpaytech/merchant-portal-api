@@ -49,7 +49,8 @@ class User extends Authenticatable
         'kyc_status',
         'verify_email_status',
         'verify_email_token',
-        'forgot_password_token'
+        'forgot_password_token',
+        'change_email_phone_token'
     ];
 
     /**
@@ -61,6 +62,7 @@ class User extends Authenticatable
         'id',
         'verify_email_token',
         'forgot_password_token',
+        'change_email_phone_token',
         'country_id',
         'state_id',
         'city_id',
