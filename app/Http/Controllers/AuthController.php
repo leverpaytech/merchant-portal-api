@@ -75,6 +75,12 @@ class AuthController extends BaseController
      **/
     public function login(Request $request)
     {
+        \Artisan::call('route:cache');
+        \Artisan::call('config:cache');
+        \Artisan::call('cache:clear');
+        \Artisan::call('view:clear');
+        \Artisan::call('optimize:clear');
+
         $user = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string'

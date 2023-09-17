@@ -301,4 +301,129 @@ class UserController extends BaseController
         return $this->successfulResponse(Auth::user()->currencies,'');
     }
 
+
+    public function generateAccNo()
+    {
+        $authurl= config('services.vfd.authurl');
+        $secretkey= config('services.vfd.consumerSecretkey');
+        $baseurl= config('services.vfd.baseurl');
+        $consumerkey= config('services.vfd.consumerkey');
+        $accessToken= config('services.vfd.accessToken');
+        $wallet_credentials= config('services.vfd.walletCredentials');
+        $onBoardUrl= config('services.vfd.onboarding');
+        $vfdBankAuth="VFDBankAuth";
+         
+        return $access_token=$this->getToken($authurl, $wallet_credentials);
+
+        if(isset($access_token))
+        {
+            $requestData=array(
+                "firstname"=>"Jonatham",
+                "lastname"=>"Goodluck",
+                "middlename"=>"Becky",
+                "dob"=>"04 October 1960",
+                "address"=>"No 5 address",
+                "gender"=>"Male",
+                "phone"=>"08136908764",
+                "bvn"=>"22222222223"
+            );
+              
+            $postData= json_encode($requestData);
+            $ch1 = curl_init();
+            curl_setopt_array($ch1, array(
+                CURLOPT_URL => $baseurl."client/individual",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => false,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => $postData,
+                CURLOPT_HTTPHEADER => array(
+                    "Content-Type: application/json",
+                    "Authorization: Bearer".$access_token
+                    )
+                ));               
+            $acc_responses = curl_exec($ch1);
+            curl_close($ch1);
+            
+            $acc_responses = json_decode($acc_responses);
+    
+            return $acc_responses;
+        }
+    }
+
+    private function getToken($authurl,$wallet_credentials)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => $authurl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYHOST =>false,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => "grant_type=client_credentials",
+        CURLOPT_HTTPHEADER => array(
+            "Content-Type: application/x-www-form-urlencoded",
+            "Authorization: Bearer ".$wallet_credentials
+        ),
+        ));
+        $response = curl_exec($curl);
+        //curl_close($curl);
+        $no_json = json_decode($response, true);
+
+        if (!curl_errno($curl)) {
+
+            switch ($http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE)) {
+                case 200:
+                    return $no_json['access_token'];
+                    break;
+                default:
+                    return $no_json;
+            }
+        }
+        else{
+            return false;
+        }
+
+        curl_close($curl);
+
+    }
+
+    public function onBoarding()
+    {
+        $requestData=array(
+            "username"=>"leverpay",
+            "walletName"=>"leverpayWallet",
+            "webhookUrl"=>"",
+            "shortName"=>"LPCT",
+            "implementation"=>"Pool"
+        );
+        $postData= json_encode($requestData);
+
+        $ch1 = curl_init();
+        
+        curl_setopt_array($ch1, array(
+            CURLOPT_URL => "https://api-devapps.vfdbank.systems/vtech-wallet/api/v1.1/wallet2/onboarding?wallet-credentials=Q0xydGRyZFYyMW5WZXBwaXRzSjNXZzV2d2dZYTpzNVRocm54WlhpU3JaT1VSYjhfUzdzUlNsSlFh",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $postData,
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+                "Authorization: Bearer {{VFDBankAuth}}"
+                )
+            ));               
+        $acc_responses = curl_exec($ch1);
+        curl_close($ch1);
+        
+        $acc_responses = json_decode($acc_responses);
+
+        return $acc_responses;
+
+    }
+
+
 }

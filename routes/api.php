@@ -43,6 +43,11 @@ Route::prefix('v1')->group( function(){
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
 
+    //
+    
+    Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
+    Route::get('/on-boarding', [UserController::class, 'onBoarding']);
+    
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');

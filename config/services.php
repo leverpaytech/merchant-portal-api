@@ -30,5 +30,14 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-
+    'vfd' => [
+        'consumerkey' => env('VFD_CONSUMER_KEY'),
+        'consumerSecretkey' => env('VFD_CONSUMER_SECRET'),
+        'accessToken' => env('VFD_ACCESS_TOKEN'),
+        'authurl' => env('VFD_AUTH_URL'),
+        'baseurl' => env('VFD_BASE_URL'),
+        'walletCredentials' => env('VFD_WALLET_CREDENTIALS'),
+        'onboarding' => env('VFD_ONBOARDING_URL')
+    ],
+    
 ];
