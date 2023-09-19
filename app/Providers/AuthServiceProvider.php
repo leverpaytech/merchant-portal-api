@@ -26,6 +26,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         Passport::tokensCan([
             'merchant' => 'Merchant permission',
+            'admin' => 'Admin permission',
         ]);
 
         Passport::tokensExpireIn(now()->addHour());

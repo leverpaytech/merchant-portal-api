@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\{User,Kyc};
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
@@ -111,7 +112,10 @@ class AdminController extends BaseController
      **/
     public function getAllMerchants()
     {
-        return $this->successfulResponse(User::where('role_id',1)->get(), 'success');
+        $users=User::where('role_id', '1')->get();
+        
+        return $this->successfulResponse($users, 'Merchants list');
+       //  return $this->successfulResponse(new UserResource($users), 'success');
     }
 
     /****************************user services****************************/
@@ -134,7 +138,7 @@ class AdminController extends BaseController
      **/
     public function getAllUsers()
     {
-        return $this->successfulResponse(User::where('role_id',0)->get(), 'success');
+        return $this->successfulResponse(User::where('role_id','0')->get(), 'Users List');
     }
 
     /**

@@ -401,27 +401,52 @@ class UserController extends BaseController
             "shortName"=>"LPCT",
             "implementation"=>"Pool"
         );
-        $postData= json_encode($requestData);
+        $postData = json_encode($requestData);
+
+        $accessToken= config('services.vfd.accessToken');
+        $onBoardUrl= config('services.vfd.onboarding');
 
         $ch1 = curl_init();
-        
-        curl_setopt_array($ch1, array(
-            CURLOPT_URL => "https://api-devapps.vfdbank.systems/vtech-wallet/api/v1.1/wallet2/onboarding?wallet-credentials=Q0xydGRyZFYyMW5WZXBwaXRzSjNXZzV2d2dZYTpzNVRocm54WlhpU3JaT1VSYjhfUzdzUlNsSlFh",
+    
+        curl_setopt($ch1, CURLOPT_URL, $onBoardUrl);
+        curl_setopt($ch1, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch1, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch1, CURLOPT_POST, TRUE);
+        curl_setopt($ch1, CURLOPT_FAILONERROR, TRUE);
+        curl_setopt($ch1, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch1, CURLOPT_HTTPHEADER, array(
+                   "Content-Type: application/json",
+                   "Authorization: Bearer ".$accessToken)
+             );
+
+        /*curl_setopt_array($ch1, array(
+            CURLOPT_URL => "",
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER => true,
-            CURLOPT_POST => true,
+            CURLOPT_HEADER => false,
+            CURLOPT_POST => false,
             CURLOPT_POSTFIELDS => $postData,
+            CURLOPT_FAILONERROR => true,
             CURLOPT_HTTPHEADER => array(
                 "Content-Type: application/json",
-                "Authorization: Bearer {{VFDBankAuth}}"
+                "Authorization: Bearer 7c4aa53f-7ad1-339f-883e-62bcd9be61d6"
                 )
-            ));               
+            ));
+        */               
         $acc_responses = curl_exec($ch1);
         curl_close($ch1);
         
-        $acc_responses = json_decode($acc_responses);
+        //return $http_status = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
+        //return $curl_errno=curl_errno($ch1);
 
-        return $acc_responses;
+        $acc_responses = json_decode($acc_responses);
+        if (curl_exec($ch1) === false) 
+        {
+            return curl_error($ch1);
+        } else {
+            return $acc_responses;
+        }
+
+        //return curl_error($ch1);
 
     }
 
