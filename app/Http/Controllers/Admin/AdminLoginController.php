@@ -25,7 +25,7 @@ class AdminLoginController extends BaseController
      ** path="/api/v1/admin/admin-login",
      *   tags={"Admin"},
      *   summary="Authentication",
-     *   operationId="login Authentication",
+     *   operationId="Admin login Authentication",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
@@ -109,7 +109,7 @@ class AdminLoginController extends BaseController
      ** path="/api/v1/admin/admin-forgot-password",
      *   tags={"Admin"},
      *   summary="Send forgot password token",
-     *   operationId="Send forgot password token",
+     *   operationId="Admin send forgot password token",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
@@ -166,7 +166,7 @@ class AdminLoginController extends BaseController
      ** path="/api/v1/admin/admin-reset-password",
      *   tags={"Admin"},
      *   summary="Reset password",
-     *   operationId="Reset password",
+     *   operationId="Admin reset password",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
