@@ -903,6 +903,9 @@
                                     "last_name": {
                                         "type": "string"
                                     },
+                                    "other_name": {
+                                        "type": "string"
+                                    },
                                     "dob": {
                                         "type": "string",
                                         "format": "date"
@@ -1412,6 +1415,9 @@
                                         "type": "string"
                                     },
                                     "last_name": {
+                                        "type": "string"
+                                    },
+                                    "other_name": {
                                         "type": "string"
                                     },
                                     "gender": {
