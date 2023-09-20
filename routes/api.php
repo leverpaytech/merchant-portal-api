@@ -44,10 +44,10 @@ Route::prefix('v1')->group( function(){
     Route::post('/get-cities', [CityController::class, 'index']);
 
     //
-    
+
     Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
     Route::get('/on-boarding', [UserController::class, 'onBoarding']);
-    
+
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
@@ -74,7 +74,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
             Route::post('/change-mode', [MerchantController::class, 'changeMode']);
-            
+
             Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
             Route::get('/product/{uuid}', [InvoiceController::class, 'getInvoice']);
 
@@ -102,7 +102,9 @@ Route::prefix('v1')->group( function(){
             Route::post('/set-pin', [CardController::class, 'setPin']);
             // Route::post('/upgrade-card', [CardController::class, 'upgradeCard']);
             Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
-            
+
+            Route::post('transfer', [WalletController::class, 'transfer']);
+
         });
     });
 

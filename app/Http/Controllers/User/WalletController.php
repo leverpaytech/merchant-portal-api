@@ -127,7 +127,7 @@ class WalletController extends BaseController
      *   tags={"Authentication & Verification"},
      *   summary="Verify transaction",
      *   operationId="Verify wallet transaction",
-     * 
+     *
      *   @OA\Parameter(
      *      name="trxref",
      *      in="path",
@@ -136,7 +136,7 @@ class WalletController extends BaseController
      *           type="string"
      *      )
      *   ),
-     * 
+     *
      *  @OA\Parameter(
      *      name="reference",
      *      in="path",
@@ -229,7 +229,48 @@ class WalletController extends BaseController
                 'extra AS other_details',
                 'created_at'
             ]);
-        
+
         return $this->successfulResponse($transaction, 'User transactions successfully retrieved');
+    }
+
+
+    public function transfer(Request $request){
+        $this->validate($request, [
+            'email'=>'required|email',
+            'amount'=>'required|numeric'
+        ]);
+
+        $user= Auth::user();
+
+        if($user->wallet->withdrawable_amount < $request['amount']){
+            return $this->sendError("Insufficient balance",[],400);
+        }
+
+        $trans = User::where('email', $request['email'])->first();
+        if(!$trans){
+            return $this->sendError('Recipient account not found',[],404);
+        }
+
+        if($request['email'] == $user->email){
+            return $this->sendError("Invalid transfer, you can't transfer to yourself",[],400);
+        }
+
+        DB::transaction( function() use($trans, $user, $request) {
+            $ext = 'LP_'.Uuid::generate()->string;
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
+            $transaction->tnx_reference_no	= $ext;
+            $transaction->amount =$request['amount'];
+            $transaction->type = 'debit';
+
+            $details = [
+                'sender'=>
+            ]
+            $transaction->
+
+            WalletService::addToWallet($trans->user_id, $request['amount']);
+            WalletService::subtractFromWallet($user->id, $request['amount']);
+        });
     }
 }
