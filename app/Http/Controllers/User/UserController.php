@@ -117,6 +117,60 @@ class UserController extends BaseController
         return $this->successfulResponse(new UserResource($user));
     }
 
+
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/search-user",
+     *   tags={"User"},
+     *   summary="Search User by Email",
+     *   operationId="Search User by Email",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              @OA\Property( property="email", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function searchUser(Request $request){
+        $this->validate($request, [
+            'email'=>'string'
+        ]);
+
+        $users = User::where('email', 'LIKE','%'.$request['email'].'%')->get(['uuid','first_name','last_name','email']);
+        return $this->successfulResponse($users);
+    }
+
     /**
      * @OA\Post(
      ** path="/api/v1/user/update-user-profile",
@@ -190,8 +244,8 @@ class UserController extends BaseController
             'gender' => 'nullable',
             'passport' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-        
-        
+
+
         if(!empty($data['passport']))
         {
             try
@@ -216,7 +270,7 @@ class UserController extends BaseController
             // send email
             Mail::to($email)->send(new ChangePhoneAndEmailVerifier($name, $verifyToken));
         }
-        
+
         $user = $this->userModel->updateUser($data,$userId);
         // $user->firstname
         $data2['activity']="User Profile Update";
@@ -312,7 +366,7 @@ class UserController extends BaseController
         $wallet_credentials= config('services.vfd.walletCredentials');
         $onBoardUrl= config('services.vfd.onboarding');
         $vfdBankAuth="VFDBankAuth";
-         
+
         return $access_token=$this->getToken($authurl, $wallet_credentials);
 
         if(isset($access_token))
@@ -327,7 +381,7 @@ class UserController extends BaseController
                 "phone"=>"08136908764",
                 "bvn"=>"22222222223"
             );
-              
+
             $postData= json_encode($requestData);
             $ch1 = curl_init();
             curl_setopt_array($ch1, array(
@@ -340,12 +394,12 @@ class UserController extends BaseController
                     "Content-Type: application/json",
                     "Authorization: Bearer".$access_token
                     )
-                ));               
+                ));
             $acc_responses = curl_exec($ch1);
             curl_close($ch1);
-            
+
             $acc_responses = json_decode($acc_responses);
-    
+
             return $acc_responses;
         }
     }
@@ -407,7 +461,7 @@ class UserController extends BaseController
         $onBoardUrl= config('services.vfd.onboarding');
 
         $ch1 = curl_init();
-    
+
         curl_setopt($ch1, CURLOPT_URL, $onBoardUrl);
         curl_setopt($ch1, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch1, CURLOPT_HEADER, FALSE);
@@ -431,15 +485,15 @@ class UserController extends BaseController
                 "Authorization: Bearer 7c4aa53f-7ad1-339f-883e-62bcd9be61d6"
                 )
             ));
-        */               
+        */
         $acc_responses = curl_exec($ch1);
         curl_close($ch1);
-        
+
         //return $http_status = curl_getinfo($ch1, CURLINFO_HTTP_CODE);
         //return $curl_errno=curl_errno($ch1);
 
         $acc_responses = json_decode($acc_responses);
-        if (curl_exec($ch1) === false) 
+        if (curl_exec($ch1) === false)
         {
             return curl_error($ch1);
         } else {

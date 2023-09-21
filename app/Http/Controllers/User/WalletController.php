@@ -16,6 +16,17 @@ use App\Services\WalletService;
 
 class WalletController extends BaseController
 {
+
+    public function createProvidusVirtualAccount(){
+        $response = Http::withHeaders([
+            'X-Auth-Signature' => env('PROVIDUS_X_AUTH_SIGNATURE'),
+            'Client-Id'=>env('PROVIDUS_CLIENT_ID'),
+            'content-type'=>'application/json'
+        ])->post(env('PROVIDUS_BASEURL').'/PiPCreateReservedAccountNumber', [
+            'account_name' => Auth::user()->first_name .' '.Auth::user()->last_name,
+            'bvn'=>'www'
+        ]);
+    }
     /**
      * @OA\Get(
      ** path="/api/v1/user/get-wallet",
@@ -127,7 +138,7 @@ class WalletController extends BaseController
      *   tags={"Authentication & Verification"},
      *   summary="Verify transaction",
      *   operationId="Verify wallet transaction",
-     * 
+     *
      *   @OA\Parameter(
      *      name="trxref",
      *      in="path",
@@ -136,7 +147,7 @@ class WalletController extends BaseController
      *           type="string"
      *      )
      *   ),
-     * 
+     *
      *  @OA\Parameter(
      *      name="reference",
      *      in="path",
@@ -229,7 +240,123 @@ class WalletController extends BaseController
                 'extra AS other_details',
                 'created_at'
             ]);
-        
+
         return $this->successfulResponse($transaction, 'User transactions successfully retrieved');
+    }
+
+
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/transfer",
+     *   tags={"User"},
+     *   summary="transfer",
+     *   operationId="transfer",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="amount", type="number"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+
+    public function transfer(Request $request){
+        $this->validate($request, [
+            'email'=>'required|email',
+            'amount'=>'required|numeric'
+        ]);
+
+        $user= Auth::user();
+
+        if($user->wallet->withdrawable_amount < $request['amount']){
+            return $this->sendError("Insufficient balance",[],400);
+        }
+
+        $trans = User::where('email', $request['email'])->first();
+        if(!$trans){
+            return $this->sendError('Recipient account not found',[],404);
+        }
+
+        if($request['email'] == $user->email){
+            return $this->sendError("Invalid transfer, you can't transfer to yourself",[],400);
+        }
+
+        DB::transaction( function() use($trans, $user, $request) {
+            $ext = 'LP_'.Uuid::generate()->string;
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
+            $transaction->tnx_reference_no	= $ext;
+            $transaction->amount =$request['amount'];
+            $transaction->balance = floatval($user->wallet->withdrawable_amount) - floatval($request['amount']);
+            $transaction->type = 'debit';
+            $transaction->merchant = 'transfer';
+
+            $details = [
+                'receiver'=>[
+                    "uuid"=>$trans->uuid,
+                    "first_name"=>$trans->first_name,
+                    "last_name"=>$trans->last_name,
+                    "email"=>$trans->email
+                ]
+            ];
+            $transaction->transaction_details = json_encode($details);
+            $transaction->save();
+
+            $transaction2 = new Transaction();
+            $transaction2->user_id = $trans->id;
+            $transaction2->reference_no	= $ext;
+            $transaction2->tnx_reference_no	= Uuid::generate()->string;
+            $transaction2->amount =$request['amount'];
+            $transaction2->balance = floatval($trans->wallet->withdrawable_amount) + floatval($request['amount']);
+            $transaction2->type = 'credit';
+            $transaction2->merchant = 'transfer';
+            $details2 = [
+                'sender'=>[
+                    "uuid"=>$user->uuid,
+                    "first_name"=>$user->first_name,
+                    "last_name"=>$user->last_name,
+                    "email"=>$user->email
+                ],
+            ];
+            $transaction2->transaction_details = json_encode($details2);
+            $transaction2->save();
+
+            WalletService::addToWallet($trans->id, $request['amount']);
+            WalletService::subtractFromWallet($user->id, $request['amount']);
+        });
+
+        return $this->successfulResponse([], 'Transfer successful');
     }
 }

@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
+    //Transaction reference that starts with "LP" means transfer within LeverPay
     use HasFactory;
     protected $fillable = [
-        'user_id',
         'reference_no',
         'tnx_reference_no',
         'amount',
