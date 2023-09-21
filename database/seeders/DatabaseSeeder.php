@@ -16,8 +16,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(CountriesTableSeeder::class);
-        // $this->call(StateSeeder::class);
+        //$this->call(CountriesTableSeeder::class);
+        //$this->call(StateSeeder::class);
+        //$this->call(CitySeeder::class);
         DB::table('admin_logins')->insert([
             [
                 'first_name' => 'LeverPay',
