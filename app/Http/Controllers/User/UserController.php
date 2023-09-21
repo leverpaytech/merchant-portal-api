@@ -104,14 +104,16 @@ class UserController extends BaseController
         if(!Auth::user()->id)
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
-        $user = User::where('id', $userId)->with('currencies')->with('state')->with('city')->get()->first();
-        $wallet=Auth::user()->wallet;
-        $user->wallet_balance=$wallet->amount;
+
+        $user = User::where('id', $userId)->with('wallet')->with('card')->with('currencies')->with('state')->with('city')->get()->first();
+        //$wallet=Auth::user()->wallet;
+        //$user->wallet_balance=$wallet->amount;
         $getV1=Transaction::where('user_id',$userId)->where('type','credit')->sum('amount');
         $user->total_save=$getV1;
         $getV2=Transaction::where('user_id',$userId)->where('type','debit')->sum('amount');
         $user->total_spending=$getV2;
 
+        //return response()->json(Auth::user());
 
         if(!$user)
             return $this->sendError('User not found',[],404);

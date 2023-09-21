@@ -16,5 +16,7 @@ class Card extends Model
         'id',
         'user_id',
         'pin',
+        'created_at',
+        'updated_at'
     ];
 }
