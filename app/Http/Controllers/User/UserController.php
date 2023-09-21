@@ -10,6 +10,7 @@ use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\{User,Transaction};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
@@ -162,9 +163,11 @@ class UserController extends BaseController
      *   }
      *)
      **/
-    public function searchUser(Request $request){
+    public function searchUser(Request $request)
+    {
+        
         $this->validate($request, [
-            'email'=>'string'
+            'email' => 'required|email'
         ]);
 
         $users = User::where('email', 'LIKE','%'.$request['email'].'%')->get(['uuid','first_name','last_name','email']);
