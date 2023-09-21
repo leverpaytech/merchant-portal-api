@@ -24,6 +24,7 @@ class WalletController extends BaseController
             'content-type'=>'application/json'
         ])->post(env('PROVIDUS_BASEURL').'/PiPCreateReservedAccountNumber', [
             'account_name' => Auth::user()->first_name .' '.Auth::user()->last_name,
+            'bvn'=>'www'
         ]);
     }
     /**

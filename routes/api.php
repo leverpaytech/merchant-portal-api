@@ -105,6 +105,7 @@ Route::prefix('v1')->group( function(){
             // Route::post('/upgrade-card', [CardController::class, 'upgradeCard']);
             Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
 
+            Route::post('search-user', [UserController::class, 'searchUser']);
             Route::post('transfer', [WalletController::class, 'transfer']);
 
         });
@@ -115,20 +116,20 @@ Route::prefix('v1')->group( function(){
         Route::post('/admin-login',[AdminAuthController::class, 'login'])->name('admin-login');
         Route::post('/admin-forgot-password', [AdminAuthController::class, 'sendForgotPasswordToken']);
         Route::post('/admin-reset-password', [AdminAuthController::class, 'resetPassword']);
-        
-        Route::middleware('auth:api')->group( function () 
+
+        Route::middleware('auth:api')->group( function ()
         {
             Route::get('/admin-logout', [AdminAuthController::class, 'logout']);
             Route::get('/admin-profile', [AdminAuthController::class, 'adminProfile'])->name('admin-profile');
             Route::get('/get-all-merchants', [AdminController::class, 'getAllMerchants'])->name('merchants.all');
             Route::get('/get-all-users', [AdminController::class, 'getAllUsers'])->name('users.all');
             Route::get('/get-kyc-list', [AdminController::class, 'getKycs']);
-            
+
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
             Route::get('/get-payment-options', [AdminController::class, 'getPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
 
-            
+
         });
     });
 
