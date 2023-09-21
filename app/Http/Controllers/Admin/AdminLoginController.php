@@ -83,6 +83,7 @@ class AdminLoginController extends BaseController
         
         config(['auth.guards.api.provider' => 'admins']);
         
+        
         $admin = AdminLogin::find(auth()->guard('admin')->user()->id);
         $admin->last_seen_at = Carbon::now()->format('Y-m-d H:i:s');
         $admin->save();
@@ -307,9 +308,9 @@ class AdminLoginController extends BaseController
     public function adminProfile()
     {
         config(['auth.guards.api.provider' => 'admins']);
-
+        
         //$admin = AdminLogin::find(auth()->guard('admin')->user()->id);
-        $admin = AdminLogin::find(1);
+        $admin = AdminLogin::find(Auth::user()->id);
         if(!$admin)
         {
             return $this->sendError("Authourized user",[], 401);

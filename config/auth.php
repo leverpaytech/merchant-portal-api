@@ -52,8 +52,8 @@ return [
             'provider' => 'admins',
         ],
     
-        'admin-api' => [
-            'driver' => 'token',
+        'api' => [
+            'driver' => 'passport',
             'provider' => 'admins',
         ],
     ],

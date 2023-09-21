@@ -154,6 +154,7 @@ class AuthController extends BaseController
         $verifyToken = rand(1000, 9999);
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
+        $data['role_id']='0';
         $user = User::create($data);
 
         // send email

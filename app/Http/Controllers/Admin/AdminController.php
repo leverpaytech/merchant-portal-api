@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
 use App\Http\Resources\PaymentOptionResource;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends BaseController
 {
@@ -112,6 +113,10 @@ class AdminController extends BaseController
      **/
     public function getAllMerchants()
     {
+        if(!Auth::user()->id)
+        {
+            return $this->sendError("Authourized user",[], 401);
+        }
         $users=User::where('role_id', '1')->get();
         
         return $this->successfulResponse($users, 'Merchants list');
@@ -138,6 +143,10 @@ class AdminController extends BaseController
      **/
     public function getAllUsers()
     {
+        if(!Auth::user()->id)
+        {
+            return $this->sendError("Authourized user",[], 401);
+        }
         return $this->successfulResponse(User::where('role_id','0')->get(), 'Users List');
     }
 

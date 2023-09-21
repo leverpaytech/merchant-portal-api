@@ -157,7 +157,7 @@ class AuthController extends BaseController
 
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
-        // $data['role_id'] = 1;
+        $data['role_id'] = '1';
 
         // $user = User::create($data);
         $user = new User();
