@@ -16,6 +16,16 @@ use App\Services\WalletService;
 
 class WalletController extends BaseController
 {
+
+    public function createProvidusVirtualAccount(){
+        $response = Http::withHeaders([
+            'X-Auth-Signature' => env('PROVIDUS_X_AUTH_SIGNATURE'),
+            'Client-Id'=>env('PROVIDUS_CLIENT_ID'),
+            'content-type'=>'application/json'
+        ])->post(env('PROVIDUS_BASEURL').'/PiPCreateReservedAccountNumber', [
+            'account_name' => Auth::user()->first_name .' '.Auth::user()->last_name,
+        ]);
+    }
     /**
      * @OA\Get(
      ** path="/api/v1/user/get-wallet",
@@ -234,6 +244,52 @@ class WalletController extends BaseController
     }
 
 
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/transfer",
+     *   tags={"User"},
+     *   summary="transfer",
+     *   operationId="transfer",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="amount", type="number"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+
     public function transfer(Request $request){
         $this->validate($request, [
             'email'=>'required|email',
@@ -262,15 +318,44 @@ class WalletController extends BaseController
             $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
             $transaction->tnx_reference_no	= $ext;
             $transaction->amount =$request['amount'];
+            $transaction->balance = floatval($user->wallet->withdrawable_amount) - floatval($request['amount']);
             $transaction->type = 'debit';
+            $transaction->merchant = 'transfer';
 
             $details = [
-                'sender'=>
-            ]
-            $transaction->
+                'receiver'=>[
+                    "uuid"=>$trans->uuid,
+                    "first_name"=>$trans->first_name,
+                    "last_name"=>$trans->last_name,
+                    "email"=>$trans->email
+                ]
+            ];
+            $transaction->transaction_details = json_encode($details);
+            $transaction->save();
 
-            WalletService::addToWallet($trans->user_id, $request['amount']);
+            $transaction2 = new Transaction();
+            $transaction2->user_id = $trans->id;
+            $transaction2->reference_no	= $ext;
+            $transaction2->tnx_reference_no	= Uuid::generate()->string;
+            $transaction2->amount =$request['amount'];
+            $transaction2->balance = floatval($trans->wallet->withdrawable_amount) + floatval($request['amount']);
+            $transaction2->type = 'credit';
+            $transaction2->merchant = 'transfer';
+            $details2 = [
+                'sender'=>[
+                    "uuid"=>$user->uuid,
+                    "first_name"=>$user->first_name,
+                    "last_name"=>$user->last_name,
+                    "email"=>$user->email
+                ],
+            ];
+            $transaction2->transaction_details = json_encode($details2);
+            $transaction2->save();
+
+            WalletService::addToWallet($trans->id, $request['amount']);
             WalletService::subtractFromWallet($user->id, $request['amount']);
         });
+
+        return $this->successfulResponse([], 'Transfer successful');
     }
 }

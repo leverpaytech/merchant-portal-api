@@ -62,7 +62,7 @@ class KycController extends BaseController
 
         $validator = Validator::make($data, [
             'document_name' => 'required',
-            'document_link' => 'required|mimes:jpeg,png,jpg,gif|max:2048'
+            'document_link' => 'required|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         if ($validator->fails())

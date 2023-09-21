@@ -35,4 +35,5 @@ class WalletService
 
         return $wallet;
     }
+
 }
