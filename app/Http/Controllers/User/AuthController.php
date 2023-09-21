@@ -80,6 +80,7 @@ class AuthController extends BaseController
      *              required={"gender","dob","email","password", "first_name", "last_name","phone"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
+     *              @OA\Property( property="other_name", type="string"),
      *              @OA\Property( property="gender", type="string"),
      *              @OA\Property( property="dob", type="string", format="date"),
      *              @OA\Property( property="email", type="string"),
@@ -127,6 +128,7 @@ class AuthController extends BaseController
         $data = $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
+            'other_name' => 'nullable',
             'dob' => 'required',
             'gender' => 'required',
             'email' => 'unique:users,email|required|email',
