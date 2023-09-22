@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Webpatser\Uuid\Uuid;
 use App\Services\WalletService;
+use Illuminate\Support\Facades\Validator;
 
 class WalletController extends BaseController
 {
@@ -292,10 +293,18 @@ class WalletController extends BaseController
      **/
 
     public function transfer(Request $request){
-        $this->validate($request, [
+
+        $data = $request->all();
+        $validator = Validator::make($data, [
             'email'=>'required|email',
             'amount'=>'required|numeric'
         ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+        
 
         $user= Auth::user();
 

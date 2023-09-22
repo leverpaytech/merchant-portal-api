@@ -128,7 +128,8 @@ Route::prefix('v1')->group( function(){
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
             Route::get('/get-payment-options', [AdminController::class, 'getPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
-
+            Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
+            
 
         });
     });

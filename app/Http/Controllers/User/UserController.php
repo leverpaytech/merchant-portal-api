@@ -167,10 +167,17 @@ class UserController extends BaseController
      **/
     public function searchUser(Request $request)
     {
-        
-        $this->validate($request, [
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
             'email' => 'required|email'
         ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+        
 
         $users = User::where('email', 'LIKE','%'.$request['email'].'%')->get(['uuid','first_name','last_name','email']);
         return $this->successfulResponse($users);
