@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         //$this->call(CountriesTableSeeder::class);
         //$this->call(StateSeeder::class);
         //$this->call(CitySeeder::class);
+        $this->call(BankSeeder::class);
         DB::table('admin_logins')->insert([
             [
                 'first_name' => 'LeverPay',

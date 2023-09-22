@@ -3,12 +3,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc};
+use App\Models\{User,Kyc,ExchangeRate};
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
 use App\Http\Resources\PaymentOptionResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends BaseController
 {
@@ -173,6 +175,75 @@ class AdminController extends BaseController
         
         return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
 
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/add-exchange-rate",
+     *   tags={"Admin"},
+     *   summary="Add new exchange rate",
+     *   operationId="Add new exchange rate",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"rate"},
+     *              @OA\Property( property="rate", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addExchangeRate(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'rate'=>'unique:exchange_rates,rate|required|numeric'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+        $new_rate=$request['rate'];
+        DB::transaction( function() use($new_rate) {
+            //de-active the active rate
+            ExchangeRate::where('status',1)->update(['status'=>0]);
+
+            //set new rate
+            $exchangeRate = new ExchangeRate();
+            $exchangeRate->rate = $new_rate;
+            $exchangeRate->save();
+        });
+        
+        return $this->successfulResponse($new_rate, 'New exchange rate successfully added');
     }
 
 }

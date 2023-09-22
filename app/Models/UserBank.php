@@ -5,17 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Card extends Model
+class UserBank extends Model
 {
     use HasFactory;
-
-    // type: 1 - normal card, 2 - Gold card, 3 - Diamond card, 4 - Pink Lady, 5 - Enterprise card
-
+    protected $fillable = [
+        'id',
+        'user_id',
+        'bank_id',
+        'account_no',
+        'staus',
+        'created_at',
+        'updated_at'
+    ];
 
     protected $hidden = [
         'id',
         'user_id',
-        'pin',
+        'bank_id',
         'created_at',
         'updated_at'
     ];

@@ -146,11 +146,7 @@ class User extends Authenticatable
         return $this->belongsTo(MerchantKeys::class, 'id','user_id');
     }
 
-    public function cardType()
-    {
-        return $this->belongsToMany(cardType::class);
-    }
-
+    
 
     public function createUser($data)
     {

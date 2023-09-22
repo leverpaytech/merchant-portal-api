@@ -165,6 +165,57 @@
                 ]
             }
         },
+        "/api/v1/admin/add-exchange-rate": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add new exchange rate",
+                "operationId": "Add new exchange rate",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "rate"
+                                ],
+                                "properties": {
+                                    "rate": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [
@@ -274,13 +325,59 @@
                             "schema": {
                                 "required": [
                                     "new_password",
+                                    "confirm_new_password"
+                                ],
+                                "properties": {
+                                    "new_password": {
+                                        "type": "string"
+                                    },
+                                    "confirm_new_password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/admin-verify-email": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Reset password verification",
+                "operationId": "Admin reset password verification",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
                                     "token"
                                 ],
                                 "properties": {
                                     "token": {
-                                        "type": "string"
-                                    },
-                                    "new_password": {
                                         "type": "string"
                                     }
                                 },
@@ -619,6 +716,25 @@
                         "description": "Forbidden"
                     }
                 }
+            }
+        },
+        "/api/v1/user/get-all-banks}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all banks",
+                "operationId": "get all banks",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
             }
         },
         "/api/v1/get-cities": {
@@ -1754,6 +1870,80 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/add-bank-account": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Add bank account",
+                "operationId": "Add bank account",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "bank_id",
+                                    "account_no"
+                                ],
+                                "properties": {
+                                    "account_no": {
+                                        "type": "string"
+                                    },
+                                    "bank_id": {
+                                        "enum": "[1]"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-user-bank-account}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user bank account",
+                "operationId": "get user bank account",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [

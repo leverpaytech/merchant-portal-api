@@ -19,6 +19,7 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\KycController;
 use \App\Http\Controllers\Merchant\InvoiceController;
+use \App\Http\Controllers\BankController;
 
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 
@@ -86,7 +87,8 @@ Route::prefix('v1')->group( function(){
     Route::post('/set-pin', [CardController::class, 'setPin']);
     Route::prefix('/user')->group( function() {
         Route::post('/signup', [UserAuthController::class, 'create'])->name('user.sign-up');
-
+        Route::get('/get-all-banks', [BankController::class, 'getBanks'])->name('get-all-banks');
+        
         Route::middleware('auth:api')->group( function () {
             Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
@@ -107,6 +109,9 @@ Route::prefix('v1')->group( function(){
 
             Route::post('search-user', [UserController::class, 'searchUser']);
             Route::post('transfer', [WalletController::class, 'transfer']);
+            
+            Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
+            Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
 
         });
     });
@@ -115,8 +120,9 @@ Route::prefix('v1')->group( function(){
     {
         Route::post('/admin-login',[AdminAuthController::class, 'login'])->name('admin-login');
         Route::post('/admin-forgot-password', [AdminAuthController::class, 'sendForgotPasswordToken']);
+        Route::post('/admin-verify-email', [AdminAuthController::class, 'resetPasswordVerify']);
         Route::post('/admin-reset-password', [AdminAuthController::class, 'resetPassword']);
-
+        
         Route::middleware('auth:api')->group( function ()
         {
             Route::get('/admin-logout', [AdminAuthController::class, 'logout']);
@@ -128,7 +134,8 @@ Route::prefix('v1')->group( function(){
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
             Route::get('/get-payment-options', [AdminController::class, 'getPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
-
+            Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
+            
 
         });
     });
