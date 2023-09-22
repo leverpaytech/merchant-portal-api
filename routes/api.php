@@ -120,8 +120,9 @@ Route::prefix('v1')->group( function(){
     {
         Route::post('/admin-login',[AdminAuthController::class, 'login'])->name('admin-login');
         Route::post('/admin-forgot-password', [AdminAuthController::class, 'sendForgotPasswordToken']);
+        Route::post('/admin-verify-email', [AdminAuthController::class, 'resetPasswordVerify']);
         Route::post('/admin-reset-password', [AdminAuthController::class, 'resetPassword']);
-
+        
         Route::middleware('auth:api')->group( function ()
         {
             Route::get('/admin-logout', [AdminAuthController::class, 'logout']);

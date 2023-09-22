@@ -172,9 +172,9 @@ class AdminLoginController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"new_password","token"},
-     *              @OA\Property( property="token", type="string"),
+     *              required={"new_password","confirm_new_password"},
      *              @OA\Property( property="new_password", type="string"),
+     *              @OA\Property( property="confirm_new_password", type="string"),
      *          ),
      *      ),
      *   ),
@@ -206,9 +206,71 @@ class AdminLoginController extends BaseController
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'token' => 'required|string',
-            'new_password' => ['required', Password::min(8)->symbols()->uncompromised() ]
+            'new_password' => ['required', Password::min(8)->symbols()->uncompromised() ],
+            'confirm_new_password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
+
+        if ($validator->fails())
+            return $this->sendError('Error',$validator->errors(),422);
+
+        if($request['new_password'] != $request['confirm_new_password'])
+        {
+            return $this->sendError('Passwords does not match',[],400);
+        }
+        $dminLogin = AdminLogin::where('id', 1)->get()->first();
+        $dminLogin->forgot_password_token=bin2hex(random_bytes(15));
+        $dminLogin->password = bcrypt($request['new_password']);
+        $dminLogin->save();
+
+        return response()->json('Password  successfully reset', 200);
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/admin-verify-email",
+     *   tags={"Admin"},
+     *   summary="Reset password verification",
+     *   operationId="Admin reset password verification",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"token"},
+     *              @OA\Property( property="token", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   )
+     *)
+     **/
+    public function resetPasswordVerify(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string'
+        ]);
+
         if ($validator->fails())
             return $this->sendError('Error',$validator->errors(),422);
 
@@ -217,9 +279,8 @@ class AdminLoginController extends BaseController
             return $this->sendError('Invalid token',[],400);
         }
         $admin->forgot_password_token=bin2hex(random_bytes(15));
-        $admin->password = bcrypt($request['new_password']);
         $admin->save();
-        return response()->json('Password reset successfully', 200);
+        return response()->json('Email successfully verified', 200);
     }
 
     /**
