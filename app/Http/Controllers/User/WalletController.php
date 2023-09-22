@@ -26,6 +26,7 @@ class WalletController extends BaseController
             'account_name' => Auth::user()->first_name .' '.Auth::user()->last_name,
             'bvn'=>'www'
         ]);
+        dd($response);
     }
     /**
      * @OA\Get(
