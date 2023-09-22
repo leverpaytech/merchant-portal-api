@@ -672,6 +672,25 @@
                 }
             }
         },
+        "/api/v1/user/get-all-banks}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all banks",
+                "operationId": "get all banks",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/get-cities": {
             "post": {
                 "tags": [
@@ -1805,6 +1824,80 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/add-bank-account": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Add bank account",
+                "operationId": "Add bank account",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "bank_id",
+                                    "account_no"
+                                ],
+                                "properties": {
+                                    "account_no": {
+                                        "type": "string"
+                                    },
+                                    "bank_id": {
+                                        "enum": "[1]"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-user-bank-account}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user bank account",
+                "operationId": "get user bank account",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [

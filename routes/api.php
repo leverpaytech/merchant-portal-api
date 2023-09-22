@@ -19,6 +19,7 @@ use App\Http\Controllers\StateController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\KycController;
 use \App\Http\Controllers\Merchant\InvoiceController;
+use \App\Http\Controllers\BankController;
 
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 
@@ -86,7 +87,8 @@ Route::prefix('v1')->group( function(){
     Route::post('/set-pin', [CardController::class, 'setPin']);
     Route::prefix('/user')->group( function() {
         Route::post('/signup', [UserAuthController::class, 'create'])->name('user.sign-up');
-
+        Route::get('/get-all-banks', [BankController::class, 'getBanks'])->name('get-all-banks');
+        
         Route::middleware('auth:api')->group( function () {
             Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
@@ -107,6 +109,9 @@ Route::prefix('v1')->group( function(){
 
             Route::post('search-user', [UserController::class, 'searchUser']);
             Route::post('transfer', [WalletController::class, 'transfer']);
+            
+            Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
+            Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
 
         });
     });

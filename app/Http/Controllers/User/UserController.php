@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{User,Transaction};
+use App\Models\{User,Transaction,ExchangeRate,UserBank};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -105,19 +105,40 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
+        //active exchange rate
+        $getExchageRate=ExchangeRate::where('status',1)->get(['rate'])->first();
+        $rate=$getExchageRate->rate;
+
         $user = User::where('id', $userId)->with('wallet')->with('card')->with('currencies')->with('state')->with('city')->get()->first();
-        //$wallet=Auth::user()->wallet;
-        //$user->wallet_balance=$wallet->amount;
+        
         $getV1=Transaction::where('user_id',$userId)->where('type','credit')->sum('amount');
-        $user->total_save=$getV1;
+        $user->total_save= [
+            'ngn'=>$getV1,
+            'usdt'=>round($getV1/$rate,6)
+        ];
         $getV2=Transaction::where('user_id',$userId)->where('type','debit')->sum('amount');
-        $user->total_spending=$getV2;
+        $user->total_spending= [
+            'ngn'=>$getV2,
+            'usdt'=>round($getV2/$rate,6)
+        ];
+        $user->wallet->amount=[
+            'ngn'=>$user->wallet->amount,
+            'usdt'=>round($user->wallet->amount/$rate,6)
+        ];
+
+        $user->wallet->withdrawable_amount=[
+            'ngn'=>$user->wallet->withdrawable_amount,
+            'usdt'=>round($user->wallet->withdrawable_amount/$rate,6)
+        ];
+        
+
+    
 
         //return response()->json(Auth::user());
 
         if(!$user)
             return $this->sendError('User not found',[],404);
-        return $this->successfulResponse(new UserResource($user));
+        return $this->successfulResponse(new UserResource($user), 'User details successfully retrieved');
     }
 
 
@@ -367,6 +388,106 @@ class UserController extends BaseController
         return $this->successfulResponse(Auth::user()->currencies,'');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/add-bank-account",
+     *   tags={"User"},
+     *   summary="Add bank account",
+     *   operationId="Add bank account",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"bank_id","account_no"},
+     *              @OA\Property( property="account_no", type="string"),
+     *              @OA\Property( property="bank_id", enum="[1]"),
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addBankAccount(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'account_no'=>'unique:user_banks,account_no|required',
+            'bank_id'=>'required|string'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        $userBank = new UserBank();
+        $userBank->user_id = Auth::user()->id;
+        $userBank->bank_id  = $data['bank_id'];
+        $userBank->account_no  = $data['account_no'];
+        $userBank->save();
+
+        return $this->successfulResponse($userBank,'Account successfully added');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-user-bank-account}",
+     *   tags={"User"},
+     *   summary="Get user bank account",
+     *   operationId="get user bank account",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getUserBankAccount()
+    {
+        $user_id=Auth::user()->id;
+        
+        $userBanks=UserBank::join('banks','user_banks.bank_id','=','banks.id')
+            ->join('users', 'user_banks.user_id','=','users.id')
+            ->where('user_banks.user_id', $user_id)
+            ->get([
+                'users.first_name',
+                'users.last_name',
+                'users.other_name',
+                'user_banks.account_no',
+                'banks.name'
+            ]);
+        return $this->successfulResponse($userBanks,'Bak List');
+    }
 
     public function generateAccNo()
     {
