@@ -109,7 +109,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('search-user', [UserController::class, 'searchUser']);
             Route::post('transfer', [WalletController::class, 'transfer']);
-            Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
+            Route::post('submit-topup-requests', [WalletController::class, 'submitTopupRequest']);
 
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);

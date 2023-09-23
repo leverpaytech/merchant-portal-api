@@ -80,7 +80,7 @@ class AuthController extends BaseController
             'password' => 'required|string'
         ]);
 
-        if(!Auth::attempt($user))
+        if(!Auth::check($user))
         {
             return $this->sendError("invalid login credentials",[], 401);
         }
