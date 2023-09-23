@@ -29,6 +29,15 @@ class WalletController extends BaseController
         ]);
         dd($response);
     }
+
+
+    public function submitTopupRequest(Request $request){
+        $this->validate($request, [
+            'amount'=>'required|numberic',
+            'reference'=>'required|string'
+        ]);
+
+    }
     /**
      * @OA\Get(
      ** path="/api/v1/user/get-wallet",
@@ -305,7 +314,7 @@ class WalletController extends BaseController
         {
             return $this->sendError('Error',$validator->errors(),422);
         }
-        
+
 
         $user= Auth::user();
 
