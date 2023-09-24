@@ -88,8 +88,8 @@ Route::prefix('v1')->group( function(){
     Route::prefix('/user')->group( function() {
         Route::post('/signup', [UserAuthController::class, 'create'])->name('user.sign-up');
         Route::get('/get-all-banks', [BankController::class, 'getBanks'])->name('get-all-banks');
-        
-        Route::middleware('auth:api')->group( function () {
+
+        Route::middleware('auth:api')->group(function () {
             Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
             Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
@@ -109,7 +109,10 @@ Route::prefix('v1')->group( function(){
 
             Route::post('search-user', [UserController::class, 'searchUser']);
             Route::post('transfer', [WalletController::class, 'transfer']);
-            
+
+            Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
+            Route::get('get-topup-requests', [WalletController::class, 'getTopupRequests']);
+
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
 
@@ -122,7 +125,7 @@ Route::prefix('v1')->group( function(){
         Route::post('/admin-forgot-password', [AdminAuthController::class, 'sendForgotPasswordToken']);
         Route::post('/admin-verify-email', [AdminAuthController::class, 'resetPasswordVerify']);
         Route::post('/admin-reset-password', [AdminAuthController::class, 'resetPassword']);
-        
+
         Route::middleware('auth:api')->group( function ()
         {
             Route::get('/admin-logout', [AdminAuthController::class, 'logout']);
@@ -135,7 +138,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-payment-options', [AdminController::class, 'getPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
             Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
-            
+
 
         });
     });

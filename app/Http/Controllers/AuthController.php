@@ -91,6 +91,7 @@ class AuthController extends BaseController
 
         if(Auth::user()->role_id == 1){
             Log::info('merchant role');
+
             $accessToken = Auth::user()->createToken('access_token', ['merchant']);
         }else{
             Log::info('user role');
@@ -108,6 +109,7 @@ class AuthController extends BaseController
             ActivityLog::createActivity($data2);
 
             return $this->successfulResponse([
+                "guard"=>Auth::getDefaultDriver(),
                 "user" => new UserResource($user),
                 "token" => $accessToken->accessToken,
                 "expires_at" => Carbon::parse($accessToken->token->expires_at)->toDateTimeString()

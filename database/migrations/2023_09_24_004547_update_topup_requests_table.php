@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            // $table->uuid('uuid')->unique();
-            $table->string('referral_code');
+        Schema::table('topup_requests', function (Blueprint $table) {
+            $table->unique('reference')->change();
         });
     }
 
@@ -26,8 +25,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
+        //
     }
 };

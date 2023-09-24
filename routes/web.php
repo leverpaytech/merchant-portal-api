@@ -8,9 +8,9 @@ use App\Models\User;
 use App\Http\Controllers\KycController;
 
 Route::get('/', function (){
-    dd(Str::uuid()->toString());
-    $user = User::find(1);
-    dd($user);
+    // dd(Str::uuid()->toString());
+    // $user = User::find(1);
+    // dd($user);
     dd(env('DB_USERNAME'));
         //dd($user->wallet->amount);
         //return view('welcome');

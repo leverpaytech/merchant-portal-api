@@ -4,6 +4,7 @@ namespace App\Http\Controllers\user;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Models\TopupRequest;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Transaction;
@@ -29,6 +30,119 @@ class WalletController extends BaseController
         ]);
         dd($response);
     }
+
+        /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-topup-requests",
+     *   tags={"User"},
+     *   summary="Get user topup request",
+     *   operationId="get user  topup request",
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+
+    public function getTopupRequests(Request $request){
+        $filter = strval($request->query('status'));
+
+        $req = Auth::user()->topuprequests();
+        if($filter == 'pending'){
+            $req = $req->where('status', 0)->orderBy('created_at', 'desc');
+        }else if($filter == 'paid'){
+            $req = $req->where('status', 1)->orderBy('created_at', 'desc');
+        }else{
+            $req = $req->orderBy('created_at', 'desc');
+        }
+        return $this->successfulResponse($req->get(),'');
+    }
+
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/submit-topup-request",
+     *   tags={"User"},
+     *   summary="submit topup request",
+     *   operationId="submit topup request",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              @OA\Property( property="reference", type="string"),
+     *              @OA\Property( property="amount", type="number"),
+     *              @OA\Property( property="document", type="file"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+
+
+    public function submitTopupRequest(Request $request){
+        $this->validate($request, [
+            'amount'=>'required|numeric|min:1',
+            'reference'=>'required|string|unique:topup_requests,reference',
+            'document' => 'nullable|mimes:jpeg,png,jpg,pdf|max:4048'
+        ]);
+        $topup = new TopupRequest;
+
+        if($request->file('document'))
+        {
+            try
+            {
+                $newname = cloudinary()->upload($request->file('document')->getRealPath(),
+                    ['folder'=>'leverpay/documents']
+                )->getSecurePath();
+
+                $topup->image_url = $newname;
+
+            } catch (\Exception $ex) {
+                return $this->sendError($ex->getMessage());
+            }
+        }
+
+
+        $topup->user_id = Auth::id();
+        $topup->amount = $request['amount'];
+        $topup->reference = $request['reference'];
+        $topup->save();
+        return $this->successfulResponse([], 'Topup request submitted successful');
+    }
+
     /**
      * @OA\Get(
      ** path="/api/v1/user/get-wallet",
@@ -294,19 +408,10 @@ class WalletController extends BaseController
      **/
 
     public function transfer(Request $request){
-
-        $data = $request->all();
-        $validator = Validator::make($data, [
+        $this->validate($request, [
             'email'=>'required|email',
-            'amount'=>'required|numeric'
+            'amount'=>'required|numeric|min:1'
         ]);
-
-        if ($validator->fails())
-        {
-            return $this->sendError('Error',$validator->errors(),422);
-        }
-        
-
         $user= Auth::user();
 
         if($user->wallet->withdrawable_amount < $request['amount']){
