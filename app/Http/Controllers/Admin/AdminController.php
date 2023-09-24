@@ -291,4 +291,54 @@ class AdminController extends BaseController
         return $this->successfulResponse($new_rate, 'New exchange rate successfully added');
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/active-exchange-rate",
+     *   tags={"Admin"},
+     *   summary="Get active exchange rate",
+     *   operationId="Get active exchange rate",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function activeExchangeRate()
+    {
+        $activeRate=ExchangeRate::where('status',1)->get()->first();
+
+        return $this->successfulResponse($activeRate, 'active exchange rate successfully retrieved');
+
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/all-exchange-rate",
+     *   tags={"Admin"},
+     *   summary="Get all exchange rate",
+     *   operationId="Get all exchange rate",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function allExchangeRate()
+    {
+        $activeRate=ExchangeRate::orderBy('status', 'DESC')->get();
+
+        return $this->successfulResponse($activeRate, 'all exchange rate successfully retrieved');
+
+    }
+
 }
