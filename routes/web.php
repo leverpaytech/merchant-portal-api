@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ExchangeRate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
@@ -8,6 +9,8 @@ use App\Models\User;
 use App\Http\Controllers\KycController;
 
 Route::get('/', function (){
+    $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
+    dd($getExchageRate);
     // dd(Str::uuid()->toString());
     // $user = User::find(1);
     // dd($user);

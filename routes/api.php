@@ -60,6 +60,7 @@ Route::prefix('v1')->group( function(){
     Route::get('/currencies', [CurrencyController::class, 'getCurrencies']);
 
     Route::get('verify-transaction', [WalletController::class, 'verifyTransaction']);
+    Route::get('/invoice/{uuid}', [InvoiceController::class, 'getInvoice']);
 
     Route::prefix('/merchant')->group( function(){
 
@@ -79,8 +80,9 @@ Route::prefix('v1')->group( function(){
             Route::post('/change-mode', [MerchantController::class, 'changeMode']);
 
             Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
-            Route::get('/product/{uuid}', [InvoiceController::class, 'getInvoice']);
 
+
+            Route::get('get-invoices', [InvoiceController::class, 'getMerchantInvoices']);
         });
 
     });
@@ -97,6 +99,7 @@ Route::prefix('v1')->group( function(){
 
             Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
             Route::post('/add-currencies', [UserController::class, 'addCurrencies']);
+            Route::get('get-currencies', [UserController::class, 'getCurrencies']);
             Route::get('/get-wallet', [WalletController::class, 'getWallet']);
 
             Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
@@ -116,6 +119,7 @@ Route::prefix('v1')->group( function(){
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
 
+            Route::get('get-invoices', [InvoiceController::class, 'getInvoices']);
         });
     });
 

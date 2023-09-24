@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Merchant;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Mail\SendEmailVerificationCode;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Models\ActivityLog;
+use App\Models\Currency;
+use App\Models\ExchangeRate;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
@@ -30,11 +33,13 @@ class InvoiceController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"product_name","price"},
+     *              required={"product_name","price","vat","email","quantity"},
      *              @OA\Property( property="product_name", type="string"),
      *              @OA\Property( property="price", type="string"),
+     *              @OA\Property( property="quantity", type="string"),
      *              @OA\Property( property="product_description", type="string"),
-     *              @OA\Property( property="product_image", type="file")
+     *              @OA\Property( property="vat", type="string")
+     *              @OA\Property( property="email", type="string")
      *          ),
      *      ),
      *   ),
@@ -67,57 +72,58 @@ class InvoiceController extends BaseController
      *   }
      *)
      **/
-    public function createInvoice(Request $request)
-    {
-        $data = $request->all();
-
-        $validator = Validator::make($data, [
+    public function createInvoice(Request $request){
+        $data = $this->validate($request, [
             'product_name'=>'required|string',
             'product_description'=>'nullable|string',
             'price'=>'required|numeric',
-            'product_image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048'
+            // 'product_image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
+            'email'=>'required|email',
+            'vat'=>'required|numeric|min:0',
+            'currency'=>'required|string'
         ]);
 
-        if ($validator->fails())
-        {
-            return $this->sendError('Error',$validator->errors(),422);
-        }
-        
-        
-        if(!empty($data['product_image']))
-        {
-            try
-            {
-                $pImage = cloudinary()->upload($request->file('product_image')->getRealPath(),
-                    ['folder'=>'leverpay/invoice']
-                )->getSecurePath();
-
-                $data['product_image']= $pImage;
-
-            } catch (\Exception $ex) {
-                return $this->sendError($ex->getMessage());
-            }
+        $user = User::where('email', $data['email'])->first();
+        if($user){
+            $data['user_id'] = $user->id;
+            $data['type'] = 1;
         }
 
-        $data['uuid'] = Uuid::generate()->string;
-        $userId=Auth::user()->id;
-        $data['user_id']=$userId;
+        $uuid = Uuid::generate()->string;
+
+        $cal = $request['price'] + ($request['price'] * ($request['vat'] / 100));
+
+        $currency = ExchangeRate::where('status', 1)->latest()->first();
 
 
-        DB::transaction( function() use($data, $userId) {
+        if($data['currency'] == 'dollar'){
+            $fee = $request['price'] * ($currency->international_transaction_rate / 100);
+        }else if($data['currency'] == 'naira'){
+            $fee = $request['price'] * ($currency->local_transaction_rate / 100);
+        }else{
+            return $this->sendError('Invalid currency',[],400);
+        }
+        $data['uuid'] = $uuid;
+        $merchantId=Auth::user()->id;
+        $data['merchant_id']=$merchantId;
+        $data['url'] = env('FRONTEND_BASE_URL').'/invoice/'.$uuid;
+        $data['total'] = $cal + $fee;
+        $data['fee'] = $fee;
+
+        DB::transaction( function() use($data, $merchantId) {
 
             Invoice::create($data);
 
             $data2['activity']="Create Invoice,  ".$data['uuid'];
-            $data2['user_id']=$userId;
+            $data2['user_id']=$merchantId;
             ActivityLog::createActivity($data2);
 
         });
-        
-        $invoice = Invoice::where('uuid', $data['uuid'])->get()->first();
+
+        $invoice = Invoice::where('uuid', $data['uuid'])->first();
 
         return $this->successfulResponse($invoice,"Invoice successfully created");
-        
+
     }
 
 
@@ -136,7 +142,7 @@ class InvoiceController extends BaseController
      *           type="string",
      *      )
      *   ),
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -149,6 +155,47 @@ class InvoiceController extends BaseController
      **/
     public function getInvoice($uuid)
     {
-        return $this->successfulResponse(Invoice::where('uuid',$uuid)->get()->first(), 'Invoice successfully retrieved');
+        $invoice = Invoice::query()->where('uuid',$uuid)->with(['merchant' => function ($query) {
+            $query->select('id','uuid', 'first_name','last_name','phone');
+        }])->with(['user' => function ($query) {
+            $query->select('id','uuid', 'first_name','last_name','phone');
+        }])->first();
+        return $this->successfulResponse($invoice, 'Invoice successfully retrieved');
+    }
+
+    public function getInvoices(Request $request){
+        $invoices = Auth::user()->invoices();
+
+        $filter = strval($request->query('status'));
+
+        if($filter == 'pending'){
+            $invoices = $invoices->where('status', 0)->get();
+        }else if($filter == 'paid'){
+            $invoices = $invoices->where('status', 1)->get();
+        }else if($filter == 'cancelled'){
+            $invoices = $invoices->where('status', 2)->get();
+        }else{
+            $invoices = $invoices->get();
+        }
+
+        return $this->successfulResponse($invoices, '');
+    }
+
+    public function getMerchantInvoices(Request $request){
+        $invoices = Invoice::where('merchant_id', Auth::id());
+
+        $filter = strval($request->query('status'));
+
+        if($filter == 'pending'){
+            $invoices = $invoices->where('status', 0)->get();
+        }else if($filter == 'paid'){
+            $invoices = $invoices->where('status', 1)->get();
+        }else if($filter == 'cancelled'){
+            $invoices = $invoices->where('status', 2)->get();
+        }else{
+            $invoices = $invoices->get();
+        }
+
+        return $this->successfulResponse($invoices, '');
     }
 }
