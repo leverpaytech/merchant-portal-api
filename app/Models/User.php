@@ -107,6 +107,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Currency::class, 'currency_user');
     }
 
+    public function topuprequests()
+    {
+        return $this->hasMany(TopupRequest::class);
+    }
+
     public function merchant()
     {
         return $this->hasOne(Merchant::class);
@@ -146,7 +151,7 @@ class User extends Authenticatable
         return $this->belongsTo(MerchantKeys::class, 'id','user_id');
     }
 
-    
+
 
     public function createUser($data)
     {
