@@ -172,7 +172,8 @@ class AdminLoginController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"new_password","confirm_new_password"},
+     *              required={"old_password","new_password","confirm_new_password"},
+     *              @OA\Property( property="old_password", type="string"),
      *              @OA\Property( property="new_password", type="string"),
      *              @OA\Property( property="confirm_new_password", type="string"),
      *          ),
@@ -206,18 +207,26 @@ class AdminLoginController extends BaseController
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'old_password' => ['required', Password::min(8)->symbols()->uncompromised() ],
             'new_password' => ['required', Password::min(8)->symbols()->uncompromised() ],
             'confirm_new_password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
         if ($validator->fails())
             return $this->sendError('Error',$validator->errors(),422);
+        $oldPassword=bcrypt($request['old_password']);
+        $dminLogin = AdminLogin::where('email', 'development@leverpay.io')->where('password',$oldPassword)->get()->first();
+
+        if(!$dminLogin)
+        {
+            return $this->sendError('Old password does not exist',[],400);
+        }
 
         if($request['new_password'] != $request['confirm_new_password'])
         {
             return $this->sendError('Passwords does not match',[],400);
         }
-        $dminLogin = AdminLogin::where('id', 1)->get()->first();
+        
         $dminLogin->forgot_password_token=bin2hex(random_bytes(15));
         $dminLogin->password = bcrypt($request['new_password']);
         $dminLogin->save();
@@ -285,7 +294,7 @@ class AdminLoginController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/admin/admin-logout",
+     ** path="/api/v1/admin/admin-logout",
      *   tags={"Admin"},
      *   summary="Admin Logout",
      *   operationId="Admin logout",
@@ -333,7 +342,7 @@ class AdminLoginController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/admin/admin-profile",
+     ** path="/api/v1/admin/admin-profile",
      *   tags={"Admin"},
      *   summary="Admin Profile",
      *   operationId="Admin Profile",

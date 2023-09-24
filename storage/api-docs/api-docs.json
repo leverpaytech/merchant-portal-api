@@ -324,10 +324,14 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "old_password",
                                     "new_password",
                                     "confirm_new_password"
                                 ],
                                 "properties": {
+                                    "old_password": {
+                                        "type": "string"
+                                    },
                                     "new_password": {
                                         "type": "string"
                                     },
@@ -408,7 +412,7 @@
                 }
             }
         },
-        "/api/v1/admin/admin/admin-logout": {
+        "/api/v1/admin/admin-logout": {
             "get": {
                 "tags": [
                     "Admin"
@@ -442,7 +446,7 @@
                 ]
             }
         },
-        "/api/v1/admin/admin/admin-profile": {
+        "/api/v1/admin/admin-profile": {
             "get": {
                 "tags": [
                     "Admin"
