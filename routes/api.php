@@ -142,6 +142,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-payment-options', [AdminController::class, 'getPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
             Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
+            Route::get('/active-exchange-rate', [AdminController::class, 'activeExchangeRate'])->name('active-exchange-rate');
+            Route::get('/all-exchange-rate', [AdminController::class, 'allExchangeRate'])->name('all-exchange-rate');
 
 
         });

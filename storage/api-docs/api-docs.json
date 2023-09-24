@@ -127,6 +127,25 @@
                 ]
             }
         },
+        "/api/v1/admin/get-topup-requests": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all topup request",
+                "operationId": "get all topup request",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/get-all-users": {
             "get": {
                 "tags": [
@@ -207,6 +226,44 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/active-exchange-rate": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get active exchange rate",
+                "operationId": "Get active exchange rate",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/all-exchange-rate": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all exchange rate",
+                "operationId": "Get all exchange rate",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [
@@ -324,10 +381,14 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
+                                    "old_password",
                                     "new_password",
                                     "confirm_new_password"
                                 ],
                                 "properties": {
+                                    "old_password": {
+                                        "type": "string"
+                                    },
                                     "new_password": {
                                         "type": "string"
                                     },
@@ -408,7 +469,7 @@
                 }
             }
         },
-        "/api/v1/admin/admin/admin-logout": {
+        "/api/v1/admin/admin-logout": {
             "get": {
                 "tags": [
                     "Admin"
@@ -442,7 +503,7 @@
                 ]
             }
         },
-        "/api/v1/admin/admin/admin-profile": {
+        "/api/v1/admin/admin-profile": {
             "get": {
                 "tags": [
                     "Admin"
@@ -1944,6 +2005,79 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-topup-requests": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user topup request",
+                "operationId": "get user  topup request",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/submit-topup-request": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "submit topup request",
+                "operationId": "submit topup request",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "reference": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "number"
+                                    },
+                                    "document": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [
