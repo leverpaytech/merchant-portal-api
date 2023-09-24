@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, TopupRequest};
+use App\Models\{User,Kyc,ExchangeRate, TopupRequest,CardLimitHistory, CardType};
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
@@ -339,6 +339,85 @@ class AdminController extends BaseController
 
         return $this->successfulResponse($activeRate, 'all exchange rate successfully retrieved');
 
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/set-card-limit",
+     *   tags={"Admin"},
+     *   summary="Set card limit",
+     *   operationId="Set card limit",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"limit"},
+     *              @OA\Property( property="limit", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addCardLimit(Request $requst)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'limit'=>'required|numeric',
+            'card_type'=>'required|string'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+        $limit=$request['limit'];
+        $card_type=$request['card_type'];
+
+        $getCardType=CardType::where('name', $card_type)->get(['id'])->first();
+        if(!$getCardType->id)
+        return $this->sendError('Card type does not exist',[],422);
+
+        DB::transaction( function() use($getCardType, $limit){
+            $card_type_id=$getCardType->id;
+            CardLimitHistory::where('card_type_id', $card_type_id)->where('status',1)->update(['status'=>0]);
+
+            //set new rate
+            $cardLimitHistory = new CardLimitHistory();
+            $cardLimitHistory->limit = $limit;
+            $cardLimitHistory->card_type_id = $card_type_id;
+            $cardLimitHistory->save();
+
+            CardType::where('id',$card_type_id)->update(['limit'=>$limit]);
+        });
+
+        return $this->successfulResponse($limit, 'Card limit successfully set');
     }
 
 }
