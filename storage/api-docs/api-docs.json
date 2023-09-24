@@ -127,6 +127,25 @@
                 ]
             }
         },
+        "/api/v1/admin/get-topup-requests": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all topup request",
+                "operationId": "get all topup request",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/get-all-users": {
             "get": {
                 "tags": [
@@ -1948,6 +1967,79 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-topup-requests": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user topup request",
+                "operationId": "get user  topup request",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/submit-topup-request": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "submit topup request",
+                "operationId": "submit topup request",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "reference": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "number"
+                                    },
+                                    "document": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [
