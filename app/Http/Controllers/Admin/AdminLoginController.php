@@ -214,10 +214,10 @@ class AdminLoginController extends BaseController
 
         if ($validator->fails())
             return $this->sendError('Error',$validator->errors(),422);
-        $oldPassword=bcrypt($request['old_password']);
-        $dminLogin = AdminLogin::where('email', 'development@leverpay.io')->where('password',$oldPassword)->get()->first();
+        
+        $dminLogin = AdminLogin::where('email', 'development@leverpay.io')->get()->first();
 
-        if(!$dminLogin)
+        if(!Hash::check($request->old_password, $dminLogin->password)) 
         {
             return $this->sendError('Old password does not exist',[],400);
         }
@@ -225,6 +225,11 @@ class AdminLoginController extends BaseController
         if($request['new_password'] != $request['confirm_new_password'])
         {
             return $this->sendError('Passwords does not match',[],400);
+        }
+
+        if(Hash::check($request->new_password, $dminLogin->password)) 
+        {
+            return $this->sendError('New password can not be thesame with old password',[],400);
         }
         
         $dminLogin->forgot_password_token=bin2hex(random_bytes(15));
