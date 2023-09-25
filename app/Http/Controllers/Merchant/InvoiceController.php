@@ -33,7 +33,7 @@ class InvoiceController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"product_name","price","vat","email","quantity"},
+     *              required={"product_name","price","vat","email",},
      *              @OA\Property( property="product_name", type="string"),
      *              @OA\Property( property="price", type="string"),
      *              @OA\Property( property="quantity", type="string"),
@@ -163,6 +163,24 @@ class InvoiceController extends BaseController
         return $this->successfulResponse($invoice, 'Invoice successfully retrieved');
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-invoices",
+     *   tags={"User"},
+     *   summary="Get all invoices",
+     *   operationId="get all invoices",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+
     public function getInvoices(Request $request){
         $invoices = Auth::user()->invoices();
 
@@ -181,6 +199,23 @@ class InvoiceController extends BaseController
         return $this->successfulResponse($invoices, '');
     }
 
+        /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-invoices",
+     *   tags={"merchant"},
+     *   summary="Get all merchants invoices",
+     *   operationId="get all merchants invoices",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
     public function getMerchantInvoices(Request $request){
         $invoices = Invoice::where('merchant_id', Auth::id());
 
