@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
         //$this->call(CountriesTableSeeder::class);
         //$this->call(StateSeeder::class);
         //$this->call(CitySeeder::class);
-        $this->call(BankSeeder::class);
+        // $this->call(BankSeeder::class);
         // DB::table('admin_logins')->insert([
         //     [
         //         'first_name' => 'LeverPay',
@@ -31,18 +31,18 @@ class DatabaseSeeder extends Seeder
         //     ]
         // ]);
 
-        DB::table('card_types')->insert([
-            ['name'=>'Silver', 'limit'=>1000],
-            ['name'=>'Gold', 'limit'=>2000],
-            ['name'=>'Diamond', 'limit'=>3000],
-            ['name'=>'Pink-Lady', 'limit'=>4000],
-            ['name'=>'Enterprise', 'limit'=>5000],
-        ]);
+        // DB::table('card_types')->insert([
+        //     ['name'=>'Silver', 'limit'=>1000],
+        //     ['name'=>'Gold', 'limit'=>2000],
+        //     ['name'=>'Diamond', 'limit'=>3000],
+        //     ['name'=>'Pink-Lady', 'limit'=>4000],
+        //     ['name'=>'Enterprise', 'limit'=>5000],
+        // ]);
 
-        DB::table('currencies')->insert([
-            ['name'=>'Dollar', 'currency_code'=>"$", 'status'=>1],
-            ['name'=>'Naira', 'currency_code'=>"₦", 'status'=>1]
-        ]);
+        // DB::table('currencies')->insert([
+        //     ['name'=>'Dollar', 'currency_code'=>"$", 'status'=>1],
+        //     ['name'=>'Naira', 'currency_code'=>"₦", 'status'=>1]
+        // ]);
         DB::table('exchange_rates')->insert([
             [
                 'rate'=>900,
