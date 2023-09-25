@@ -6,19 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /** 
+    /**
      * Run the migrations.
      *
      * @return void
      */
     public function up()
     {
-        Schema::create('kycs', function (Blueprint $table) {
+        Schema::create('document_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->string('document_name');
-            $table->string('document_link');
-            $table->integer('status')->default(0);
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kycs');
+        Schema::dropIfExists('document_types');
     }
 };

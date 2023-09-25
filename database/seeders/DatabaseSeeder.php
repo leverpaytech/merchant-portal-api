@@ -43,15 +43,24 @@ class DatabaseSeeder extends Seeder
         //     ['name'=>'Dollar', 'currency_code'=>"$", 'status'=>1],
         //     ['name'=>'Naira', 'currency_code'=>"₦", 'status'=>1]
         // ]);
-        DB::table('exchange_rates')->insert([
-            [
-                'rate'=>900,
-                'local_transaction_rate'=>1.5,
-                'international_transaction_rate'=>1.9,
-                'funding_rate'=>0,
-                'conversion_rate'=>1,
-                'created_at'=>now(),'updated_at'=>now()
-            ],
+        
+        // DB::table('exchange_rates')->insert([
+        //     [
+        //         'rate'=>900,
+        //         'local_transaction_rate'=>1.5,
+        //         'international_transaction_rate'=>1.9,
+        //         'funding_rate'=>0,
+        //         'conversion_rate'=>1,
+        //         'created_at'=>now(),'updated_at'=>now()
+        //     ],
+        // ]);
+
+        DB::table('document_types')->insert([
+            ['name'=>'Government Issued ID Card'],
+            ['name'=>'International passport'],
+            ['name'=>'Driver License'],
+            ['name'=>'Voter\'s Card']
         ]);
+
     }
 }

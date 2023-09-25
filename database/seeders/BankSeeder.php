@@ -11,7 +11,6 @@ class BankSeeder extends Seeder
     
     public function run()
     {
-        
         $banks = array(
             array('id' => '1','name' =>'Access Bank Plc'),
             array('id' => '2','name' =>'Citibank Nigeria Limited'),

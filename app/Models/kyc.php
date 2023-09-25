@@ -12,6 +12,23 @@ class Kyc extends Model
     // 5 - Voter's Card, 6 - Residential Address, 7 - NIN, 8 - Utility Bill, 9 - BVN, 10 - Business name,
     // 11 - CAC RC Nuber,
     use HasFactory;
-    protected $fillable = ['user_id','document_name','document_link','status'];
-
+    protected $fillable = [
+        'id',
+        'user_id',
+        'passport',
+        'document_type_id',
+        'id_card_front',
+        'id_card_back',
+        'country_id',
+        'nin',
+        'residential_address',
+        'utility_bill',
+        'bvn',
+        'business_address',
+        'status',
+        'created_at',
+        'updated_at'
+    ];
+    protected $hidden = ['id', 'user_id', 'created_at', 'updated_at'];
+    
 }

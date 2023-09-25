@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{User,Transaction,ExchangeRate,UserBank};
+use App\Models\{User,Transaction,ExchangeRate,UserBank,Kyc};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -494,7 +494,7 @@ class UserController extends BaseController
         return $this->successfulResponse($userBanks,'Bak List');
     }
 
-    public function generateAccNo()
+    /*public function generateAccNo()
     {
         $authurl= config('services.vfd.authurl');
         $secretkey= config('services.vfd.consumerSecretkey');
@@ -540,9 +540,9 @@ class UserController extends BaseController
 
             return $acc_responses;
         }
-    }
+    }*/
 
-    private function getToken($authurl,$wallet_credentials)
+    /*private function getToken($authurl,$wallet_credentials)
     {
         $curl = curl_init();
 
@@ -582,9 +582,9 @@ class UserController extends BaseController
 
         curl_close($curl);
 
-    }
+    }*/
 
-    public function onBoarding()
+    /*public function onBoarding()
     {
         $requestData=array(
             "username"=>"leverpay",
@@ -611,19 +611,6 @@ class UserController extends BaseController
                    "Authorization: Bearer ".$accessToken)
              );
 
-        /*curl_setopt_array($ch1, array(
-            CURLOPT_URL => "",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER => false,
-            CURLOPT_POST => false,
-            CURLOPT_POSTFIELDS => $postData,
-            CURLOPT_FAILONERROR => true,
-            CURLOPT_HTTPHEADER => array(
-                "Content-Type: application/json",
-                "Authorization: Bearer 7c4aa53f-7ad1-339f-883e-62bcd9be61d6"
-                )
-            ));
-        */
         $acc_responses = curl_exec($ch1);
         curl_close($ch1);
 
@@ -639,6 +626,142 @@ class UserController extends BaseController
         }
 
         //return curl_error($ch1);
+
+    }*/
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/add-user-kyc",
+     *   tags={"User"},
+     *   summary="Add User KYC document",
+     *   operationId="Add User KYC document",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"document_type_id","country_id","residential_address","passport","id_card_front","id_card_back","bvn","nin"},
+     *              @OA\Property( property="document_type_id", enum="[1]"),
+     *              @OA\Property( property="country_id", enum="[1]"),
+     *              @OA\Property( property="passport", type="file"),
+     *              @OA\Property( property="id_card_front", type="file"),
+     *              @OA\Property( property="id_card_back", type="file"),
+     *              @OA\Property( property="bvn", type="string"),
+     *              @OA\Property( property="nin", type="string"),
+     *              @OA\Property( property="residential_address", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addUserKyc(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'document_type_id' => 'required',
+            'country' => 'required',
+            'residential_address' => 'required',
+            'bvn' => 'required',
+            'nin' => 'required',
+            'country_id' => 'required',
+            'passport' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'id_card_back' => 'required|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        $user_id=Auth::user()->id;
+
+        $data['user_id']=$user_id;
+
+        $passport = cloudinary()->upload($request->file('passport')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+        $data['passport']=$passport;
+
+
+        $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+        $data['id_card_front']=$idFront;
+
+        $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+
+        $data['id_card_back']=$idBack;
+
+        $user=Kyc::create($data);
+        User::where('id', $user_id)->update(['kyc_status'=>1]);
+
+        $data2['activity']="Add KYC";
+        $data2['user_id']=$user_id;
+
+        ActivityLog::createActivity($data2);
+
+        $response = [
+            'success' => true,
+            'user' =>$user,
+            'message' => "KYC successfully saved"
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/user-kyc-details",
+     *   tags={"User"},
+     *   summary="Get user kyc details",
+     *   operationId="Get user kyc details",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getKycDocument()
+    {
+        $user_id=Auth::user()->id;
+        $kycs=Kyc::where('user_id', $user_id)->get();
+
+        return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
 
     }
 
