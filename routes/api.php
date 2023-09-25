@@ -48,8 +48,8 @@ Route::prefix('v1')->group( function(){
 
     //
 
-    Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
-    Route::get('/on-boarding', [UserController::class, 'onBoarding']);
+    //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
+    //Route::get('/on-boarding', [UserController::class, 'onBoarding']);
 
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
@@ -140,8 +140,7 @@ Route::prefix('v1')->group( function(){
             Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
             Route::get('/active-exchange-rate', [AdminController::class, 'activeExchangeRate'])->name('active-exchange-rate');
             Route::get('/all-exchange-rate', [AdminController::class, 'allExchangeRate'])->name('all-exchange-rate');
-
-
+            
         });
     });
 
