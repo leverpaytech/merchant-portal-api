@@ -127,6 +127,11 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function wallet()
     {
         return $this->belongsTo(Wallet::class, 'id','user_id');

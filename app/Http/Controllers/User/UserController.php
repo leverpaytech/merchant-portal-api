@@ -106,11 +106,11 @@ class UserController extends BaseController
         $userId = Auth::user()->id;
 
         //active exchange rate
-        $getExchageRate=ExchangeRate::where('status',1)->get(['rate'])->first();
+        $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
         $rate=$getExchageRate->rate;
 
         $user = User::where('id', $userId)->with('wallet')->with('card')->with('currencies')->with('state')->with('city')->get()->first();
-        
+
         $getV1=Transaction::where('user_id',$userId)->where('type','credit')->sum('amount');
         $user->total_save= [
             'ngn'=>$getV1,
@@ -130,9 +130,9 @@ class UserController extends BaseController
             'ngn'=>$user->wallet->withdrawable_amount,
             'usdt'=>round($user->wallet->withdrawable_amount/$rate,6)
         ];
-        
 
-    
+
+
 
         //return response()->json(Auth::user());
 
@@ -198,7 +198,7 @@ class UserController extends BaseController
         {
             return $this->sendError('Error',$validator->errors(),422);
         }
-        
+
 
         $users = User::where('email', 'LIKE','%'.$request['email'].'%')->get(['uuid','first_name','last_name','email']);
         return $this->successfulResponse($users);
@@ -388,6 +388,11 @@ class UserController extends BaseController
         return $this->successfulResponse(Auth::user()->currencies,'');
     }
 
+    public function getCurrencies(){
+        $currencies = Currency::where('status', 1)->get();
+        return $this->successfulResponse($currencies,'');
+    }
+
     /**
      * @OA\Post(
      ** path="/api/v1/user/add-bank-account",
@@ -475,7 +480,7 @@ class UserController extends BaseController
     public function getUserBankAccount()
     {
         $user_id=Auth::user()->id;
-        
+
         $userBanks=UserBank::join('banks','user_banks.bank_id','=','banks.id')
             ->join('users', 'user_banks.user_id','=','users.id')
             ->where('user_banks.user_id', $user_id)

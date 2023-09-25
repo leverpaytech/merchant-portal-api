@@ -31,7 +31,7 @@ return new class extends Migration
             $table->boolean('status')->default(true);
             $table->boolean('verify_email_status')->default(false);
             $table->timestamp('last_seen_at')->nullable();
-            $table->enum('role_id',[0,1])->nullable();
+            $table->enum('role_id',[0,1])->default(0);
             $table->timestamps();
         });
     }
