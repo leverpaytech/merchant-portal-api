@@ -1157,7 +1157,9 @@
                             "schema": {
                                 "required": [
                                     "product_name",
-                                    "price"
+                                    "price",
+                                    "vat",
+                                    "email"
                                 ],
                                 "properties": {
                                     "product_name": {
@@ -1166,11 +1168,17 @@
                                     "price": {
                                         "type": "string"
                                     },
+                                    "quantity": {
+                                        "type": "string"
+                                    },
                                     "product_description": {
                                         "type": "string"
                                     },
-                                    "product_image": {
-                                        "type": "file"
+                                    "vat": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -1222,6 +1230,44 @@
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-invoices": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all invoices",
+                "operationId": "get all invoices",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-invoices": {
+            "get": {
+                "tags": [
+                    "merchant"
+                ],
+                "summary": "Get all merchants invoices",
+                "operationId": "get all merchants invoices",
                 "responses": {
                     "200": {
                         "description": "Success"

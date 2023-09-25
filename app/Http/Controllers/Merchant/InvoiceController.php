@@ -38,7 +38,7 @@ class InvoiceController extends BaseController
      *              @OA\Property( property="price", type="string"),
      *              @OA\Property( property="quantity", type="string"),
      *              @OA\Property( property="product_description", type="string"),
-     *              @OA\Property( property="vat", type="string")
+     *              @OA\Property( property="vat", type="string"),
      *              @OA\Property( property="email", type="string")
      *          ),
      *      ),
