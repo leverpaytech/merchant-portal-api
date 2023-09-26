@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('card_limit_histories', function (Blueprint $table) {
+        Schema::create('document_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('card_type_id')->constrained();
-            $table->double('limit', 13,5)->default(0);
-            $table->boolean('status')->default(true);
+            $table->string('name');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('card_limit_histories');
+        Schema::dropIfExists('document_types');
     }
 };

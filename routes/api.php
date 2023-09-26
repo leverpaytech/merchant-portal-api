@@ -38,18 +38,12 @@ use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 
 Route::prefix('v1')->group( function(){
     //get countries
-
-    Route::post('/add-kyc', [KycController::class, 'addKyc']);
-    Route::get('/kyc-details', [KycController::class, 'getKycDocument']);
-
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
 
-    //
-
-    Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
-    Route::get('/on-boarding', [UserController::class, 'onBoarding']);
+    //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
+    //Route::get('/on-boarding', [UserController::class, 'onBoarding']);
 
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
@@ -72,6 +66,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-profile', [MerchantController::class, 'getMerchantProfile'])->name('merchant.get');
             Route::post('/update-merchant-profile', [MerchantController::class, 'updateMerchantProfile'])->name('merchant.update');
 
+            Route::post('/add-merchant-kyc', [MerchantController::class, 'addMerchantKyc']);
+            Route::get('/merchant-kyc-details', [MerchantController::class, 'getKycDocument']);
 
             Route::get('/get-merchant-currencies', [MerchantController::class, 'getUserCurrencies']);
             Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
@@ -95,6 +91,9 @@ Route::prefix('v1')->group( function(){
             Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
             Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
+
+            Route::post('/add-user-kyc', [UserController::class, 'addUserKyc']);
+            Route::get('/user-kyc-details', [UserController::class, 'getKycDocument']);
 
 
             Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
@@ -144,8 +143,7 @@ Route::prefix('v1')->group( function(){
             Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
             Route::get('/active-exchange-rate', [AdminController::class, 'activeExchangeRate'])->name('active-exchange-rate');
             Route::get('/all-exchange-rate', [AdminController::class, 'allExchangeRate'])->name('all-exchange-rate');
-
-
+            
         });
     });
 

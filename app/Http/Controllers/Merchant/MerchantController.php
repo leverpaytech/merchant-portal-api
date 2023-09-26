@@ -318,4 +318,152 @@ class MerchantController extends BaseController
 
         return $this->successfulResponse($merchantKeys, $request->mode.'mode successfully activated');
     }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/merchant/add-merchant-kyc",
+     *   tags={"Merchant"},
+     *   summary="Add Merchant KYC document",
+     *   operationId="Add Merchant KYC document",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"document_type_id","country_id","residential_address","business_address","utility_bill","passport","id_card_front","id_card_back","bvn","nin",""},
+     *              @OA\Property( property="document_type_id", enum="[1]"),
+     *              @OA\Property( property="country_id", enum="[1]"),
+     *              @OA\Property( property="passport", type="file"),
+     *              @OA\Property( property="id_card_front", type="file"),
+     *              @OA\Property( property="id_card_back", type="file"),
+     *              @OA\Property( property="bvn", type="string"),
+     *              @OA\Property( property="nin", type="string"),
+     *              @OA\Property( property="business_address", type="string"),
+     *              @OA\Property( property="utility_bill", type="file"),
+     *              @OA\Property( property="residential_address", type="string"),
+     *              
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addMerchantKyc(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'document_type_id' => 'required',
+            'country' => 'required',
+            'residential_address' => 'required',
+            'bvn' => 'required',
+            'nin' => 'required',
+            'business_address' => 'required',
+            'country_id' => 'required',
+            'utility_bill' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'passport' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'id_card_back' => 'required|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        $user_id=Auth::user()->id;
+
+        $data['user_id']=$user_id;
+
+        $passport = cloudinary()->upload($request->file('passport')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+        $data['passport']=$passport;
+
+
+        $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+        $data['id_card_front']=$idFront;
+
+        $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+
+        $data['id_card_back']=$idBack;
+
+        $utilityBill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+
+        $data['utility_bill']=$utilityBill;
+
+
+        $user=Kyc::create($data);
+        User::where('id', $user_id)->update(['kyc_status'=>1]);
+
+        $data2['activity']="Add KYC";
+        $data2['user_id']=$user_id;
+
+        ActivityLog::createActivity($data2);
+
+        $response = [
+            'success' => true,
+            'user' =>$user,
+            'message' => "KYC successfully saved"
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/merchant-kyc-details",
+     *   tags={"Merchant"},
+     *   summary="Get merchant kyc details",
+     *   operationId="Get merchant kyc details",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getKycDocument()
+    {
+        $user_id=Auth::user()->id;
+        $kycs=Kyc::where('user_id', $user_id)->get();
+
+        return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
+
+    }
 }

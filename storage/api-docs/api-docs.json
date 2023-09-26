@@ -1157,7 +1157,9 @@
                             "schema": {
                                 "required": [
                                     "product_name",
-                                    "price"
+                                    "price",
+                                    "vat",
+                                    "email"
                                 ],
                                 "properties": {
                                     "product_name": {
@@ -1166,11 +1168,17 @@
                                     "price": {
                                         "type": "string"
                                     },
+                                    "quantity": {
+                                        "type": "string"
+                                    },
                                     "product_description": {
                                         "type": "string"
                                     },
-                                    "product_image": {
-                                        "type": "file"
+                                    "vat": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -1222,6 +1230,44 @@
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-invoices": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all invoices",
+                "operationId": "get all invoices",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-invoices": {
+            "get": {
+                "tags": [
+                    "merchant"
+                ],
+                "summary": "Get all merchants invoices",
+                "operationId": "get all merchants invoices",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -1473,6 +1519,113 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/add-merchant-kyc": {
+            "post": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Add Merchant KYC document",
+                "operationId": "Add Merchant KYC document",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "document_type_id",
+                                    "country_id",
+                                    "residential_address",
+                                    "business_address",
+                                    "utility_bill",
+                                    "passport",
+                                    "id_card_front",
+                                    "id_card_back",
+                                    "bvn",
+                                    "nin",
+                                    ""
+                                ],
+                                "properties": {
+                                    "document_type_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "passport": {
+                                        "type": "file"
+                                    },
+                                    "id_card_front": {
+                                        "type": "file"
+                                    },
+                                    "id_card_back": {
+                                        "type": "file"
+                                    },
+                                    "bvn": {
+                                        "type": "string"
+                                    },
+                                    "nin": {
+                                        "type": "string"
+                                    },
+                                    "business_address": {
+                                        "type": "string"
+                                    },
+                                    "utility_bill": {
+                                        "type": "file"
+                                    },
+                                    "residential_address": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/merchant-kyc-details": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant kyc details",
+                "operationId": "Get merchant kyc details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [
@@ -2002,6 +2155,104 @@
                 ],
                 "summary": "Get user bank account",
                 "operationId": "get user bank account",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/add-user-kyc": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Add User KYC document",
+                "operationId": "Add User KYC document",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "document_type_id",
+                                    "country_id",
+                                    "residential_address",
+                                    "passport",
+                                    "id_card_front",
+                                    "id_card_back",
+                                    "bvn",
+                                    "nin"
+                                ],
+                                "properties": {
+                                    "document_type_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "passport": {
+                                        "type": "file"
+                                    },
+                                    "id_card_front": {
+                                        "type": "file"
+                                    },
+                                    "id_card_back": {
+                                        "type": "file"
+                                    },
+                                    "bvn": {
+                                        "type": "string"
+                                    },
+                                    "nin": {
+                                        "type": "string"
+                                    },
+                                    "residential_address": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/user-kyc-details": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user kyc details",
+                "operationId": "Get user kyc details",
                 "responses": {
                     "200": {
                         "description": "Success"
