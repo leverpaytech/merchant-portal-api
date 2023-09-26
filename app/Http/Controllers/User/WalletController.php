@@ -4,14 +4,17 @@ namespace App\Http\Controllers\user;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Mail\GeneralMail;
 use App\Models\TopupRequest;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Transaction;
+use App\Models\Transfer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Webpatser\Uuid\Uuid;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Validator;
@@ -427,50 +430,82 @@ class WalletController extends BaseController
             return $this->sendError("Invalid transfer, you can't transfer to yourself",[],400);
         }
 
-        DB::transaction( function() use($trans, $user, $request) {
+        $otp = rand(1000, 9999);
+
+        $transfer = new Transfer;
+        $transfer->user_id = $user->id;
+        $transfer->receiver_id = $trans->id;
+        $transfer->amount = $request['amount'];
+        $transfer->otp = $otp;
+        $transfer->save();
+
+        $content = "A request to transfer {$request['amount']} has been made on your account, to verify your otp is: <br /> {$otp}";
+
+        Mail::to($user->email)->send(new GeneralMail($content, 'OTP'));
+
+        return $this->successfulResponse([], 'OTP sent');
+    }
+
+    public function verifyTransfer(Request $request){
+        $this->validate($request, [
+            'otp'=>'required|numeric',
+            'uuid'=>'required|string'
+        ]);
+
+        $user= Auth::user();
+        $trans = Transfer::where('uuid', $request['uuid'])->first();
+
+        if(!$trans){
+            return $this->sendError("Transfer request not found",[],400);
+        }
+
+        if($trans->user_id != $user->id){
+            return $this->sendError("Invalid request",[],400);
+        }
+
+        if($user->wallet->withdrawable_amount < $trans['amount']){
+            return $this->sendError("Insufficient balance",[],400);
+        }
+
+        DB::transaction( function() use($trans, $user) {
             $ext = 'LP_'.Uuid::generate()->string;
             $transaction = new Transaction();
             $transaction->user_id = $user->id;
             $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
             $transaction->tnx_reference_no	= $ext;
-            $transaction->amount =$request['amount'];
-            $transaction->balance = floatval($user->wallet->withdrawable_amount) - floatval($request['amount']);
+            $transaction->amount =$trans['amount'];
+            $transaction->balance = floatval($user->wallet->withdrawable_amount) - floatval($trans['amount']);
             $transaction->type = 'debit';
             $transaction->merchant = 'transfer';
+            $transaction->status = 1;
 
             $details = [
-                'receiver'=>[
-                    "uuid"=>$trans->uuid,
-                    "first_name"=>$trans->first_name,
-                    "last_name"=>$trans->last_name,
-                    "email"=>$trans->email
-                ]
+                "transfer_uuid"=>$trans['uuid']
             ];
             $transaction->transaction_details = json_encode($details);
             $transaction->save();
 
             $transaction2 = new Transaction();
-            $transaction2->user_id = $trans->id;
+            $transaction2->user_id = $trans->receiver_id;
             $transaction2->reference_no	= $ext;
             $transaction2->tnx_reference_no	= Uuid::generate()->string;
-            $transaction2->amount =$request['amount'];
-            $transaction2->balance = floatval($trans->wallet->withdrawable_amount) + floatval($request['amount']);
+            $transaction2->amount =$trans['amount'];
+            $transaction2->balance = floatval($trans->wallet->withdrawable_amount) + floatval($trans['amount']);
             $transaction2->type = 'credit';
             $transaction2->merchant = 'transfer';
+            $transaction->status = 1;
             $details2 = [
-                'sender'=>[
-                    "uuid"=>$user->uuid,
-                    "first_name"=>$user->first_name,
-                    "last_name"=>$user->last_name,
-                    "email"=>$user->email
-                ],
+                "transfer_uuid"=>$trans['uuid']
             ];
             $transaction2->transaction_details = json_encode($details2);
             $transaction2->save();
 
-            WalletService::addToWallet($trans->id, $request['amount']);
-            WalletService::subtractFromWallet($user->id, $request['amount']);
+            WalletService::addToWallet($trans->receiver_id, $trans['amount']);
+            WalletService::subtractFromWallet($user->id, $trans['amount']);
         });
+
+        $trans->status = 1;
+        $trans->save();
 
         return $this->successfulResponse([], 'Transfer successful');
     }

@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Http\Controllers\KycController;
 
 Route::get('/', function (){
+    $a = "yo";
+    dd("hello {$a}");
     $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
     dd($getExchageRate);
     // dd(Str::uuid()->toString());
