@@ -209,10 +209,10 @@ class AdminController extends BaseController
                     'document_type_id'=>$docType->id,
                     'name'=>$docType->name,
                 ];
-            
+
                 return $user;
             }
-            
+
         });
         return $this->successfulResponse($users, 'Users List');
     }
@@ -297,74 +297,6 @@ class AdminController extends BaseController
 
     }
 
-    /**
-     * @OA\Post(
-     ** path="/api/v1/admin/add-exchange-rate",
-     *   tags={"Admin"},
-     *   summary="Add new exchange rate",
-     *   operationId="Add new exchange rate",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"rate"},
-     *              @OA\Property( property="rate", type="string")
-     *          ),
-     *      ),
-     *   ),
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   }
-     *)
-     **/
-    public function addExchangeRate(Request $request)
-    {
-        $data = $request->all();
-
-        $validator = Validator::make($data, [
-            'rate'=>'unique:exchange_rates,rate|required|numeric'
-        ]);
-
-        if ($validator->fails())
-        {
-            return $this->sendError('Error',$validator->errors(),422);
-        }
-        $new_rate=$request['rate'];
-        DB::transaction( function() use($new_rate) {
-            //de-active the active rate
-            ExchangeRate::where('status',1)->update(['status'=>0]);
-
-            //set new rate
-            $exchangeRate = new ExchangeRate();
-            $exchangeRate->rate = $new_rate;
-            $exchangeRate->save();
-        });
-
-        return $this->successfulResponse($new_rate, 'New exchange rate successfully added');
-    }
 
     /**
      * @OA\Get(
@@ -385,7 +317,7 @@ class AdminController extends BaseController
      **/
     public function activeExchangeRate()
     {
-        $activeRate=ExchangeRate::where('status',1)->get()->first();
+        $activeRate=ExchangeRate::latest('status',1)->first();
 
         return $this->successfulResponse($activeRate, 'active exchange rate successfully retrieved');
 
@@ -393,7 +325,7 @@ class AdminController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/all-exchange-rate",
+     ** path="/api/v1/admin/get-exchange-rates-history",
      *   tags={"Admin"},
      *   summary="Get all exchange rate",
      *   operationId="Get all exchange rate",
@@ -409,14 +341,14 @@ class AdminController extends BaseController
      *)
      **/
 
-    public function allExchangeRate()
+    public function getExchangeRatesHistory()
     {
-        $activeRate=ExchangeRate::orderBy('status', 'DESC')->get();
+        $rates=ExchangeRate::latest()->get();
 
-        return $this->successfulResponse($activeRate, 'all exchange rate successfully retrieved');
+        return $this->successfulResponse($rates, 'all exchange rate successfully retrieved');
 
     }
 
-    
+
 
 }

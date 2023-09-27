@@ -443,7 +443,7 @@ class WalletController extends BaseController
 
         Mail::to($user->email)->send(new GeneralMail($content, 'OTP'));
 
-        return $this->successfulResponse([], 'OTP sent');
+        return $this->successfulResponse($transfer, 'OTP sent');
     }
 
     public function verifyTransfer(Request $request){
