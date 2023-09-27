@@ -118,6 +118,8 @@ Route::prefix('v1')->group( function(){
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
 
+            Route::get('get-exchange-rates', [UserController::class, 'getExchangeRates']);
+
             Route::get('get-invoices', [InvoiceController::class, 'getInvoices']);
         });
     });
@@ -143,7 +145,7 @@ Route::prefix('v1')->group( function(){
             Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
             Route::get('/active-exchange-rate', [AdminController::class, 'activeExchangeRate'])->name('active-exchange-rate');
             Route::get('/all-exchange-rate', [AdminController::class, 'allExchangeRate'])->name('all-exchange-rate');
-            
+
         });
     });
 
