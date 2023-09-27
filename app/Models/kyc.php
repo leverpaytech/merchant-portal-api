@@ -29,6 +29,20 @@ class Kyc extends Model
         'created_at',
         'updated_at'
     ];
-    protected $hidden = ['id', 'user_id', 'created_at', 'updated_at'];
+    protected $hidden = ['id','document_type_id','country_id', 'user_id', 'created_at', 'updated_at'];
     
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id','id');
+    }
+
+    public function documentType()
+    {
+        return $this->belongsTo(DocumentType::class, 'document_type_id','id');
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country_id', 'id');
+    }
 }

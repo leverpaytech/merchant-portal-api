@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType};
+use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country};
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
@@ -194,15 +194,35 @@ class AdminController extends BaseController
         {
             return $this->sendError("Authourized user",[], 401);
         }
-        return $this->successfulResponse(User::where('role_id','0')->get(), 'Users List');
+
+        $users=User::where('role_id','0')->with('kyc')->get();
+        $users->transform(function($user){
+            if($user->kyc !==NULL)
+            {
+                $county=Country::find($user->kyc->country_id);
+                $docType=DocumentType::find($user->kyc->document_type_id);
+                $user->kyc->country=[
+                    'country_id'=>$county->id,
+                    'country_name'=>$county->country_name,
+                ];
+                $user->kyc->document_type=[
+                    'document_type_id'=>$docType->id,
+                    'name'=>$docType->name,
+                ];
+            
+                return $user;
+            }
+            
+        });
+        return $this->successfulResponse($users, 'Users List');
     }
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-kyc-list",
-     *   tags={"KYC"},
-     *   summary="Get all KYC details",
-     *   operationId="Get all KYC",
+     ** path="/api/v1/admin/get-all-users-kyc-list",
+     *   tags={"Admin"},
+     *   summary="Get all users kyc list",
+     *   operationId="Get all users kyc list",
      *
      *   @OA\Response(
      *      response=200,
@@ -214,11 +234,66 @@ class AdminController extends BaseController
      *
      *)
      **/
-    public function getKycs()
+    public function getUserKyc()
     {
-        $kycs=Kyc::orderBy('status', 'DESC')->get();
+        $kycs=Kyc::where('status', '0')->orderBy('status', 'DESC')->with('user')->with('country')->with('documentType')->get();
 
         return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
+
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-all-merchants-kyc-list",
+     *   tags={"Admin"},
+     *   summary="Get all merchants kyc list",
+     *   operationId="Get all merchants kyc list",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantKyc()
+    {
+        $kycs=Kyc::where('status', '1')->orderBy('status', 'DESC')->with('user')->with('country')->with('documentType')->get();
+
+        return $this->successfulResponse($kycs, 'Merchants kyc details successfully retrieved');
+
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/find-kyc/{uuid}",
+     *   tags={"Admin"},
+     *   summary="Find Kyc by uuid",
+     *   operationId="Find Kyc by uuid",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function findKyc($uuid)
+    {
+        $getY=User::query()->where('uuid',$uuid)->get()->first();
+        if(!$getY)
+        {
+            return $this->sendError('Invalid UUID','',400);
+        }
+        $kycs=Kyc::where('user_id', $getY->id)->with('user')->with('country')->with('documentType')->get();
+
+        return $this->successfulResponse($kycs, 'KYC details successfully find');
 
     }
 

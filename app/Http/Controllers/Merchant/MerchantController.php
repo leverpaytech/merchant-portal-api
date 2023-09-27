@@ -379,7 +379,7 @@ class MerchantController extends BaseController
 
         $validator = Validator::make($data, [
             'document_type_id' => 'required',
-            'country' => 'required',
+            'country_id' => 'required',
             'residential_address' => 'required',
             'bvn' => 'required',
             'nin' => 'required',
