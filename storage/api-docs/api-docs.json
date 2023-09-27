@@ -165,13 +165,51 @@
                 ]
             }
         },
-        "/api/v1/admin/get-kyc-list": {
+        "/api/v1/admin/get-all-users-kyc-list": {
             "get": {
                 "tags": [
-                    "KYC"
+                    "Admin"
                 ],
-                "summary": "Get all KYC details",
-                "operationId": "Get all KYC",
+                "summary": "Get all users kyc list",
+                "operationId": "Get all users kyc list",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-all-merchants-kyc-list": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all merchants kyc list",
+                "operationId": "Get all merchants kyc list",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/find-kyc/{uuid}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Find Kyc by uuid",
+                "operationId": "Find Kyc by uuid",
                 "responses": {
                     "200": {
                         "description": "Success"

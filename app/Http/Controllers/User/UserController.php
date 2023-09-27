@@ -686,11 +686,10 @@ class UserController extends BaseController
 
         $validator = Validator::make($data, [
             'document_type_id' => 'required',
-            'country' => 'required',
+            'country_id' => 'required',
             'residential_address' => 'required',
             'bvn' => 'required',
             'nin' => 'required',
-            'country_id' => 'required',
             'passport' => 'required|mimes:jpeg,png,jpg|max:2048',
             'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
             'id_card_back' => 'required|mimes:jpeg,png,jpg|max:2048',

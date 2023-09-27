@@ -155,8 +155,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MerchantKeys::class, 'id','user_id');
     }
-
-
+    
+    public function kyc()
+    {
+        return $this->hasOne(Kyc::class);
+    }
 
     public function createUser($data)
     {
