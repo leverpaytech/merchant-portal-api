@@ -350,6 +350,7 @@ class WalletController extends BaseController
             ->orderBy('created_at', 'DESC')
             ->get([
                 'reference_no',
+                'merchant',
                 'tnx_reference_no',
                 'amount',
                 'transaction_details',
@@ -467,6 +468,8 @@ class WalletController extends BaseController
             return $this->sendError("Invalid request",[],400);
         }
 
+        // return $trans->recipient->wallet;
+
         if($user->wallet->withdrawable_amount < $trans['amount']){
             return $this->sendError("Insufficient balance",[],400);
         }
@@ -494,7 +497,7 @@ class WalletController extends BaseController
             $transaction2->reference_no	= $ext;
             $transaction2->tnx_reference_no	= Uuid::generate()->string;
             $transaction2->amount =$trans['amount'];
-            $transaction2->balance = floatval($trans->wallet->withdrawable_amount) + floatval($trans['amount']);
+            $transaction2->balance = floatval($trans->recipient->wallet->withdrawable_amount) + floatval($trans['amount']);
             $transaction2->type = 'credit';
             $transaction2->merchant = 'transfer';
             $transaction->status = 1;

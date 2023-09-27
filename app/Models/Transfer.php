@@ -20,4 +20,12 @@ class Transfer extends Model
             $model->uuid = Str::uuid()->toString();
         });
     }
+
+    public function sender(){
+        return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function recipient(){
+        return $this->belongsTo(User::class, 'receiver_id','id');
+    }
 }
