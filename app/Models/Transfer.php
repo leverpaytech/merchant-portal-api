@@ -10,6 +10,9 @@ class Transfer extends Model
 {
     use HasFactory;
 
+    protected $hidden = [
+        'id','otp'];
+
     public static function boot(): void
     {
         parent::boot();

@@ -459,6 +459,10 @@ class WalletController extends BaseController
             return $this->sendError("Transfer request not found",[],400);
         }
 
+        if($request['otp'] != $trans->otp){
+            return $this->sendError("Invalid otp, please try again",[],400);
+        }
+
         if($trans->user_id != $user->id){
             return $this->sendError("Invalid request",[],400);
         }
