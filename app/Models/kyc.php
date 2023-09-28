@@ -25,6 +25,8 @@ class Kyc extends Model
         'utility_bill',
         'bvn',
         'business_address',
+        'business_certificate',
+        'rc_number',
         'status',
         'created_at',
         'updated_at'
