@@ -767,4 +767,8 @@ class UserController extends BaseController
     }
 
 
+    public function getExchangeRates(){
+        $rates = ExchangeRate::latest()->first();
+        return $this->successfulResponse($rates, '');
+    }
 }

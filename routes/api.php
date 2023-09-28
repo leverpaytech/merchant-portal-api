@@ -111,6 +111,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('search-user', [UserController::class, 'searchUser']);
             Route::post('transfer', [WalletController::class, 'transfer']);
+            Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
             Route::get('get-topup-requests', [WalletController::class, 'getTopupRequests']);
@@ -118,7 +119,10 @@ Route::prefix('v1')->group( function(){
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
 
+            Route::get('get-exchange-rates', [UserController::class, 'getExchangeRates']);
+
             Route::get('get-invoices', [InvoiceController::class, 'getInvoices']);
+            Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
         });
     });
 
@@ -138,15 +142,19 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-users-kyc-list', [AdminController::class, 'getUserKyc']);
             Route::get('/get-merchants-kyc-list', [AdminController::class, 'getMerchantKyc']);
             Route::get('/find-kyc/{uuid}', [AdminController::class, 'findKyc']);
-            
-            
+
+
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
             Route::get('/get-payment-options', [AdminController::class, 'getPaymentOption']);
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
-            Route::post('/add-exchange-rate', [AdminController::class, 'addExchangeRate'])->name('add-exchange-rate');
             Route::get('/active-exchange-rate', [AdminController::class, 'activeExchangeRate'])->name('active-exchange-rate');
-            Route::get('/all-exchange-rate', [AdminController::class, 'allExchangeRate'])->name('all-exchange-rate');
-            
+            Route::get('/get-exchange-rates-history', [AdminController::class, 'getExchangeRatesHistory']);
+            Route::get('/get-transactions', [AdminController::class, 'getTransactions']);
+
+            Route::post('update-exchange-rates', [AdminController::class, 'updateExchangeRates']);
+            Route::post('add-new-bank', [AdminController::class, 'addNewBank']);
+            Route::post('add-account-number', [AdminController::class, 'addAccountNo']);
+            Route::get('get-account-numbers', [AdminController::class, 'getAccountNos']);
         });
     });
 

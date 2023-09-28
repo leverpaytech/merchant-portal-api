@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Request;
 use App\Models\User;
 #use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KycController;
+use App\Models\Transaction;
 
 Route::get('/', function (){
-    $a = "yo";
-    dd("hello {$a}");
-    $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
+
+    $getExchageRate=Transaction::latest()->with('user')->get();
     dd($getExchageRate);
     // dd(Str::uuid()->toString());
     // $user = User::find(1);

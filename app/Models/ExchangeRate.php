@@ -11,14 +11,16 @@ class ExchangeRate extends Model
     protected $fillable = [
         'id',
         'rate',
-        'staus',
-        'created_at',
-        'updated_at'
+        'local_transaction_rate',
+        'international_transaction_rate',
+        'funding_rate',
+        'conversion_rate',
+        'notes'
     ];
 
     protected $hidden = [
         'id',
-        'created_at',
-        'updated_at'
+        // 'created_at',
+        // 'updated_at'
     ];
 }

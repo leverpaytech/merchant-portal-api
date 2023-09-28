@@ -160,6 +160,10 @@ class InvoiceController extends BaseController
         }])->with(['user' => function ($query) {
             $query->select('id','uuid', 'first_name','last_name','phone');
         }])->first();
+
+        if(!$invoice){
+            return $this->sendError('Invoice not found',[],400);
+        }
         return $this->successfulResponse($invoice, 'Invoice successfully retrieved');
     }
 

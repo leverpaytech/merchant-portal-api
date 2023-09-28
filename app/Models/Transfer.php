@@ -10,11 +10,22 @@ class Transfer extends Model
 {
     use HasFactory;
 
+    protected $hidden = [
+        'id','otp'];
+
     public static function boot(): void
     {
         parent::boot();
         self::creating(function ($model) {
             $model->uuid = Str::uuid()->toString();
         });
+    }
+
+    public function sender(){
+        return $this->belongsTo(User::class,'user_id','id');
+    }
+
+    public function recipient(){
+        return $this->belongsTo(User::class, 'receiver_id','id');
     }
 }

@@ -119,10 +119,9 @@ class WalletController extends BaseController
         $this->validate($request, [
             'amount'=>'required|numeric|min:1',
             'reference'=>'required|string|unique:topup_requests,reference',
-            'document' => 'nullable|mimes:jpeg,png,jpg,pdf|max:4048'
+            'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
         $topup = new TopupRequest;
-
         if($request->file('document'))
         {
             try
@@ -130,14 +129,12 @@ class WalletController extends BaseController
                 $newname = cloudinary()->upload($request->file('document')->getRealPath(),
                     ['folder'=>'leverpay/documents']
                 )->getSecurePath();
-
                 $topup->image_url = $newname;
 
             } catch (\Exception $ex) {
                 return $this->sendError($ex->getMessage());
             }
         }
-
 
         $topup->user_id = Auth::id();
         $topup->amount = $request['amount'];
@@ -350,6 +347,7 @@ class WalletController extends BaseController
             ->orderBy('created_at', 'DESC')
             ->get([
                 'reference_no',
+                'merchant',
                 'tnx_reference_no',
                 'amount',
                 'transaction_details',
@@ -443,7 +441,7 @@ class WalletController extends BaseController
 
         Mail::to($user->email)->send(new GeneralMail($content, 'OTP'));
 
-        return $this->successfulResponse([], 'OTP sent');
+        return $this->successfulResponse($transfer, 'OTP sent');
     }
 
     public function verifyTransfer(Request $request){
@@ -459,9 +457,15 @@ class WalletController extends BaseController
             return $this->sendError("Transfer request not found",[],400);
         }
 
+        if($request['otp'] != $trans->otp){
+            return $this->sendError("Invalid otp, please try again",[],400);
+        }
+
         if($trans->user_id != $user->id){
             return $this->sendError("Invalid request",[],400);
         }
+
+        // return $trans->recipient->wallet;
 
         if($user->wallet->withdrawable_amount < $trans['amount']){
             return $this->sendError("Insufficient balance",[],400);
@@ -490,7 +494,7 @@ class WalletController extends BaseController
             $transaction2->reference_no	= $ext;
             $transaction2->tnx_reference_no	= Uuid::generate()->string;
             $transaction2->amount =$trans['amount'];
-            $transaction2->balance = floatval($trans->wallet->withdrawable_amount) + floatval($trans['amount']);
+            $transaction2->balance = floatval($trans->recipient->wallet->withdrawable_amount) + floatval($trans['amount']);
             $transaction2->type = 'credit';
             $transaction2->merchant = 'transfer';
             $transaction->status = 1;
@@ -509,4 +513,27 @@ class WalletController extends BaseController
 
         return $this->successfulResponse([], 'Transfer successful');
     }
+
+    /** @OA\Get(
+        ** path="/api/v1/admin/get-account-numbers",
+        *   tags={"Admin"},
+        *   summary="Get all LeverPay Account number",
+        *   operationId="Get all LeverPay Account number",
+        *
+        *   @OA\Response(
+        *      response=200,
+        *       description="Success",
+        *     ),
+        *     security={
+        *       {"bearer_token": {}}
+        *     }
+        *
+        *)
+        **/
+
+        public function getAccountNos(){
+           $acc = DB::table('lever_pay_account_no')->get();
+           return $this->successfulResponse($acc, '');
+        }
+
 }
