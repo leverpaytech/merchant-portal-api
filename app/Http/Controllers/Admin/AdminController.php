@@ -497,9 +497,10 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"bank","account_number"},
+     *              required={"bank","account_number",'account_name'},
      *              @OA\Property( property="bank", type="string"),
      *              @OA\Property( property="account_number", type="string"),
+     *              @OA\Property( property="account_name", type="string"),
      *          ),
      *      ),
      *   ),
@@ -534,7 +535,8 @@ class AdminController extends BaseController
     public function addAccountNo(Request $request){
         $data = $this->validate($request, [
             'bank'=>'required|string',
-            'account_number'=>'required'
+            'account_number'=>'required',
+            'account_name'=>'required'
         ]);
 
         DB::table('lever_pay_account_no')->insert($data);
