@@ -122,6 +122,7 @@ Route::prefix('v1')->group( function(){
             Route::get('get-exchange-rates', [UserController::class, 'getExchangeRates']);
 
             Route::get('get-invoices', [InvoiceController::class, 'getInvoices']);
+            Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
         });
     });
 
@@ -148,7 +149,12 @@ Route::prefix('v1')->group( function(){
             Route::post('/add-new-currency', [CurrencyController::class, 'create'])->name('create.currency');
             Route::get('/active-exchange-rate', [AdminController::class, 'activeExchangeRate'])->name('active-exchange-rate');
             Route::get('/get-exchange-rates-history', [AdminController::class, 'getExchangeRatesHistory']);
+            Route::get('/get-transactions', [AdminController::class, 'getTransactions']);
 
+            Route::post('update-exchange-rates', [AdminController::class, 'updateExchangeRates']);
+            Route::post('add-new-bank', [AdminController::class, 'addNewBank']);
+            Route::post('add-account-number', [AdminController::class, 'addAccountNo']);
+            Route::get('get-account-numbers', [AdminController::class, 'getAccountNos']);
         });
     });
 

@@ -3,7 +3,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country};
+use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction};
+use App\Models\Bank;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
@@ -317,7 +318,7 @@ class AdminController extends BaseController
      **/
     public function activeExchangeRate()
     {
-        $activeRate=ExchangeRate::latest('status',1)->first();
+        $activeRate=ExchangeRate::latest()->first();
 
         return $this->successfulResponse($activeRate, 'active exchange rate successfully retrieved');
 
@@ -349,6 +350,219 @@ class AdminController extends BaseController
 
     }
 
+     /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-transactions",
+     *   tags={"Admin"},
+     *   summary="Get all Transactions",
+     *   operationId="Get all Transactions",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
 
+    public function getTransactions(){
+        $transactions = Transaction::latest()->with('user')->get();
+        return $this->successfulResponse($transactions, '');
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/update-exchange-rates",
+     *   tags={"Admin"},
+     *   summary="Update exchange rates",
+     *   operationId="Update exchange rates",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"rate","local_transaction_rate",international_transaction_rate,conversion_rate,funding_rate},
+     *              @OA\Property( property="rate", type="string"),
+     *              @OA\Property( property="local_transaction_rate", type="string")
+     *              @OA\Property( property="funding_rate", type="string")
+     *              @OA\Property( property="conversion_rate", type="string")
+     *              @OA\Property( property="international_transaction_rate", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function updateExchangeRates(Request $request){
+        $data = $this->validate($request, [
+            'rate'=>'required|numeric',
+            'local_transaction_rate'=>'required|numeric',
+            'international_transaction_rate'=>'required|numeric',
+            'funding_rate'=>'required|numeric',
+            'conversion_rate'=>'required|numeric',
+            'notes'=>'nullable|string'
+        ]);
+
+        ExchangeRate::create($data);
+        return $this->successfulResponse([], 'Rate updated successfully');
+    }
+
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/add-new-bank",
+     *   tags={"Admin"},
+     *   summary="Update exchange rates",
+     *   operationId="Update exchange rates",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"name"},
+     *              @OA\Property( property="name", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addNewBank(Request $request){
+        $data = $this->validate($request, [
+            'name'=>'required|string|unique:banks,name',
+        ]);
+
+        Bank::create($data);
+        return $this->successfulResponse([], 'Bank created successfully');
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/add-account-number",
+     *   tags={"Admin"},
+     *   summary="Add Account Number",
+     *   operationId="Add Account Number",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"bank","account_number"},
+     *              @OA\Property( property="bank", type="string"),
+     *              @OA\Property( property="account_number", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addAccountNo(Request $request){
+        $data = $this->validate($request, [
+            'bank'=>'required|string',
+            'account_number'=>'required'
+        ]);
+
+        DB::table('lever_pay_account_no')->insert($data);
+
+        return $this->successfulResponse([], 'Bank created successfully');
+    }
+
+       /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-account-numbers",
+     *   tags={"Admin"},
+     *   summary="Get all LeverPay Account number",
+     *   operationId="Get all LeverPay Account number",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+
+     public function getAccountNos(){
+        $acc = DB::table('lever_pay_account_no')->get();
+        return $this->successfulResponse($acc, 'Bank created successfully');
+     }
 
 }

@@ -119,10 +119,9 @@ class WalletController extends BaseController
         $this->validate($request, [
             'amount'=>'required|numeric|min:1',
             'reference'=>'required|string|unique:topup_requests,reference',
-            'document' => 'nullable|mimes:jpeg,png,jpg,pdf|max:4048'
+            'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
         $topup = new TopupRequest;
-
         if($request->file('document'))
         {
             try
@@ -130,14 +129,12 @@ class WalletController extends BaseController
                 $newname = cloudinary()->upload($request->file('document')->getRealPath(),
                     ['folder'=>'leverpay/documents']
                 )->getSecurePath();
-
                 $topup->image_url = $newname;
 
             } catch (\Exception $ex) {
                 return $this->sendError($ex->getMessage());
             }
         }
-
 
         $topup->user_id = Auth::id();
         $topup->amount = $request['amount'];
@@ -516,4 +513,27 @@ class WalletController extends BaseController
 
         return $this->successfulResponse([], 'Transfer successful');
     }
+
+    /** @OA\Get(
+        ** path="/api/v1/admin/get-account-numbers",
+        *   tags={"Admin"},
+        *   summary="Get all LeverPay Account number",
+        *   operationId="Get all LeverPay Account number",
+        *
+        *   @OA\Response(
+        *      response=200,
+        *       description="Success",
+        *     ),
+        *     security={
+        *       {"bearer_token": {}}
+        *     }
+        *
+        *)
+        **/
+
+        public function getAccountNos(){
+           $acc = DB::table('lever_pay_account_no')->get();
+           return $this->successfulResponse($acc, '');
+        }
+
 }
