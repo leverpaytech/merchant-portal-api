@@ -1302,7 +1302,7 @@
         "/api/v1/merchant/get-invoices": {
             "get": {
                 "tags": [
-                    "merchant"
+                    "Merchant"
                 ],
                 "summary": "Get all merchants invoices",
                 "operationId": "get all merchants invoices",
@@ -1423,7 +1423,7 @@
                 ]
             }
         },
-        "/api/v1/merchant/get-merchant-currencies}": {
+        "/api/v1/merchant/get-merchant-currencie": {
             "get": {
                 "tags": [
                     "Merchant"
@@ -1496,7 +1496,7 @@
                 ]
             }
         },
-        "/api/v1/merchant/get-merchant-keys}": {
+        "/api/v1/merchant/get-merchant-keys": {
             "get": {
                 "tags": [
                     "Merchant"
@@ -1613,6 +1613,12 @@
                                         "type": "string"
                                     },
                                     "business_address": {
+                                        "type": "string"
+                                    },
+                                    "business_certificate": {
+                                        "type": "file"
+                                    },
+                                    "rc_number": {
                                         "type": "string"
                                     },
                                     "utility_bill": {
@@ -2058,7 +2064,7 @@
                 ]
             }
         },
-        "/api/v1/user/get-user-currencies}": {
+        "/api/v1/user/get-user-currencies": {
             "get": {
                 "tags": [
                     "Merchant"
@@ -2186,7 +2192,7 @@
                 ]
             }
         },
-        "/api/v1/user/get-user-bank-account}": {
+        "/api/v1/user/get-user-bank-account": {
             "get": {
                 "tags": [
                     "User"

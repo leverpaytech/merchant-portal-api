@@ -317,7 +317,7 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/user/get-user-currencies}",
+     ** path="/api/v1/user/get-user-currencies",
      *   tags={"Merchant"},
      *   summary="Get user's currencies",
      *   operationId="get user's currencies",
@@ -462,7 +462,7 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/user/get-user-bank-account}",
+     ** path="/api/v1/user/get-user-bank-account",
      *   tags={"User"},
      *   summary="Get user bank account",
      *   operationId="get user bank account",
@@ -715,11 +715,13 @@ class UserController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+        if(!empt($request->file('id_card_back')))
+        {
+            $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-
-        $data['id_card_back']=$idBack;
+            )->getSecurePath();
+            $data['id_card_back']=$idBack;
+        }
 
         $user=Kyc::create($data);
         User::where('id', $user_id)->update(['kyc_status'=>1]);

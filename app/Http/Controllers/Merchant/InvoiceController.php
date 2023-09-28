@@ -206,7 +206,7 @@ class InvoiceController extends BaseController
         /**
      * @OA\Get(
      ** path="/api/v1/merchant/get-invoices",
-     *   tags={"merchant"},
+     *   tags={"Merchant"},
      *   summary="Get all merchants invoices",
      *   operationId="get all merchants invoices",
      *

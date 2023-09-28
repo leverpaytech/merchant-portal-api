@@ -159,7 +159,7 @@ class MerchantController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/merchant/get-merchant-currencies}",
+     ** path="/api/v1/merchant/get-merchant-currencie",
      *   tags={"Merchant"},
      *   summary="Get merchant's currencies",
      *   operationId="get merchant's currencies",
@@ -232,7 +232,7 @@ class MerchantController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/merchant/get-merchant-keys}",
+     ** path="/api/v1/merchant/get-merchant-keys",
      *   tags={"Merchant"},
      *   summary="Get merchant's merchant keys",
      *   operationId="get merchant's merchant keys",
@@ -338,6 +338,8 @@ class MerchantController extends BaseController
      *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="nin", type="string"),
      *              @OA\Property( property="business_address", type="string"),
+     *              @OA\Property( property="business_certificate", type="file"),
+     *              @OA\Property( property="rc_number", type="string"),
      *              @OA\Property( property="utility_bill", type="file"),
      *              @OA\Property( property="residential_address", type="string"),
      *              
@@ -383,6 +385,8 @@ class MerchantController extends BaseController
             'residential_address' => 'required',
             'bvn' => 'required',
             'nin' => 'required',
+            'business_certificate'=>'nullable',
+            'rc_number'=>'nullable',
             'business_address' => 'required',
             'country_id' => 'required',
             'utility_bill' => 'required|mimes:jpeg,png,jpg|max:2048',
@@ -411,17 +415,33 @@ class MerchantController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+        
+        
+        if(!empt($request->file('id_card_back')))
+        {
+            $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
+            )->getSecurePath();
+            $data['id_card_back']=$idBack;
+        }
 
-        $data['id_card_back']=$idBack;
-
-        $utilityBill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
+        if(!empt($request->file('business_certificate')))
+        {
+            $bsCert = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
             ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
+            )->getSecurePath();
+            $data['business_certificate']=$bsCert;
+        }
+        
+        if(!empt($request->file('utility_bill')))
+        {
+            $utilityBill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+            )->getSecurePath();
+            $data['utility_bill']=$utilityBill;
+        }
 
-        $data['utility_bill']=$utilityBill;
+        
 
 
         $user=Kyc::create($data);
