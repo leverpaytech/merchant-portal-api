@@ -484,17 +484,17 @@ class AdminController extends BaseController
      * @OA\Post(
      ** path="/api/v1/admin/update-exchange-rates",
      *   tags={"Admin"},
-     *   summary="Update exchange rates",
-     *   operationId="Update exchange rates",
+     *   summary="update/change exchange rate",
+     *   operationId="update/change exchange rate",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"rate","local_transaction_rate",international_transaction_rate,conversion_rate,funding_rate},
+     *              required={"rate","local_transaction_rate","international_transaction_rate","conversion_rate","funding_rate"},
      *              @OA\Property( property="rate", type="string"),
-     *              @OA\Property( property="local_transaction_rate", type="string")
-     *              @OA\Property( property="funding_rate", type="string")
-     *              @OA\Property( property="conversion_rate", type="string")
+     *              @OA\Property( property="local_transaction_rate", type="string"),
+     *              @OA\Property( property="funding_rate", type="string"),
+     *              @OA\Property( property="conversion_rate", type="string"),
      *              @OA\Property( property="international_transaction_rate", type="string")
      *          ),
      *      ),

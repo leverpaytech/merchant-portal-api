@@ -408,7 +408,8 @@ class WalletController extends BaseController
      *)
      **/
 
-    public function transfer(Request $request){
+    public function transfer(Request $request)
+    {
         $this->validate($request, [
             'email'=>'required|email',
             'amount'=>'required|numeric|min:1'
@@ -514,26 +515,29 @@ class WalletController extends BaseController
         return $this->successfulResponse([], 'Transfer successful');
     }
 
-    /** @OA\Get(
-        ** path="/api/v1/admin/get-account-numbers",
-        *   tags={"Admin"},
-        *   summary="Get all LeverPay Account number",
-        *   operationId="Get all LeverPay Account number",
-        *
-        *   @OA\Response(
-        *      response=200,
-        *       description="Success",
-        *     ),
-        *     security={
-        *       {"bearer_token": {}}
-        *     }
-        *
-        *)
-        **/
+     
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-account-numbers",
+     *   tags={"Admin"},
+     *   summary="Get all LeverPay Account number",
+     *   operationId="Get all LeverPay Account number",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+    **/
 
-        public function getAccountNos(){
-           $acc = DB::table('lever_pay_account_no')->get();
-           return $this->successfulResponse($acc, '');
-        }
+    public function getAccountNos()
+    {
+        $acc = DB::table('lever_pay_account_no')->get();
+        return $this->successfulResponse($acc, '');
+    }
 
 }

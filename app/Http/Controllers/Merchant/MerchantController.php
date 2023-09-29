@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\User;
-use App\Models\{MerchantKeys,Merchant};
+use App\Models\{MerchantKeys,Merchant,Kyc};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -329,19 +329,17 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","residential_address","business_address","utility_bill","passport","id_card_front","id_card_back","bvn","nin",""},
+     *              required={"document_type_id","country_id","state_id","business_address","id_card_front","bvn","nin","business_certificate","rc_number"},
      *              @OA\Property( property="document_type_id", enum="[1]"),
-     *              @OA\Property( property="country_id", enum="[1]"),
-     *              @OA\Property( property="passport", type="file"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
+     *              @OA\Property( property="country_id", enum="[1]"),
+     *              @OA\Property( property="state_id", enum="[1]"),
      *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="nin", type="string"),
      *              @OA\Property( property="business_address", type="string"),
      *              @OA\Property( property="business_certificate", type="file"),
-     *              @OA\Property( property="rc_number", type="string"),
-     *              @OA\Property( property="utility_bill", type="file"),
-     *              @OA\Property( property="residential_address", type="string"),
+     *              @OA\Property( property="rc_number", type="string")
      *              
      *          ),
      *      ),
@@ -381,18 +379,15 @@ class MerchantController extends BaseController
 
         $validator = Validator::make($data, [
             'document_type_id' => 'required',
-            'country_id' => 'required',
-            'residential_address' => 'required',
-            'bvn' => 'required',
-            'nin' => 'required',
-            'business_certificate'=>'nullable',
-            'rc_number'=>'nullable',
-            'business_address' => 'required',
-            'country_id' => 'required',
-            'utility_bill' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'passport' => 'required|mimes:jpeg,png,jpg|max:2048',
             'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'id_card_back' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'country_id' => 'required',
+            'state_id' => 'required',
+            'bvn' => 'required|numeric',
+            'nin' => 'required|numeric',
+            'business_address' => 'required',
+            'business_certificate'=>'required|nullable|mimes:jpeg,png,jpg|max:2048',
+            'rc_number'=>'required'    
         ]);
 
         if ($validator->fails())
@@ -404,20 +399,13 @@ class MerchantController extends BaseController
 
         $data['user_id']=$user_id;
 
-        $passport = cloudinary()->upload($request->file('passport')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-        $data['passport']=$passport;
-
-
         $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
             ['folder'=>'leverpay/kyc']
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        
-        
-        if(!empt($request->file('id_card_back')))
+    
+        if($request->has('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -425,7 +413,7 @@ class MerchantController extends BaseController
             $data['id_card_back']=$idBack;
         }
 
-        if(!empt($request->file('business_certificate')))
+        if($request->has('business_certificate'))
         {
             $bsCert = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -433,29 +421,19 @@ class MerchantController extends BaseController
             $data['business_certificate']=$bsCert;
         }
         
-        if(!empt($request->file('utility_bill')))
-        {
-            $utilityBill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-            )->getSecurePath();
-            $data['utility_bill']=$utilityBill;
-        }
-
-        
-
 
         $user=Kyc::create($data);
         User::where('id', $user_id)->update(['kyc_status'=>1]);
 
-        $data2['activity']="Add KYC";
+        $data2['activity']="Add Merchant KYC";
         $data2['user_id']=$user_id;
 
         ActivityLog::createActivity($data2);
 
         $response = [
             'success' => true,
-            'user' =>$user,
-            'message' => "KYC successfully saved"
+            'merchant' =>$user,
+            'message' => "Merchant KYC successfully sent"
         ];
 
         return response()->json($response, 200);
@@ -481,9 +459,25 @@ class MerchantController extends BaseController
     public function getKycDocument()
     {
         $user_id=Auth::user()->id;
-        $kycs=Kyc::where('user_id', $user_id)->get();
+        $kycs=Kyc::join('countries','countries.id','=','kycs.country_id')
+            ->join('states','states.id','=','kycs.state_id')
+            ->join('document_types','document_types.id','=','kycs.document_type_id')
+            ->where('user_id', $user_id)
+            ->get([
+                'document_types.name',
+                'kycs.id_card_front',
+                'kycs.id_card_back',
+                'countries.country_name',
+                'states.state_name',
+                'kycs.bvn',
+                'kycs.nin',
+                'kycs.business_address',
+                'kycs.business_certificate',
+                'kycs.rc_number',
+                'kycs.status',
+            ]);
 
-        return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
+        return $this->successfulResponse($kycs, 'merchant kyc details successfully retrieved');
 
     }
 }

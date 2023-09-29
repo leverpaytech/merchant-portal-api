@@ -631,22 +631,24 @@ class UserController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/v1/user/add-user-kyc",
+     ** path="/api/v1/user/upgrade-to-gold-card-kyc",
      *   tags={"User"},
-     *   summary="Add User KYC document",
-     *   operationId="Add User KYC document",
+     *   summary="Upgarte to gold card kyc",
+     *   operationId="Upgarte to gold card kyc",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","residential_address","passport","id_card_front","id_card_back","bvn","nin"},
-     *              @OA\Property( property="document_type_id", enum="[1]"),
-     *              @OA\Property( property="country_id", enum="[1]"),
+     *              required={"document_type_id","country_id","state_id","residential_address","passport","id_card_front","bvn","nin","place_of_birth"},
      *              @OA\Property( property="passport", type="file"),
+     *              @OA\Property( property="document_type_id", enum="[1]"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
      *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="nin", type="string"),
+     *              @OA\Property( property="country_id", enum="[1]"),
+     *              @OA\Property( property="state_id", enum="[1]"),
+     *              @OA\Property( property="place_of_birth", type="string"),
      *              @OA\Property( property="residential_address", type="string"),
      *          ),
      *      ),
@@ -680,19 +682,23 @@ class UserController extends BaseController
      *   }
      *)
      **/
-    public function addUserKyc(Request $request)
+    public function goldUpgradeKyc(Request $request)
     {
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'document_type_id' => 'required',
-            'country_id' => 'required',
-            'residential_address' => 'required',
-            'bvn' => 'required',
-            'nin' => 'required',
             'passport' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'document_type_id' => 'required',
             'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'id_card_back' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'country_id' => 'required',
+            'state_id' => 'required',
+            'residential_address' => 'required',
+            'bvn' => 'required|numeric',
+            'nin' => 'required|numeric',
+            'place_of_birth' => 'required'
+            
+            
         ]);
 
         if ($validator->fails())
@@ -703,6 +709,7 @@ class UserController extends BaseController
         $user_id=Auth::user()->id;
 
         $data['user_id']=$user_id;
+        $data['card_type']=1; //gold
 
         $passport = cloudinary()->upload($request->file('passport')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -715,7 +722,7 @@ class UserController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        if(!empt($request->file('id_card_back')))
+        if($request->has('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -726,7 +733,7 @@ class UserController extends BaseController
         $user=Kyc::create($data);
         User::where('id', $user_id)->update(['kyc_status'=>1]);
 
-        $data2['activity']="Add KYC";
+        $data2['activity']="User kyc for gold card upgrade";
         $data2['user_id']=$user_id;
 
         ActivityLog::createActivity($data2);
@@ -734,7 +741,7 @@ class UserController extends BaseController
         $response = [
             'success' => true,
             'user' =>$user,
-            'message' => "KYC successfully saved"
+            'message' => "Gold card kyc upgarde successfully sent"
         ];
 
         return response()->json($response, 200);
@@ -742,10 +749,10 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/user/user-kyc-details",
+     ** path="/api/v1/user/gold-kyc-upgrade-details",
      *   tags={"User"},
-     *   summary="Get user kyc details",
-     *   operationId="Get user kyc details",
+     *   summary="Get user gold card kyc details",
+     *   operationId="Get user gold card kyc details",
      *
      *   @OA\Response(
      *      response=200,
@@ -757,17 +764,295 @@ class UserController extends BaseController
      *
      *)
      **/
-    public function getKycDocument()
+    public function goldKycUpgradeDetails()
     {
         $user_id=Auth::user()->id;
-        $kycs=Kyc::where('user_id', $user_id)->get();
+        $kycs=Kyc::join('countries','countries.id','=','kycs.country_id')
+        ->join('states','states.id','=','kycs.state_id')
+        ->join('document_types','document_types.id','=','kycs.document_type_id')
+            ->where('user_id', $user_id)
+            ->where('card_type', 1)
+            ->get([
+                'kycs.passport',
+                'document_types.name',
+                'kycs.id_card_front',
+                'kycs.id_card_back',
+                'countries.country_name',
+                'states.state_name',
+                'kycs.residential_address',
+                'kycs.bvn',
+                'kycs.nin',
+                'kycs.place_of_birth',
+                'kycs.status',
+            ]);
 
-        return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
+        return $this->successfulResponse($kycs, 'gold card kyc details successfully retrieved');
 
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/upgrade-to-diamond-card-kyc",
+     *   tags={"User"},
+     *   summary="Upgarte to diamond card kyc",
+     *   operationId="Upgarte to diamond card kyc",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"document_type_id","id_card_front","utility_bill"},
+     *              @OA\Property( property="document_type_id", enum="[1]"),
+     *              @OA\Property( property="id_card_front", type="file"),
+     *              @OA\Property( property="id_card_back", type="file"),
+     *              @OA\Property( property="utility_bill", type="file")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function diamondUpgradeKyc(Request $request)
+    {
+        $data = $request->all();
 
-    public function getExchangeRates(){
+        $validator = Validator::make($data, [
+            'document_type_id' => 'required',
+            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'utility_bill' => 'required|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        $user_id=Auth::user()->id;
+
+        $data['user_id']=$user_id;
+        $data['card_type']=2; //diamond
+
+        $utility_bill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+        $data['utility_bill']=$utility_bill;
+
+
+        $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+        $data['id_card_front']=$idFront;
+
+        if($request->has('id_card_back'))
+        {
+            $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+            )->getSecurePath();
+            $data['id_card_back']=$idBack;
+        }
+
+        $user=Kyc::create($data);
+        User::where('id', $user_id)->update(['kyc_status'=>1]);
+
+        $data2['activity']="User kyc for diamond card upgrade";
+        $data2['user_id']=$user_id;
+
+        ActivityLog::createActivity($data2);
+
+        $response = [
+            'success' => true,
+            'user' =>$user,
+            'message' => "Diamond card kyc upgarde successfully sent"
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/diamond-kyc-upgrade-details",
+     *   tags={"User"},
+     *   summary="Get user diamond card kyc details",
+     *   operationId="Get user diamond card kyc details",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function diamondKycUpgradeDetails()
+    {
+        $user_id=Auth::user()->id;
+        $kycs=Kyc::join('document_types','document_types.id','=','kycs.document_type_id')
+            ->where('user_id', $user_id)
+            ->where('card_type', 2)
+            ->get([
+                'kycs.utility_bill',
+                'document_types.name',
+                'kycs.id_card_front',
+                'kycs.id_card_back',
+                'kycs.status'
+            ]);
+
+        return $this->successfulResponse($kycs, 'diamond card kyc details successfully retrieved');
+
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/upgrade-to-enterprise-card-kyc",
+     *   tags={"User"},
+     *   summary="Upgarte to enterprise card kyc",
+     *   operationId="Upgarte to enterprise card kyc",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"business_address","business_certificate","rc_no"},
+     *              @OA\Property( property="business_certificate", type="file"),
+     *              @OA\Property( property="business_address", type="string"),
+     *              @OA\Property( property="rc_no", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function enterpriseUpgradeKyc(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'business_address' => 'required',
+            'rc_number' => 'required',
+            'business_certificate' => 'required|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        $user_id=Auth::user()->id;
+
+        $data['user_id']=$user_id;
+        $data['card_type']=4; //diamond
+
+        $business_certificate = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
+            ['folder'=>'leverpay/kyc']
+        )->getSecurePath();
+        $data['business_certificate']=$business_certificate;
+
+
+        $user=Kyc::create($data);
+        User::where('id', $user_id)->update(['kyc_status'=>1]);
+
+        $data2['activity']="User kyc for enterprise card upgrade";
+        $data2['user_id']=$user_id;
+
+        ActivityLog::createActivity($data2);
+
+        $response = [
+            'success' => true,
+            'user' =>$user,
+            'message' => "Enterprise card kyc upgarde successfully sent"
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/enterprise-kyc-upgrade-details",
+     *   tags={"User"},
+     *   summary="Get user enterprise card kyc details",
+     *   operationId="Get user enterprise card kyc details",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function enterpriseKycUpgradeDetails()
+    {
+        $user_id=Auth::user()->id;
+        $kycs=Kyc::where('user_id', $user_id)
+            ->where('card_type', 4)
+            ->get([
+                'kycs.business_certificate',
+                'kycs.business_address',
+                'kycs.rc_number',
+                'kycs.status'
+            ]);
+
+        return $this->successfulResponse($kycs, 'enterprise card kyc details successfully retrieved');
+
+    }
+
+    public function getExchangeRates()
+    {
         $rates = ExchangeRate::latest()->first();
         return $this->successfulResponse($rates, '');
     }

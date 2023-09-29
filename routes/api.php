@@ -92,9 +92,14 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
             Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
 
-            Route::post('/add-user-kyc', [UserController::class, 'addUserKyc']);
-            Route::get('/user-kyc-details', [UserController::class, 'getKycDocument']);
+            Route::post('/upgrade-to-gold-card-kyc', [UserController::class, 'goldUpgradeKyc']);
+            Route::get('/gold-kyc-upgrade-details', [UserController::class, 'goldKycUpgradeDetails']);
 
+            Route::post('/upgrade-to-diamond-card-kyc', [UserController::class, 'diamondUpgradeKyc']);
+            Route::get('/diamond-kyc-upgrade-details', [UserController::class, 'diamondKycUpgradeDetails']);
+
+            Route::post('/upgrade-to-enterprise-card-kyc', [UserController::class, 'enterpriseUpgradeKyc']);
+            Route::get('/enterprise-kyc-upgrade-details', [UserController::class, 'enterpriseKycUpgradeDetails']);
 
             Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
             Route::post('/add-currencies', [UserController::class, 'addCurrencies']);

@@ -20,6 +20,8 @@ class Kyc extends Model
         'id_card_front',
         'id_card_back',
         'country_id',
+        'state_id',
+        'place_of_birth',
         'nin',
         'residential_address',
         'utility_bill',
@@ -27,11 +29,14 @@ class Kyc extends Model
         'business_address',
         'business_certificate',
         'rc_number',
+        'card_type',
         'status',
         'created_at',
         'updated_at'
     ];
-    protected $hidden = ['id','document_type_id','country_id', 'user_id', 'created_at', 'updated_at'];
+
+    //card_type 1=gold, 2=diamond 3=pink-lady 4=enterprise
+    protected $hidden = ['id','card_type','document_type_id','country_id','state_id', 'user_id', 'created_at', 'updated_at'];
     
     public function user()
     {
@@ -46,5 +51,10 @@ class Kyc extends Model
     public function country()
     {
         return $this->belongsTo(Country::class, 'country_id', 'id');
+    }
+
+    public function state()
+    {
+        return $this->belongsTo(State::class, 'state_id', 'id');
     }
 }

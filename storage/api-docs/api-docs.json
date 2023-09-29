@@ -222,22 +222,95 @@
                 ]
             }
         },
-        "/api/v1/admin/add-exchange-rate": {
+        "/api/v1/admin/active-exchange-rate": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get active exchange rate",
+                "operationId": "Get active exchange rate",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-exchange-rates-history": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all exchange rate",
+                "operationId": "Get all exchange rate",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-transactions": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all Transactions",
+                "operationId": "Get all Transactions",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/update-exchange-rates": {
             "post": {
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Add new exchange rate",
-                "operationId": "Add new exchange rate",
+                "summary": "update/change exchange rate",
+                "operationId": "update/change exchange rate",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "rate"
+                                    "rate",
+                                    "local_transaction_rate",
+                                    "international_transaction_rate",
+                                    "conversion_rate",
+                                    "funding_rate"
                                 ],
                                 "properties": {
                                     "rate": {
+                                        "type": "string"
+                                    },
+                                    "local_transaction_rate": {
+                                        "type": "string"
+                                    },
+                                    "funding_rate": {
+                                        "type": "string"
+                                    },
+                                    "conversion_rate": {
+                                        "type": "string"
+                                    },
+                                    "international_transaction_rate": {
                                         "type": "string"
                                     }
                                 },
@@ -273,16 +346,48 @@
                 ]
             }
         },
-        "/api/v1/admin/active-exchange-rate": {
-            "get": {
+        "/api/v1/admin/add-new-bank": {
+            "post": {
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Get active exchange rate",
-                "operationId": "Get active exchange rate",
+                "summary": "Update exchange rates",
+                "operationId": "Update exchange rates",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [
@@ -292,13 +397,68 @@
                 ]
             }
         },
-        "/api/v1/admin/all-exchange-rate": {
+        "/api/v1/admin/add-account-number": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add Account Number",
+                "operationId": "Add Account Number",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "bank",
+                                    "account_number"
+                                ],
+                                "properties": {
+                                    "bank": {
+                                        "type": "string"
+                                    },
+                                    "account_number": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-account-numbers": {
             "get": {
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Get all exchange rate",
-                "operationId": "Get all exchange rate",
+                "summary": "Get all LeverPay Account number",
+                "operationId": "Get all LeverPay Account number",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -1580,31 +1740,29 @@
                                 "required": [
                                     "document_type_id",
                                     "country_id",
-                                    "residential_address",
+                                    "state_id",
                                     "business_address",
-                                    "utility_bill",
-                                    "passport",
                                     "id_card_front",
-                                    "id_card_back",
                                     "bvn",
                                     "nin",
-                                    ""
+                                    "business_certificate",
+                                    "rc_number"
                                 ],
                                 "properties": {
                                     "document_type_id": {
                                         "enum": "[1]"
-                                    },
-                                    "country_id": {
-                                        "enum": "[1]"
-                                    },
-                                    "passport": {
-                                        "type": "file"
                                     },
                                     "id_card_front": {
                                         "type": "file"
                                     },
                                     "id_card_back": {
                                         "type": "file"
+                                    },
+                                    "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "state_id": {
+                                        "enum": "[1]"
                                     },
                                     "bvn": {
                                         "type": "string"
@@ -1619,12 +1777,6 @@
                                         "type": "file"
                                     },
                                     "rc_number": {
-                                        "type": "string"
-                                    },
-                                    "utility_bill": {
-                                        "type": "file"
-                                    },
-                                    "residential_address": {
                                         "type": "string"
                                     }
                                 },
@@ -2211,13 +2363,13 @@
                 ]
             }
         },
-        "/api/v1/user/add-user-kyc": {
+        "/api/v1/user/upgrade-to-gold-card-kyc": {
             "post": {
                 "tags": [
                     "User"
                 ],
-                "summary": "Add User KYC document",
-                "operationId": "Add User KYC document",
+                "summary": "Upgarte to gold card kyc",
+                "operationId": "Upgarte to gold card kyc",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -2225,22 +2377,20 @@
                                 "required": [
                                     "document_type_id",
                                     "country_id",
+                                    "state_id",
                                     "residential_address",
                                     "passport",
                                     "id_card_front",
-                                    "id_card_back",
                                     "bvn",
-                                    "nin"
+                                    "nin",
+                                    "place_of_birth"
                                 ],
                                 "properties": {
-                                    "document_type_id": {
-                                        "enum": "[1]"
-                                    },
-                                    "country_id": {
-                                        "enum": "[1]"
-                                    },
                                     "passport": {
                                         "type": "file"
+                                    },
+                                    "document_type_id": {
+                                        "enum": "[1]"
                                     },
                                     "id_card_front": {
                                         "type": "file"
@@ -2252,6 +2402,15 @@
                                         "type": "string"
                                     },
                                     "nin": {
+                                        "type": "string"
+                                    },
+                                    "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "state_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "place_of_birth": {
                                         "type": "string"
                                     },
                                     "residential_address": {
@@ -2290,13 +2449,172 @@
                 ]
             }
         },
-        "/api/v1/user/user-kyc-details": {
+        "/api/v1/user/gold-kyc-upgrade-details": {
             "get": {
                 "tags": [
                     "User"
                 ],
-                "summary": "Get user kyc details",
-                "operationId": "Get user kyc details",
+                "summary": "Get user gold card kyc details",
+                "operationId": "Get user gold card kyc details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/upgrade-to-diamond-card-kyc": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upgarte to diamond card kyc",
+                "operationId": "Upgarte to diamond card kyc",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "document_type_id",
+                                    "id_card_front",
+                                    "utility_bill"
+                                ],
+                                "properties": {
+                                    "document_type_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "id_card_front": {
+                                        "type": "file"
+                                    },
+                                    "id_card_back": {
+                                        "type": "file"
+                                    },
+                                    "utility_bill": {
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/diamond-kyc-upgrade-details": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user diamond card kyc details",
+                "operationId": "Get user diamond card kyc details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/upgrade-to-enterprise-card-kyc": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Upgarte to enterprise card kyc",
+                "operationId": "Upgarte to enterprise card kyc",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "business_address",
+                                    "business_certificate",
+                                    "rc_no"
+                                ],
+                                "properties": {
+                                    "business_certificate": {
+                                        "type": "file"
+                                    },
+                                    "business_address": {
+                                        "type": "string"
+                                    },
+                                    "rc_no": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/enterprise-kyc-upgrade-details": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user enterprise card kyc details",
+                "operationId": "Get user enterprise card kyc details",
                 "responses": {
                     "200": {
                         "description": "Success"
