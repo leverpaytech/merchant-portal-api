@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction};
 use App\Models\Bank;
+use App\Models\TopupRequest;
+use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use App\Models\PaymentOption;
@@ -131,8 +133,8 @@ class AdminController extends BaseController
      * @OA\Get(
      ** path="/api/v1/admin/get-topup-requests",
      *   tags={"Admin"},
-     *   summary="Get all topup request",
-     *   operationId="get all topup request",
+     *   summary="Get all topup requests",
+     *   operationId="get all topup requests",
      *
      *   @OA\Response(
      *      response=200,
@@ -154,21 +156,126 @@ class AdminController extends BaseController
         $filter = strval($request->query('status'));
 
         if($filter == 'pending'){
-            $topup = TopupRequest::where('status', 0)->orderBy('created_at', 'desc')->get();
+            $topup = TopupRequest::where('status', 0)->orderBy('created_at', 'desc')->with('user')->get();
         }else if($filter == 'paid'){
-            $topup = TopupRequest::where('status', 1)->orderBy('created_at', 'desc')->get();
+            $topup = TopupRequest::where('status', 1)->orderBy('created_at', 'desc')->with('user')->get();
         }else{
-            $topup = TopupRequest::orderBy('created_at', 'desc')->get();
+            $topup = TopupRequest::orderBy('created_at', 'desc')->with('user')->get();
         }
 
         return $this->successfulResponse($topup, 'Topup requests');
     }
 
 
+      /**
+     * @OA\Post(
+     ** path="/api/v1/admin/approve-topup-request",
+     *   tags={"Admin"},
+     *   summary="Approve Topup Request",
+     *   operationId="Approve Topup Request",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+
+
     public function approveTopupRequest(Request $request){
         $this->validate($request, [
             'uuid'=>'required|string'
         ]);
+
+        $topup = TopupRequest::where('uuid', $request['uuid'])->first();
+        if(!$topup){
+            abort(400, 'Topup request not found');
+        }
+
+        $t2=TopupRequest::where('uuid', $request['uuid'])->where('status', '!=', 0)->first();
+        if($t2){
+            abort(400, 'Topup request is already processed');
+        }
+
+        $user = User::find($topup->user_id);
+        if(!$user){
+            abort(400, 'User not found');
+        }
+
+        $ext = 'LP_'.Uuid::generate()->string;
+        $transaction = new Transaction();
+        $transaction->user_id = $topup->user_id;
+        $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
+        $transaction->tnx_reference_no	= $ext;
+        $transaction->amount =$topup->amount;
+        $transaction->balance = floatval($user->wallet->withdrawable_amount) + floatval($topup->amount);
+        $transaction->type = 'credit';
+        $transaction->merchant = 'topup';
+        $transaction->status = 1;
+
+        $details = [
+            "topup_uuid"=>$topup->uuid
+        ];
+        $transaction->transaction_details = json_encode($details);
+        $transaction->save();
+
+        WalletService::addToWallet($user->id, $topup->amount);
+
+        $topup->status = 1;
+        $topup->save();
+
+        return $this->successfulResponse([], 'Request approved');
+    }
+
+    public function cancelTopupRequest(Request $request){
+        $this->validate($request, [
+            'uuid'=>'required|string'
+        ]);
+
+        $topup = TopupRequest::where('uuid', $request['uuid'])->first();
+        if(!$topup){
+            abort(400, 'Topup request not found');
+        }
+
+        $t2=TopupRequest::where('uuid', $request['uuid'])->where('status', '!=', 2)->first();
+        if($t2){
+            abort(400, 'Topup request is already processed');
+        }
+
+        $topup->status = 2;
+        $topup->save();
+
+        return $this->successfulResponse([], 'Request cancelled');
     }
 
     /****************************user services****************************/

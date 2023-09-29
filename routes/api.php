@@ -126,8 +126,7 @@ Route::prefix('v1')->group( function(){
         });
     });
 
-    Route::prefix('/admin')->group(function()
-    {
+    Route::prefix('/admin')->group(function(){
         Route::post('/admin-login',[AdminAuthController::class, 'login'])->name('admin-login');
         Route::post('/admin-forgot-password', [AdminAuthController::class, 'sendForgotPasswordToken']);
         Route::post('/admin-verify-email', [AdminAuthController::class, 'resetPasswordVerify']);
@@ -155,6 +154,9 @@ Route::prefix('v1')->group( function(){
             Route::post('add-new-bank', [AdminController::class, 'addNewBank']);
             Route::post('add-account-number', [AdminController::class, 'addAccountNo']);
             Route::get('get-account-numbers', [AdminController::class, 'getAccountNos']);
+
+            Route::get('/get-topup-requests', [AdminController::class, 'getAllTopupRequests']);
+            Route::post('/approve-topup-request', [AdminController::class, 'approveTopupRequest']);
         });
     });
 

@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
         //     ['name'=>'Dollar', 'currency_code'=>"$", 'status'=>1],
         //     ['name'=>'Naira', 'currency_code'=>"₦", 'status'=>1]
         // ]);
-        
+
         // DB::table('exchange_rates')->insert([
         //     [
         //         'rate'=>900,
@@ -55,12 +55,12 @@ class DatabaseSeeder extends Seeder
         //     ],
         // ]);
 
-        DB::table('document_types')->insert([
-            ['name'=>'Government Issued ID Card'],
-            ['name'=>'International passport'],
-            ['name'=>'Driver License'],
-            ['name'=>'Voter\'s Card']
-        ]);
+        // DB::table('document_types')->insert([
+        //     ['name'=>'Government Issued ID Card'],
+        //     ['name'=>'International passport'],
+        //     ['name'=>'Driver License'],
+        //     ['name'=>'Voter\'s Card']
+        // ]);
 
     }
 }
