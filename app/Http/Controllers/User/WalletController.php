@@ -498,7 +498,7 @@ class WalletController extends BaseController
             $transaction2->balance = floatval($trans->recipient->wallet->withdrawable_amount) + floatval($trans['amount']);
             $transaction2->type = 'credit';
             $transaction2->merchant = 'transfer';
-            $transaction->status = 1;
+            $transaction2->status = 1;
             $details2 = [
                 "transfer_uuid"=>$trans['uuid']
             ];
@@ -515,7 +515,7 @@ class WalletController extends BaseController
         return $this->successfulResponse([], 'Transfer successful');
     }
 
-     
+
     /**
      * @OA\Get(
      ** path="/api/v1/admin/get-account-numbers",

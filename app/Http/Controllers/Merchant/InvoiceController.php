@@ -235,17 +235,26 @@ class InvoiceController extends BaseController
                 $total = $invoice->total;
                 $dollar = true;
             }
+        }else{
+            $total = $invoice->total;
         }
 
-        if($invoice->user->wallet->withdrawable_amount < $invoice->total){
-            return $this->sendError("Insufficient balance",[],400);
+        if($dollar){
+            if($invoice->user->wallet->dollar < $total){
+                return $this->sendError("Insufficient dollar balance",[],400);
+            }
+        }else{
+            if($invoice->user->wallet->withdrawable_amount < $total){
+                return $this->sendError("Insufficient balance",[],400);
+            }
         }
 
         $otp = rand(1000, 9999);
         $invoice->otp = $otp;
         $invoice->save();
 
-        $content = "A request to pay an invoice of  {$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
+        $curr = $invoice['currency'] == 'dollar'?'$':'₦';
+        $content = "A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
         Mail::to($invoice->email)->send(new GeneralMail($content, 'OTP'));
 
@@ -271,11 +280,33 @@ class InvoiceController extends BaseController
             return $this->sendError("Invalid otp, please try again",[],400);
         }
 
-        if($invoice->user->wallet->withdrawable_amount < $invoice->total){
-            return $this->sendError("Insufficient balance",[],400);
+        $total = 0;
+        $dollar = false;
+        $rate = [];
+        if($invoice->currency == 'dollar'){
+
+            if($invoice->user->wallet->dollar < $invoice->total){
+                $rate = ExchangeRate::latest()->first();
+                $total = floatval($invoice->total) * floatval($rate->rate);
+            }else{
+                $total = $invoice->total;
+                $dollar = true;
+            }
+        }else{
+            $total = $invoice->total;
         }
 
-        DB::transaction( function() use($invoice) {
+        if($dollar){
+            if($invoice->user->wallet->dollar < $total){
+                return $this->sendError("Insufficient dollar balance",[],400);
+            }
+        }else{
+            if($invoice->user->wallet->withdrawable_amount < $total){
+                return $this->sendError("Insufficient balance",[],400);
+            }
+        }
+
+        DB::transaction( function() use($invoice, $dollar, $total, $rate) {
             $ext = 'LP_'.Uuid::generate()->string;
             $transaction = new Transaction();
             $transaction->user_id = $invoice->user_id;
@@ -286,10 +317,17 @@ class InvoiceController extends BaseController
             $transaction->type = 'debit';
             $transaction->merchant = 'invoice';
             $transaction->status = 1;
-
+            if($invoice->currency == 'dollar'){
+                $transaction->currency = 'dollar';
+            }
             $details = [
-                "invoice_uuid"=>$invoice->uuid
+                "invoice_uuid"=>$invoice->uuid,
+                "exchange_rate"=>$rate
             ];
+            if(!$dollar){
+                $details2['is_convert']=$dollar;
+                $details2['after_convert_total'] = $total;
+            }
             $transaction->transaction_details = json_encode($details);
             $transaction->save();
 
@@ -301,17 +339,31 @@ class InvoiceController extends BaseController
             $transaction2->balance = floatval($invoice->merchant->wallet->withdrawable_amount) + floatval($invoice->total);
             $transaction2->type = 'credit';
             $transaction2->merchant = 'invoice';
-            $transaction->status = 1;
+            $transaction2->status = 1;
+            if($invoice->currency == 'dollar'){
+                $transaction2->currency = 'dollar';
+            }
             $details2 = [
-                "invoice_uuid"=>$invoice->uuid
+                "invoice_uuid"=>$invoice->uuid,
+                "exchange_rate"=>$rate,
             ];
+            if(!$dollar){
+                $details2['is_convert']=$dollar;
+                $details2['after_convert_total'] = $total;
+            }
             $transaction2->transaction_details = json_encode($details2);
             $transaction2->save();
 
-            WalletService::addToWallet($invoice->merchant_id, $invoice->total);
-            WalletService::subtractFromWallet($invoice->user_id, $invoice->total);
+            $curr = $dollar ? 'dollar' :'naira';
+            WalletService::addToWallet($invoice->merchant_id, $total,$curr);
+            WalletService::subtractFromWallet($invoice->user_id, $total, $curr);
+
+            $invoice->status = 1;
+            $invoice->save();
+            return $this->successfulResponse([], 'Hello world');
         });
 
+        return $this->successfulResponse([], 'Invoice paid successfully');
     }
 
         /**

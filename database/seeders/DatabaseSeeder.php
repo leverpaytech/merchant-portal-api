@@ -62,5 +62,9 @@ class DatabaseSeeder extends Seeder
         //     ['name'=>'Voter\'s Card']
         // ]);
 
+        DB::table('lever_pay_account_no')->insert([
+            ['bank'=>'Providus Bank', 'account_number'=> '1304212201', 'account_name'=>'Leverchain Technology Limited'],
+            ['bank'=>'VFD MFB', 'account_number'=> '1029073449', 'account_name'=>'Leverchain Technology Limited'],
+        ]);
     }
 }
