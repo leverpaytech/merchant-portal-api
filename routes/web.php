@@ -8,16 +8,30 @@ use App\Models\User;
 #use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KycController;
 use App\Models\Transaction;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 Route::get('/', function (){
 
-    $getExchageRate=Transaction::latest()->with('user')->get();
-    dd($getExchageRate);
-    // dd(Str::uuid()->toString());
-    // $user = User::find(1);
-    // dd($user);
-    dd(env('DB_USERNAME'));
-        //dd($user->wallet->amount);
+    DB::table('admin_logins')->insert([
+        [
+            'first_name' => 'LeverPay',
+            'last_name' => 'Admin',
+            'email' => 'ilelaboyealekan@gmail.com',
+            'password' => Hash::make('password@.2023'),
+            'phone' => '08102721331',
+            'gender' => 'Male'
+        ]
+    ]);
+        dd('done');
+
+    // $getExchageRate=Transaction::latest()->with('user')->get();
+    // dd($getExchageRate);
+    // // dd(Str::uuid()->toString());
+    // // $user = User::find(1);
+    // // dd($user);
+    // dd(env('DB_USERNAME'));
+    //     //dd($user->wallet->amount);
         //return view('welcome');
         // dd('ddd');
         // dd(env('PAYSTACK_SECRET_TEST_KEY'));
