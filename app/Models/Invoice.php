@@ -32,7 +32,7 @@ class Invoice extends Model
         'updated_at'
     ];
 
-    protected $hidden = ['id','user_id', 'created_at', 'updated_at'];
+    protected $hidden = ['id','user_id', 'created_at', 'updated_at', 'otp','merchant_id',];
 
     public function user(){
         return $this->belongsTo(User::class);

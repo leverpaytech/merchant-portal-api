@@ -222,8 +222,7 @@ class AdminController extends BaseController
             abort(400, 'Topup request not found');
         }
 
-        $t2=TopupRequest::where('uuid', $request['uuid'])->where('status', '!=', 0)->first();
-        if($t2){
+        if($topup->status != 0){
             abort(400, 'Topup request is already processed');
         }
 
@@ -267,8 +266,7 @@ class AdminController extends BaseController
             abort(400, 'Topup request not found');
         }
 
-        $t2=TopupRequest::where('uuid', $request['uuid'])->where('status', '!=', 2)->first();
-        if($t2){
+        if($topup->status != 2){
             abort(400, 'Topup request is already processed');
         }
 

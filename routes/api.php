@@ -127,6 +127,8 @@ Route::prefix('v1')->group( function(){
             Route::get('get-exchange-rates', [UserController::class, 'getExchangeRates']);
 
             Route::get('get-invoices', [InvoiceController::class, 'getInvoices']);
+            Route::post('pay-invoice', [InvoiceController::class, 'payInvoice']);
+            Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
         });
     });

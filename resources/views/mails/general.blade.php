@@ -108,7 +108,7 @@ xmlns:o="urn:schemas-microsoft-com:office:office"
                 <td style="padding: 30px 30px 20px">
 
                     <p style="margin-bottom: 8px">
-                        {{ $content }}
+                        {!! $content !!}
                     </p>
                     <p>
                     for further enquiries visit us @

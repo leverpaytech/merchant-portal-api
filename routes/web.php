@@ -13,17 +13,17 @@ use Illuminate\Support\Facades\Hash;
 
 Route::get('/', function (){
 
-    DB::table('admin_logins')->insert([
-        [
-            'first_name' => 'LeverPay',
-            'last_name' => 'Admin',
-            'email' => 'ilelaboyealekan@gmail.com',
-            'password' => Hash::make('password@.2023'),
-            'phone' => '08102721331',
-            'gender' => 'Male'
-        ]
-    ]);
-        dd('done');
+    // DB::table('admin_logins')->insert([
+    //     [
+    //         'first_name' => 'LeverPay',
+    //         'last_name' => 'Admin',
+    //         'email' => 'ilelaboyealekan@gmail.com',
+    //         'password' => Hash::make('password@.2023'),
+    //         'phone' => '08102721331',
+    //         'gender' => 'Male'
+    //     ]
+    // ]);
+    //     dd('done');
 
     // $getExchageRate=Transaction::latest()->with('user')->get();
     // dd($getExchageRate);

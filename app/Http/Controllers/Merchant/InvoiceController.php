@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Merchant;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Mail\GeneralMail;
 use App\Mail\SendEmailVerificationCode;
+use App\Models\Transaction;
 use App\Models\User;
+use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -201,6 +205,113 @@ class InvoiceController extends BaseController
         }
 
         return $this->successfulResponse($invoices, '');
+    }
+
+    public function payInvoice(Request $request){
+        $this->validate($request, [
+            'uuid'=>'required|string'
+        ]);
+
+        $invoice = Invoice::where('uuid', $request->uuid)->first();
+        if(!$invoice){
+            return $this->sendError("Invoice not found",[],400);
+        }
+
+        if($invoice->status != 0){
+            return $this->sendError("Invoice is already processed",[],400);
+        }
+
+        if($invoice->user_id != Auth::id()){
+            return $this->sendError("Invoice is not assigned to you",[],400);
+        }
+
+        $total = 0;
+        $dollar = false;
+        if($invoice->currency == 'dollar'){
+            $rate = ExchangeRate::latest()->first();
+            if($invoice->user->wallet->dollar < $invoice->total){
+                $total = floatval($invoice->total) * floatval($rate->rate);
+            }else{
+                $total = $invoice->total;
+                $dollar = true;
+            }
+        }
+
+        if($invoice->user->wallet->withdrawable_amount < $invoice->total){
+            return $this->sendError("Insufficient balance",[],400);
+        }
+
+        $otp = rand(1000, 9999);
+        $invoice->otp = $otp;
+        $invoice->save();
+
+        $content = "A request to pay an invoice of  {$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
+
+        Mail::to($invoice->email)->send(new GeneralMail($content, 'OTP'));
+
+        return $this->successfulResponse([], 'OTP sent');
+    }
+
+    public function verifyInvoiceOTP(Request $request){
+        $this->validate($request, [
+            'uuid'=>'required|string',
+            'otp'=>'required|numeric'
+        ]);
+
+        $invoice = Invoice::where('uuid', $request->uuid)->first();
+        if(!$invoice){
+            return $this->sendError("Invoice not found",[],400);
+        }
+
+        if($invoice->status != 0){
+            return $this->sendError("Invoice is already processed",[],400);
+        }
+
+        if($request['otp'] != $invoice->otp){
+            return $this->sendError("Invalid otp, please try again",[],400);
+        }
+
+        if($invoice->user->wallet->withdrawable_amount < $invoice->total){
+            return $this->sendError("Insufficient balance",[],400);
+        }
+
+        DB::transaction( function() use($invoice) {
+            $ext = 'LP_'.Uuid::generate()->string;
+            $transaction = new Transaction();
+            $transaction->user_id = $invoice->user_id;
+            $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
+            $transaction->tnx_reference_no	= $ext;
+            $transaction->amount =$invoice->total;
+            $transaction->balance = floatval($invoice->user->wallet->withdrawable_amount) - floatval($invoice->total);
+            $transaction->type = 'debit';
+            $transaction->merchant = 'invoice';
+            $transaction->status = 1;
+
+            $details = [
+                "invoice_uuid"=>$invoice->uuid
+            ];
+            $transaction->transaction_details = json_encode($details);
+            $transaction->save();
+
+            $transaction2 = new Transaction();
+            $transaction2->user_id = $invoice->merchant_id;
+            $transaction2->reference_no	= $ext;
+            $transaction2->tnx_reference_no	= Uuid::generate()->string;
+            $transaction2->amount =$invoice->total;
+            $transaction2->balance = floatval($invoice->merchant->wallet->withdrawable_amount) + floatval($invoice->total);
+            $transaction2->type = 'credit';
+            $transaction2->merchant = 'invoice';
+            $transaction->status = 1;
+            $details2 = [
+                "invoice_uuid"=>$invoice->uuid
+            ];
+            $transaction2->transaction_details = json_encode($details2);
+            $transaction2->save();
+
+            WalletService::addToWallet($invoice->merchant_id, $invoice->total);
+            WalletService::subtractFromWallet($invoice->user_id, $invoice->total);
+        });
+
     }
 
         /**
