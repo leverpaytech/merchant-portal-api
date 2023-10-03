@@ -35,7 +35,7 @@ class AuthController extends BaseController
 
     public function test(Request $request){
         $t = '0002';
-        $sms = SmsService::sendSms("Dear User, Your Leverpay One-time Confirmation code is 1234 and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", $request['phoneNumber']);
+        $sms = SmsService::sendSms("Dear User, Your Leverpay One-time Confirmation code is 4567 and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$request['phoneNumber']);
         // $sms = SmsService::sendMail("Hello Lekan, Welcome to LeverPay", "Testing LeverPay Mail", 'ilelaboyealekan@gmail.com');
         return $sms;
     }
@@ -117,7 +117,6 @@ class AuthController extends BaseController
             ActivityLog::createActivity($data2);
 
             return $this->successfulResponse([
-                "guard"=>Auth::getDefaultDriver(),
                 "user" => new UserResource($user),
                 "token" => $accessToken->accessToken,
                 "expires_at" => Carbon::parse($accessToken->token->expires_at)->toDateTimeString()

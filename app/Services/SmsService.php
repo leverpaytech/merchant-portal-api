@@ -14,7 +14,7 @@ class SmsService
         ])->post(env('TERMII_API_BASE_URL').'/api/sms/send', array(
             'api_key' => env('TERMII_API_KEY'),
             'to'=>$phoneNumber,
-            'from'=>'Leverpay',
+            'from'=>'N-Alert',
             'sms'=>$message,
             'type'=>'plain',
             'channel'=>'dnd',
