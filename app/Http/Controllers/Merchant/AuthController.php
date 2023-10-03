@@ -11,6 +11,7 @@ use App\Models\{Merchant,MerchantKeys};
 use App\Models\User;
 use App\Models\Wallet;
 use App\Services\MerchantKeyService;
+use App\Services\SmsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -180,7 +181,19 @@ class AuthController extends BaseController
         $merchant->save();
 
         // send email
-        Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
+        // Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
+
+        $html = "
+        <p>Hello {$data['first_name']} {$data['last_name']},</p>
+        <p style='margin-bottom: 8px'>
+            We are excited to have you here. Below is your verification token
+            </p>
+            <h4 style='margin-bottom: 8px'>
+                {$verifyToken}
+            </h4>
+        ";
+
+        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
 
         return $user;
     }

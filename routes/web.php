@@ -8,6 +8,7 @@ use App\Models\User;
 #use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KycController;
 use App\Models\Transaction;
+use App\Services\SmsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 

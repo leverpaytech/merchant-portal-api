@@ -7,6 +7,7 @@ use App\Mail\GeneralMail;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\SmsService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -256,7 +257,12 @@ class InvoiceController extends BaseController
         $curr = $invoice['currency'] == 'dollar'?'$':'₦';
         $content = "A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
-        Mail::to($invoice->email)->send(new GeneralMail($content, 'OTP'));
+        // Mail::to($invoice->email)->send(new GeneralMail($content, 'OTP'));
+
+
+        SmsService::sendSms("Dear {$invoice->user->first_name},A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$invoice->user->phone);
+
+        SmsService::sendMail("Dear {$invoice->user->first_name},", $content, "LeverPay Invoice OTP", $invoice->email);
 
         return $this->successfulResponse([], 'OTP sent');
     }

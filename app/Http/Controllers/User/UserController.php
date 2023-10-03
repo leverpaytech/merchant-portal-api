@@ -9,6 +9,7 @@ use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\{User,Transaction,ExchangeRate,UserBank,Kyc};
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -301,7 +302,17 @@ class UserController extends BaseController
             $verifyToken = rand(1000, 9999);
             $data['change_email_phone_token'] = $verifyToken;
             // send email
-            Mail::to($email)->send(new ChangePhoneAndEmailVerifier($name, $verifyToken));
+            // Mail::to($email)->send(new ChangePhoneAndEmailVerifier($name, $verifyToken));
+
+            $html = "<p style='margin-bottom: 8px'>
+                        Below is your verification token
+                    </p>
+                    <h4 style='margin-bottom: 8px'>
+                        {$verifyToken}
+                    </h4>
+                ";
+
+            SmsService::sendMail("Dear {$name},", $html, "Verification Code", $email);
         }
 
         $user = $this->userModel->updateUser($data,$userId);
@@ -697,8 +708,8 @@ class UserController extends BaseController
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'place_of_birth' => 'required'
-            
-            
+
+
         ]);
 
         if ($validator->fails())

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Wallet;
 use App\Services\CardService;
 use App\Services\MerchantKeyService;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,13 @@ class AuthController extends BaseController
      */
     public function __construct(User $user) {
         $this->userModel = $user;
+    }
+
+    public function test(Request $request){
+        $t = '0002';
+        $sms = SmsService::sendSms("Dear User, Your Leverpay One-time Confirmation code is 1234 and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", $request['phoneNumber']);
+        // $sms = SmsService::sendMail("Hello Lekan, Welcome to LeverPay", "Testing LeverPay Mail", 'ilelaboyealekan@gmail.com');
+        return $sms;
     }
 
     /**
@@ -183,7 +191,17 @@ class AuthController extends BaseController
         $user->verify_email_token = $verifyToken;
         $user->save();
 
-        Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
+        $html = "
+        <p>Hello {$user['first_name']},</p>
+        <p style='margin-bottom: 8px'>
+            We are excited to have you here. Below is your verification token
+            </p>
+            <h4 style='margin-bottom: 8px'>
+                {$verifyToken}
+            </h4>
+        ";
+        // Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
+        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
 
         return response()->json('Email sent sucessfully', 200);
     }
@@ -318,7 +336,20 @@ class AuthController extends BaseController
 
         $user->forgot_password_token = $verifyToken;
         $user->save();
-        Mail::to($request['email'])->send(new ForgotPasswordMail($user['first_name'], $verifyToken));
+
+        $html = "
+        <p>Hello {$user['first_name']},</p>
+        <p style='margin-bottom: 8px'>
+        Below is your reset password token
+            </p>
+            <h4 style='margin-bottom: 8px'>
+                {$verifyToken}
+            </h4>
+        ";
+
+        // Mail::to($request['email'])->send(new ForgotPasswordMail($user['first_name'], $verifyToken));
+        $sms = SmsService::sendMail("",$html, "LeveryPay Forgot Password Code", $request['email']);
+
         return response()->json('Email sent sucessfully', 200);
     }
 

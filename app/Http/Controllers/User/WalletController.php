@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Transaction;
 use App\Models\Transfer;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -440,7 +441,10 @@ class WalletController extends BaseController
 
         $content = "A request to transfer {$request['amount']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
-        Mail::to($user->email)->send(new GeneralMail($content, 'OTP'));
+        // Mail::to($user->email)->send(new GeneralMail($content, 'OTP'));
+        SmsService::sendSms("Dear {$user->first_name},A request to transfer {$request['amount']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$user->phone);
+
+        SmsService::sendMail("Dear {$user->first_name},", $content, "LeverPay Transfer OTP", $user->email);
 
         return $this->successfulResponse($transfer, 'OTP sent');
     }

@@ -10,6 +10,7 @@ use App\Models\ActivityLog;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Services\CardService;
+use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends BaseController
 {
+
     /**
      * @OA\Get(
      ** path="/api/v1/user/logout",
@@ -158,7 +160,16 @@ class AuthController extends BaseController
         $user = User::create($data);
 
         // send email
-        Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
+
+        $html = "
+                <p>Hello {$data['first_name']} {$data['last_name']}</p>
+                <p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p>
+                <h2 style='margin-bottom: 8px'>
+                    {$verifyToken}
+                </h2>
+        ";
+
+        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
 
         return $user;
     }
