@@ -16,15 +16,7 @@ return new class extends Migration
         Schema::create('investments', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('middle_name');
-            $table->string('email');
-            $table->string('phone');
-            $table->string('country');
-            $table->string('state');
-            $table->string('gender');
-            $table->string('dob');
+            $table->foreignId('user_id');
             $table->decimal('amount', 10,3);
             $table->string('password');
             $table->timestamps();
