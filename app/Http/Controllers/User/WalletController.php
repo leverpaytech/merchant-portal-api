@@ -5,6 +5,7 @@ namespace App\Http\Controllers\user;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Mail\GeneralMail;
+use App\Models\ActivityLog;
 use App\Models\TopupRequest;
 use App\Models\User;
 use App\Models\Wallet;
@@ -446,6 +447,11 @@ class WalletController extends BaseController
 
         SmsService::sendMail("Dear {$user->first_name},", $content, "LeverPay Transfer OTP", $user->email);
 
+        $data2['activity']="You submitted a request to transfer {$request['amount']}";
+        $data2['user_id']=$user->id;
+
+        ActivityLog::createActivity($data2);
+
         return $this->successfulResponse($transfer, 'OTP sent');
     }
 
@@ -515,6 +521,10 @@ class WalletController extends BaseController
 
         $trans->status = 1;
         $trans->save();
+
+        $data2['activity']="Transfer of {$trans['amount']} is successful";
+        $data2['user_id']=$user->id;
+        ActivityLog::createActivity($data2);
 
         return $this->successfulResponse([], 'Transfer successful');
     }

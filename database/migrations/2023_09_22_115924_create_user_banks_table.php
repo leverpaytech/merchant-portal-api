@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('bank_id')->constrained();
-            $table->string('account_no')->unique();;
+            $table->string('account_no');
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

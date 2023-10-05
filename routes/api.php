@@ -21,6 +21,7 @@ use App\Http\Controllers\KycController;
 use \App\Http\Controllers\Merchant\InvoiceController;
 use \App\Http\Controllers\BankController;
 
+use App\Http\Controllers\InvestmentController;
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 
 
@@ -42,6 +43,8 @@ Route::prefix('v1')->group( function(){
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
+
+    Route::post('/investment', [InvestmentController::class, 'submitInvestment']);
 
     //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
     //Route::get('/on-boarding', [UserController::class, 'onBoarding']);
