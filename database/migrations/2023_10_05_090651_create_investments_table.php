@@ -18,7 +18,6 @@ return new class extends Migration
             $table->uuid('uuid');
             $table->foreignId('user_id');
             $table->decimal('amount', 10,3);
-            $table->string('password');
             $table->timestamps();
         });
     }
