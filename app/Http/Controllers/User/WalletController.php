@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Webpatser\Uuid\Uuid;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Validator;
@@ -120,7 +121,7 @@ class WalletController extends BaseController
     public function submitTopupRequest(Request $request){
         $this->validate($request, [
             'amount'=>'required|numeric|min:1',
-            'reference'=>'required|string|unique:topup_requests,reference',
+            'reference'=>'nullable|string',
             'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
         $topup = new TopupRequest;
@@ -140,9 +141,15 @@ class WalletController extends BaseController
 
         $topup->user_id = Auth::id();
         $topup->amount = $request['amount'];
-        $topup->reference = $request['reference'];
+        if($request['reference']){
+            $topup->reference = $request['reference'];
+        }else{
+            $topup->reference =  Str::uuid()->toString();
+        }
+
         $topup->save();
-        return $this->successfulResponse([], 'Topup request submitted successful');
+        return $topup;
+        return $this->successfulResponse([], 'Topup request submitted successfulss');
     }
 
     /**
