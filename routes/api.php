@@ -44,6 +44,7 @@ Route::prefix('v1')->group( function(){
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
 
+
     Route::post('/investment', [InvestmentController::class, 'submitInvestment']);
 
     //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);

@@ -529,29 +529,12 @@ class WalletController extends BaseController
         return $this->successfulResponse([], 'Transfer successful');
     }
 
+    //it has been already done in admin controller
 
-    /**
-     * @OA\Get(
-     ** path="/api/v1/admin/get-account-numbers",
-     *   tags={"Admin"},
-     *   summary="Get all LeverPay Account number",
-     *   operationId="Get all LeverPay Account number",
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *     ),
-     *     security={
-     *       {"bearer_token": {}}
-     *     }
-     *
-     *)
-    **/
-
-    public function getAccountNos()
+    /*public function getAccountNos()
     {
         $acc = DB::table('lever_pay_account_no')->get();
         return $this->successfulResponse($acc, '');
-    }
+    }*/
 
 }

@@ -11,22 +11,18 @@ class Investment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'first_name',
-        'last_name',
-        'middle_name',
-        'gender',
-        'dob',
-        'email',
-        'phone',
-        'country',
-        'state',
+        'id',
+        'uuid',
+        'user_id',
         'amount',
-        'password',
+        'created_at',
+        'updated_at'
     ];
 
     protected $hidden =[
         'id',
-        'password',
+        'uuid',
+        'user_id',
     ];
 
     public static function boot(): void
