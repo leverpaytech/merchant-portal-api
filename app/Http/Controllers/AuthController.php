@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendEmailVerificationCode;
 use App\Mail\ForgotPasswordMail;
+use App\Services\ProvidusService;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 class AuthController extends BaseController
@@ -31,6 +32,17 @@ class AuthController extends BaseController
      */
     public function __construct(User $user) {
         $this->userModel = $user;
+    }
+
+    public function testProvidus(Request $request){
+        // return env('TERMII_API_KEY').'/PiPCreateDynamicAccountNumber';
+        $req = ProvidusService::generateDynamicAccount('Timi Adekunle');
+        if($req['requestSuccessful']){
+            return $req;
+        }else{
+            return $req['responseMessage'];
+        }
+
     }
 
     public function test(Request $request){

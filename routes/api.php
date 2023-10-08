@@ -39,6 +39,8 @@ use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 
 Route::prefix('v1')->group( function(){
     Route::post('/test', [AuthController::class, 'test']);
+
+    Route::post('/test-providus', [AuthController::class, 'testProvidus']);
     //get countries
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);

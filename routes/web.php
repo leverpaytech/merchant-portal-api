@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 Route::get('/', function (){
-
+    dd(env('PROVIDUS_BASEURL'));
     // DB::table('admin_logins')->insert([
     //     [
     //         'first_name' => 'LeverPay',

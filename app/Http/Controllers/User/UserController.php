@@ -708,8 +708,10 @@ class UserController extends BaseController
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'place_of_birth' => 'required'
-
-
+        ],[
+            'document_type_id.required' => 'Document type is required',
+            'country_id.required' => 'Country is required',
+            'state_id.required' => 'State is required',
         ]);
 
         if ($validator->fails())
@@ -857,6 +859,8 @@ class UserController extends BaseController
             'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
             'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
             'utility_bill' => 'required|mimes:jpeg,png,jpg|max:2048'
+        ],[
+            'document_type_id.required' => 'Document type is required'
         ]);
 
         if ($validator->fails())
