@@ -161,6 +161,11 @@ class User extends Authenticatable
         return $this->hasOne(Kyc::class);
     }
 
+    public function investment()
+    {
+        return $this->belongsTo(Investment::class, 'id','user_id');
+    }
+
     public function createUser($data)
     {
         /**

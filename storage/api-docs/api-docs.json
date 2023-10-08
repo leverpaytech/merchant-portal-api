@@ -132,11 +132,62 @@
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Get all topup request",
-                "operationId": "get all topup request",
+                "summary": "Get all topup requests",
+                "operationId": "get all topup requests",
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/approve-topup-request": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Approve Topup Request",
+                "operationId": "Approve Topup Request",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [
@@ -410,13 +461,17 @@
                             "schema": {
                                 "required": [
                                     "bank",
-                                    "account_number"
+                                    "account_number",
+                                    "account_name"
                                 ],
                                 "properties": {
                                     "bank": {
                                         "type": "string"
                                     },
                                     "account_number": {
+                                        "type": "string"
+                                    },
+                                    "account_name": {
                                         "type": "string"
                                     }
                                 },
@@ -1131,6 +1186,95 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/investment": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Submit an investment",
+                "operationId": "Submit an investment",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "gender",
+                                    "dob",
+                                    "email",
+                                    "password",
+                                    "first_name",
+                                    "last_name",
+                                    "phone",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "other_name": {
+                                        "type": "string"
+                                    },
+                                    "gender": {
+                                        "type": "string"
+                                    },
+                                    "dob": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "state_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "amount": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [

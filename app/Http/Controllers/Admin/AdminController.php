@@ -591,7 +591,6 @@ class AdminController extends BaseController
         Bank::create($data);
         return $this->successfulResponse([], 'Bank created successfully');
     }
-
     /**
      * @OA\Post(
      ** path="/api/v1/admin/add-account-number",
@@ -602,7 +601,7 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"bank","account_number",'account_name'},
+     *              required={"bank","account_number","account_name"},
      *              @OA\Property( property="bank", type="string"),
      *              @OA\Property( property="account_number", type="string"),
      *              @OA\Property( property="account_name", type="string"),
@@ -648,8 +647,7 @@ class AdminController extends BaseController
 
         return $this->successfulResponse([], 'Bank created successfully');
     }
-
-       /**
+    /**
      * @OA\Get(
      ** path="/api/v1/admin/get-account-numbers",
      *   tags={"Admin"},
@@ -671,5 +669,8 @@ class AdminController extends BaseController
         $acc = DB::table('lever_pay_account_no')->get();
         return $this->successfulResponse($acc, 'Bank created successfully');
      }
+
+
+     
 
 }
