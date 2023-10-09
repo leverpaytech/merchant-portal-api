@@ -22,6 +22,7 @@ use \App\Http\Controllers\Merchant\InvoiceController;
 use \App\Http\Controllers\BankController;
 
 use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\WebhookController;
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 
 
@@ -37,8 +38,13 @@ use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 */
 
 
+
 Route::prefix('v1')->group( function(){
     Route::post('/test', [AuthController::class, 'test']);
+
+    Route::prefix('webhook')->group(function(){
+        Route::post('providus', [WebhookController::class, 'providus']);
+    });
 
     Route::post('/test-providus', [AuthController::class, 'testProvidus']);
     //get countries

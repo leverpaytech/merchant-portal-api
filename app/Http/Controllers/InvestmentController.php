@@ -98,7 +98,7 @@ class InvestmentController extends BaseController
         $data['password'] = bcrypt($data['password']);
         $uuid = Uuid::generate()->string;
 
-        DB::transaction( function() use($data) {
+        DB::transaction( function() use($data, $uuid) {
             $user=User::create([
                 'first_name'=>$data['first_name'],
                 'last_name'=>$data['last_name'],
@@ -110,7 +110,7 @@ class InvestmentController extends BaseController
                 'state_id'=>$data['state_id'],
                 'password'=>$data['password']
             ]);
-    
+
             $invest = new Investment();
             $invest->uuid = $uuid;
             $invest->user_id = $user->id;
@@ -118,17 +118,9 @@ class InvestmentController extends BaseController
             $invest->save();
 
         });
-        
+
         $user = User::where('email', $data['email'])->with('investment')->first();
 
-        SmsService::sendSms("Dear {$invoice->user->first_name} <br/> you have successfully make an investment with leverpay.io");
-
-        SmsService::sendMail("Dear {$invoice->user->first_name} <br/> you have successfully make an investment with leverpay.io");
-
-
         return $this->successfulResponse($user,"Investment successfully created");
-        
-
-
     }
 }

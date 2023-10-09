@@ -11,9 +11,10 @@ use App\Models\Transaction;
 use App\Services\SmsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 Route::get('/', function (){
-    dd(env('PROVIDUS_BASEURL'));
+    dd(env('PROVIDUS_X_AUTH_SIGNATURE'));
     // DB::table('admin_logins')->insert([
     //     [
     //         'first_name' => 'LeverPay',
