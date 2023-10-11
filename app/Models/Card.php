@@ -11,7 +11,6 @@ class Card extends Model
 
     // type: 1 - normal card, 2 - Gold card, 3 - Diamond card, 4 - Pink Lady, 5 - Enterprise card
 
-
     protected $hidden = [
         'id',
         'user_id',

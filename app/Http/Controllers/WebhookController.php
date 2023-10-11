@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Investment;
+use App\Models\Transaction;
+use App\Models\User;
 use App\Models\Webhook;
 use App\Services\ProvidusService;
 use Illuminate\Http\Request;
@@ -13,7 +16,7 @@ class WebhookController extends Controller
 {
     public function providus(Request $request){
         // come back to validate amount
-        if(!$request->hasHeader('X-Auth-Signature') || $request->header('X-Auth-Signature') != ProvidusService::$signature){
+        if(!$request->hasHeader('X-Auth-Signature') || $request->header('X-Auth-Signature') != env('PROVIDUS_X_AUTH_SIGNATURE')){
             return [
                 'requestSuccessful'=>true,
                 'sessionId'=>$request['sessionId'],
@@ -67,6 +70,31 @@ class WebhookController extends Controller
         $web->tranDateTime = $request['tranDateTime'];
         $web->bank = 'providus';
         $web->save();
+
+        $user = User::find($account->user_id);
+
+        $trans = new Transaction;
+        $trans->user_id = $account->user_id;
+        $trans->reference_no = $request['sessionId'];
+        $trans->tnx_reference_no=$request['initiationTranRef'];
+        $trans->amount =$request['transactionAmount'];
+        $trans->type = 'credit';
+        $trans->merchant = 'providus';
+        $trans->status = 1;
+
+
+        if($account->type == 'investment'){
+            $invest = Investment::where('accountNumber', $request['accountNumber'])->first();
+            $invest->amount_paid = $request['transactionAmount'];
+            $invest->status = 1;
+            $invest->save();
+            $trans->balance = $user->wallet->withdrawable_amount;
+            $trans->transaction_details = json_encode([
+                'investment_id'=>$invest->id,
+            ]);
+        }else{
+
+        }
 
         return [
             'requestSuccessful'=>true,

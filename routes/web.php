@@ -14,7 +14,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 Route::get('/', function (){
-    dd(env('PROVIDUS_X_AUTH_SIGNATURE'));
+
+    // php artisan optimize:clear
+
+    dd(env('PROVIDUS_BASEURL'));
+
+
     // DB::table('admin_logins')->insert([
     //     [
     //         'first_name' => 'LeverPay',

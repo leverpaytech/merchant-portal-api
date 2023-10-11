@@ -277,9 +277,10 @@ class AuthController extends BaseController
         $user->verify_email_status = true;
         $user->save();
 
-        $wallet = new Wallet();
-        $wallet->user_id = $user['id'];
-        $wallet->save();
+        //Moved to Observers
+        // $wallet = new Wallet();
+        // $wallet->user_id = $user['id'];
+        // $wallet->save();
 
         if($user->role_id == 1){
             MerchantKeyService::createKeys($user->id);

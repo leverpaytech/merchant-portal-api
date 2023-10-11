@@ -161,6 +161,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-users-kyc-list', [AdminController::class, 'getUserKyc']);
             Route::get('/get-merchants-kyc-list', [AdminController::class, 'getMerchantKyc']);
             Route::get('/find-kyc/{uuid}', [AdminController::class, 'findKyc']);
+            Route::get('/approve-kyc/{id}', [AdminController::class, 'approveKyc']);
 
 
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
