@@ -31,7 +31,7 @@ class InvestmentController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"gender","dob","email","password", "first_name", "last_name","phone", "amount"},
+     *              required={"gender","dob","email","password", "first_name", "last_name","phone", "amount","confirm_password"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="other_name", type="string"),
@@ -40,6 +40,7 @@ class InvestmentController extends BaseController
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="phone", type="string"),
      *              @OA\Property( property="password", type="string"),
+     *              @OA\Property( property="confirm_password", type="string"),
      *              @OA\Property( property="country_id", enum="[1]"),
      *              @OA\Property( property="state_id", enum="[1]"),
      *              @OA\Property( property="amount", type="string")
@@ -160,4 +161,10 @@ class InvestmentController extends BaseController
         $user = User::where('email', $request['email'])->with('investment')->first();
         return $this->successfulResponse($user,"Investment successfully created");
     }
+
+    /*public function getInvestment()
+    {
+        $user = User::with('investment')->get();
+        return $this->successfulResponse($user,"Investment list successfully retrieved");
+    }*/
 }

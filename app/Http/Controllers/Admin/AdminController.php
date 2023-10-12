@@ -504,7 +504,6 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"rate","local_transaction_rate","international_transaction_rate","conversion_rate","funding_rate"},
      *              @OA\Property( property="rate", type="string"),
      *              @OA\Property( property="local_transaction_rate", type="string"),
      *              @OA\Property( property="funding_rate", type="string"),
@@ -542,16 +541,40 @@ class AdminController extends BaseController
      *)
      **/
     public function updateExchangeRates(Request $request){
+        
         $data = $this->validate($request, [
-            'rate'=>'required|numeric',
-            'local_transaction_rate'=>'required|numeric',
-            'international_transaction_rate'=>'required|numeric',
-            'funding_rate'=>'required|numeric',
-            'conversion_rate'=>'required|numeric',
+            'rate'=>'nullable|numeric',
+            'local_transaction_rate'=>'nullable|numeric',
+            'international_transaction_rate'=>'nullable|numeric',
+            'funding_rate'=>'nullable|numeric',
+            'conversion_rate'=>'nullable|numeric',
             'notes'=>'nullable|string'
         ]);
+        $latest=ExchangeRate::latest()->get()->first();
+        
+        $data2=[
+            'rate'=>$latest->rate,
+            'local_transaction_rate'=>$latest->local_transaction_rate,
+            'international_transaction_rate'=>$latest->international_transaction_rate,
+            'funding_rate'=>$latest->funding_rate,
+            'conversion_rate'=>$latest->conversion_rate,
+            'notes'=>$latest->notes
+        ];
+        $val=false;
+        if(!empty($request->rate)) { $data2['rate']=$request->rate; $val=true;}
+        if(!empty($request->local_transaction_rate)) { $data2['local_transaction_rate']=$request->local_transaction_rate; $val=true; }
+        if(!empty($request->international_transaction_rate)) { $data2['international_transaction_rate']=$request->international_transaction_rate; $val=true; }
+        if(!empty($request->funding_rate)) { $data2['funding_rate']=$request->funding_rate; $val=true; }
+        if(!empty($request->conversion_rate)) { $data2['conversion_rate']=$request->conversion_rate; $val=true; }
+        if(!empty($request->notes)) { $data2['notes']=$request->notes; }
 
-        ExchangeRate::create($data);
+        if($val==false)
+        {
+            return $this->sendError("Atleast one rate value is required",[],400);
+            exit();
+        }
+
+        ExchangeRate::create($data2);
         return $this->successfulResponse([], 'Rate updated successfully');
     }
 

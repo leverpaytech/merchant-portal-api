@@ -341,13 +341,6 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
-                                "required": [
-                                    "rate",
-                                    "local_transaction_rate",
-                                    "international_transaction_rate",
-                                    "conversion_rate",
-                                    "funding_rate"
-                                ],
                                 "properties": {
                                     "rate": {
                                         "type": "string"
@@ -1214,7 +1207,8 @@
                                     "first_name",
                                     "last_name",
                                     "phone",
-                                    "amount"
+                                    "amount",
+                                    "confirm_password"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -1240,6 +1234,9 @@
                                         "type": "string"
                                     },
                                     "password": {
+                                        "type": "string"
+                                    },
+                                    "confirm_password": {
                                         "type": "string"
                                     },
                                     "country_id": {

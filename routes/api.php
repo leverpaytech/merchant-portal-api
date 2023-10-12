@@ -54,6 +54,7 @@ Route::prefix('v1')->group( function(){
 
 
     Route::post('/investment', [InvestmentController::class, 'submitInvestment']);
+    //Route::post('/get-investment-list', [InvestmentController::class, 'getInvestment']);
 
     //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
     //Route::get('/on-boarding', [UserController::class, 'onBoarding']);
