@@ -128,7 +128,11 @@ class InvestmentController extends BaseController
 
         return $this->successfulResponse($user,"Investment successfully created");
         
-
-
     }
+
+    /*public function getInvestment()
+    {
+        $user = User::with('investment')->get();
+        return $this->successfulResponse($user,"Investment list successfully retrieved");
+    }*/
 }
