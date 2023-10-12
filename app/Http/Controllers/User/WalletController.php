@@ -148,7 +148,6 @@ class WalletController extends BaseController
         }
 
         $topup->save();
-        return $topup;
         return $this->successfulResponse([], 'Topup request submitted successfulss');
     }
 

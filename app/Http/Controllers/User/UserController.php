@@ -708,8 +708,10 @@ class UserController extends BaseController
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'place_of_birth' => 'required'
-
-
+        ],[
+            'document_type_id.required' => 'Document type is required',
+            'country_id.required' => 'Country is required',
+            'state_id.required' => 'State is required',
         ]);
 
         if ($validator->fails())
@@ -720,7 +722,7 @@ class UserController extends BaseController
         $user_id=Auth::user()->id;
 
         $data['user_id']=$user_id;
-        $data['card_type']=1; //gold
+        $data['card_type']=2; //gold
 
         $passport = cloudinary()->upload($request->file('passport')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -742,7 +744,7 @@ class UserController extends BaseController
         }
 
         $user=Kyc::create($data);
-        User::where('id', $user_id)->update(['kyc_status'=>1]);
+        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for gold card upgrade";
         $data2['user_id']=$user_id;
@@ -857,6 +859,8 @@ class UserController extends BaseController
             'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
             'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
             'utility_bill' => 'required|mimes:jpeg,png,jpg|max:2048'
+        ],[
+            'document_type_id.required' => 'Document type is required'
         ]);
 
         if ($validator->fails())
@@ -867,7 +871,7 @@ class UserController extends BaseController
         $user_id=Auth::user()->id;
 
         $data['user_id']=$user_id;
-        $data['card_type']=2; //diamond
+        $data['card_type']=3; //diamond
 
         $utility_bill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -889,7 +893,7 @@ class UserController extends BaseController
         }
 
         $user=Kyc::create($data);
-        User::where('id', $user_id)->update(['kyc_status'=>1]);
+        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for diamond card upgrade";
         $data2['user_id']=$user_id;
@@ -1004,7 +1008,7 @@ class UserController extends BaseController
         $user_id=Auth::user()->id;
 
         $data['user_id']=$user_id;
-        $data['card_type']=4; //diamond
+        $data['card_type']=5; //Enterprice
 
         $business_certificate = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -1013,7 +1017,7 @@ class UserController extends BaseController
 
 
         $user=Kyc::create($data);
-        User::where('id', $user_id)->update(['kyc_status'=>1]);
+        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for enterprise card upgrade";
         $data2['user_id']=$user_id;

@@ -11,8 +11,14 @@ use App\Models\Transaction;
 use App\Services\SmsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 Route::get('/', function (){
+
+    // php artisan optimize:clear
+
+    dd(env('PROVIDUS_BASEURL'));
+
 
     // DB::table('admin_logins')->insert([
     //     [

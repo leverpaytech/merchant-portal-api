@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction};
 use App\Models\Bank;
+use App\Models\Card;
 use App\Models\TopupRequest;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
@@ -373,6 +374,21 @@ class AdminController extends BaseController
 
     }
 
+    public function approveKyc($id){
+        $kyc = Kyc::find($id);
+        if(!$kyc){
+            return $this->sendError('Kyc not found',[],400);
+        }
+
+        $kyc->status = 1;
+        $kyc->save();
+
+        User::where('id', $kyc->user_id)->update(['kyc_status'=>1]);
+
+        Card::where('user_id', $kyc->user_id)->update(['type'=>$kyc->card_type]);
+        return $this->successfulResponse($kyc, 'Kyc approved successfully');
+    }
+
     /**
      * @OA\Get(
      ** path="/api/v1/admin/find-kyc/{uuid}",
@@ -671,6 +687,6 @@ class AdminController extends BaseController
      }
 
 
-     
+
 
 }
