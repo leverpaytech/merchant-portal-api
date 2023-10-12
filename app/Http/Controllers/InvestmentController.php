@@ -109,9 +109,9 @@ class InvestmentController extends BaseController
                     'verify_email_token'=>Str::random(5)
                 ]);
 
-                $wallet = new Wallet();
-                $wallet->user_id = $user['id'];
-                $wallet->save();
+                // $wallet = new Wallet();
+                // $wallet->user_id = $user['id'];
+                // $wallet->save();
 
                 // DB::transaction( function() use($data, $uuid) {
                     // $user=User::create([
