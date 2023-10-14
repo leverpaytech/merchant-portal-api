@@ -11,7 +11,7 @@ class Transfer extends Model
     use HasFactory;
 
     protected $hidden = [
-        'id','otp'];
+        'id','otp', 'user_id', 'receiver_id'];
 
     public static function boot(): void
     {

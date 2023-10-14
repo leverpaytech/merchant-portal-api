@@ -468,7 +468,7 @@ class WalletController extends BaseController
         ]);
 
         $user= Auth::user();
-        $trans = Transfer::where('uuid', $request['uuid'])->first();
+        $trans = Transfer::where('uuid', $request['uuid'])->where('status', 0)->first();
 
         if(!$trans){
             return $this->sendError("Transfer request not found",[],400);
@@ -521,8 +521,14 @@ class WalletController extends BaseController
             $transaction2->transaction_details = json_encode($details2);
             $transaction2->save();
 
+
+
             WalletService::addToWallet($trans->receiver_id, $trans['amount']);
             WalletService::subtractFromWallet($user->id, $trans['amount']);
+
+            $trans->status = 0;
+            $trans->otp = rand(1000, 9999);
+            $trans->save();
         });
 
         $trans->status = 1;
