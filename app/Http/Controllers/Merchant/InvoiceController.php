@@ -366,7 +366,25 @@ class InvoiceController extends BaseController
 
             $invoice->status = 1;
             $invoice->save();
-            return $this->successfulResponse([], 'Hello world');
+            $html = "<p style='margin-bottom: 8px'>
+                    Dear {$invoice->user->first_name},
+                </p>
+                <p style='margin-bottom: 10px'>You have successfully paid an invoice of $total to {$invoice->merchant->first_name} {$invoice->merchant->last_name}</p>
+
+                <p> Best regards, </p>
+                <p> Leverpay </p>
+            ";
+
+            $html2 = "<p style='margin-bottom: 8px'>
+                    Dear {$invoice->merchant->first_name},
+                </p>
+                <p style='margin-bottom: 10px'>An invoice of $total sent to {$invoice->user->first_name} {$invoice->merchant->last_name} has been paid</p>
+
+                <p> Best regards, </p>
+                <p> Leverpay </p>
+            ";
+            SmsService::sendMail('', $html, 'Invoice Completed', $invoice->user->email);
+            SmsService::sendMail('', $html2, 'Invoice Completed', $invoice->merchant->email);
         });
 
         return $this->successfulResponse([], 'Invoice paid successfully');

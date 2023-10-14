@@ -8,6 +8,8 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Webhook;
 use App\Services\ProvidusService;
+use App\Services\SmsService;
+use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -92,10 +94,28 @@ class WebhookController extends Controller
             $trans->transaction_details = json_encode([
                 'investment_id'=>$invest->id,
             ]);
-        }else{
 
+        }else{
+            WalletService::addToWallet($user->id, $request['transactionAmount']);
+            $trans->balance = floatval($user->wallet->withdrawable_amount) + floatval($request['transactionAmount']);
         }
 
+        $trans->extra = json_encode([
+            'webhook'=>$request->all()
+        ]);
+        $trans->save();
+
+        if($account->type == 'investment'){
+            $html = "<p style='margin-bottom: 8px'>
+                    Dear {$user->first_name},
+                </p>
+                <p style='margin-bottom: 10px'>An investment of {$request['transactionAmount']} has been completed</p>
+
+                <p> Best regards, </p>
+                <p> Leverpay </p>
+            ";
+            SmsService::sendMail('', $html, 'Invoice Completed', $user->email);
+        }
         return [
             'requestSuccessful'=>true,
             'sessionId'=>$web->sessionId,
