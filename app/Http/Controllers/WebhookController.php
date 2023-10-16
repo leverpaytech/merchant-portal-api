@@ -95,6 +95,15 @@ class WebhookController extends Controller
                 'investment_id'=>$invest->id,
             ]);
 
+            $html = "
+            <p>Hello {$user['first_name']} {$user['last_name']},</p>
+            <p style='margin-bottom: 8px'>
+                Your investment of {$request['transactionAmount']} was successful. Login into your account to track your investment
+                </p>
+            ";
+
+            SmsService::sendMail('', $html, 'Investment Successful', $user['email']);
+
         }else{
             WalletService::addToWallet($user->id, $request['transactionAmount']);
             $trans->balance = floatval($user->wallet->withdrawable_amount) + floatval($request['transactionAmount']);
