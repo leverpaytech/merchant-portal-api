@@ -79,9 +79,9 @@ class InvestmentController extends BaseController
     public function submitInvestment(Request $request){
         $user = User::where('email', $request['email'])->first();
         // $data = $request->all();
-        // return "{$data['first_name']} {$data['last_name']} (Leverpay)";
+        // // return "{$data['first_name']} {$data['last_name']} (Leverpay)";
         // $providus = ProvidusService::generateDynamicAccount("{$data['first_name']} {$data['last_name']} (Leverpay)");
-        // return ['data'=>$providus];
+        // return $providus->requestSuccessful;
         DB::transaction( function() use($user, $request) {
             $data = $request->all();
             if(!$user){
@@ -148,15 +148,15 @@ class InvestmentController extends BaseController
             $invest = new Investment();
             $invest->user_id = $user->id;
             $invest->amount = $data['amount'];
-            if($providus['requestSuccessful']){
-                $invest->accountNumber = $providus['account_number'];
-                $invest->accountName = $providus['account_name'];
+            if($providus->requestSuccessful){
+                $invest->accountNumber = $providus->account_number;
+                $invest->accountName = $providus->account_name;
 
                 $account = new Account;
                 $account->user_id = $user->id;
                 $account->type='investment';
-                $account->accountName = $providus['account_name'];
-                $account->accountNumber = $providus['account_number'];
+                $account->accountName = $providus->account_name;
+                $account->accountNumber = $providus->account_number;
                 $account->bank = 'providus';
                 $account->save();
             }
