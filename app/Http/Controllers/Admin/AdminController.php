@@ -132,6 +132,17 @@ class AdminController extends BaseController
        //  return $this->successfulResponse(new UserResource($users), 'success');
     }
 
+    public function getUser($uuid)
+    {
+        $user = User::where('uuid', $uuid)->with('merchant')->first();
+        if(!$user){
+            return $this->sendError("Merchant not found",[],400);
+        }
+
+        return $this->successfulResponse($user, '');
+       //  return $this->successfulResponse(new UserResource($users), 'success');
+    }
+
         /****************************user services****************************/
     /**
      * @OA\Get(
@@ -306,25 +317,24 @@ class AdminController extends BaseController
         }
 
         $users=User::where('role_id','0')->with('kyc')->get();
-        $users->transform(function($user)
-        {    
-            if($user->kyc !==NULL)
-            {
-                $county=Country::find($user->kyc->country_id);
-                $docType=DocumentType::find($user->kyc->document_type_id);
-                $user->kyc->country=[
-                    'country_id'=>$county->id,
-                    'country_name'=>$county->country_name,
-                ];
-                $user->kyc->document_type=[
-                    'document_type_id'=>$docType->id,
-                    'name'=>$docType->name,
-                ];
+        // $users->transform(function($user){
+        //     if($user->kyc !==NULL)
+        //     {
+        //         $county=Country::find($user->kyc->country_id);
+        //         $docType=DocumentType::find($user->kyc->document_type_id);
+        //         $user->kyc->country=[
+        //             'country_id'=>$county->id,
+        //             'country_name'=>$county->country_name,
+        //         ];
+        //         $user->kyc->document_type=[
+        //             'document_type_id'=>$docType->id,
+        //             'name'=>$docType->name,
+        //         ];
 
-                return $user;
-            }
+        //         return $user;
+        //     }
 
-        });
+        // });
         return $this->successfulResponse($users, 'Users List');
     }
 
@@ -545,7 +555,7 @@ class AdminController extends BaseController
      *)
      **/
     public function updateExchangeRates(Request $request){
-        
+
         $data = $this->validate($request, [
             'rate'=>'nullable|numeric',
             'local_transaction_rate'=>'nullable|numeric',
@@ -555,7 +565,7 @@ class AdminController extends BaseController
             'notes'=>'nullable|string'
         ]);
         $latest=ExchangeRate::latest()->get()->first();
-        
+
         $data2=[
             'rate'=>$latest->rate,
             'local_transaction_rate'=>$latest->local_transaction_rate,
@@ -781,9 +791,9 @@ class AdminController extends BaseController
      *   }
      *)
     **/
-    
+
     public function replyMessage(Request $request)
-    { 
+    {
         $data = $this->validate($request, [
             'uuid'=>'required|string',
             'reply'=>'required|string'
@@ -798,7 +808,7 @@ class AdminController extends BaseController
         $getEmail->reply=$data['reply'];
         $getEmail->status=1;
         $getEmail->save();
-        
+
         //sent mail
         SmsService::sendMail("",$data['reply'], "LeverPay Replay Message", $getEmail->email);
         //SmsService::sendMail("Dear {$getEmail->email},", $data['reply'], "LeverPay Replay Message", $getEmail->email);
