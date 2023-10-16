@@ -519,6 +519,80 @@
                 ]
             }
         },
+        "/api/v1/admin/get-contact-us-messages": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all contact us messages",
+                "operationId": "Get all contact us messages",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/reply-message": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Reply user contact message",
+                "operationId": "Reply user contact message",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid",
+                                    "reply"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string"
+                                    },
+                                    "reply": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [
@@ -1095,6 +1169,65 @@
                 ]
             }
         },
+        "/api/v1/contact-us": {
+            "post": {
+                "tags": [
+                    "ContactUs"
+                ],
+                "summary": "Contact Us",
+                "operationId": "Contact Us",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "subject",
+                                    "message"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/get-countries": {
             "get": {
                 "tags": [
@@ -1236,7 +1369,7 @@
                                     "password": {
                                         "type": "string"
                                     },
-                                    "confirm_password": {
+                                    "password_confirmation": {
                                         "type": "string"
                                     },
                                     "country_id": {
