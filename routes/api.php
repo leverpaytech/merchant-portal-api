@@ -153,7 +153,7 @@ Route::prefix('v1')->group( function(){
         Route::post('/admin-verify-email', [AdminAuthController::class, 'resetPasswordVerify']);
         Route::post('/admin-reset-password', [AdminAuthController::class, 'resetPassword']);
 
-        Route::get('/test-users', [AdminController::class, 'getAllUsers']);
+        //Route::get('/test-users', [AdminController::class, 'getAllUsers']);
 
         Route::middleware('auth:api')->group( function ()
         {
