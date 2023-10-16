@@ -317,24 +317,24 @@ class AdminController extends BaseController
         }
 
         $users=User::where('role_id','0')->with('kyc')->get();
-        $users->transform(function($user){
-            if($user->kyc !==NULL)
-            {
-                $county=Country::find($user->kyc->country_id);
-                $docType=DocumentType::find($user->kyc->document_type_id);
-                $user->kyc->country=[
-                    'country_id'=>$county->id,
-                    'country_name'=>$county->country_name,
-                ];
-                $user->kyc->document_type=[
-                    'document_type_id'=>$docType->id,
-                    'name'=>$docType->name,
-                ];
+        // $users->transform(function($user){
+        //     if($user->kyc !==NULL)
+        //     {
+        //         $county=Country::find($user->kyc->country_id);
+        //         $docType=DocumentType::find($user->kyc->document_type_id);
+        //         $user->kyc->country=[
+        //             'country_id'=>$county->id,
+        //             'country_name'=>$county->country_name,
+        //         ];
+        //         $user->kyc->document_type=[
+        //             'document_type_id'=>$docType->id,
+        //             'name'=>$docType->name,
+        //         ];
 
-                return $user;
-            }
+        //         return $user;
+        //     }
 
-        });
+        // });
         return $this->successfulResponse($users, 'Users List');
     }
 
@@ -791,9 +791,9 @@ class AdminController extends BaseController
      *   }
      *)
     **/
-    
+
     public function replyMessage(Request $request)
-    { 
+    {
         $data = $this->validate($request, [
             'uuid'=>'required|string',
             'reply'=>'required|string'
@@ -808,7 +808,7 @@ class AdminController extends BaseController
         $getEmail->reply=$data['reply'];
         $getEmail->status=1;
         $getEmail->save();
-        
+
         //sent mail
         SmsService::sendMail("",$data['reply'], "LeverPay Replay Message", $getEmail->email);
         //SmsService::sendMail("Dear {$getEmail->email},", $data['reply'], "LeverPay Replay Message", $getEmail->email);
