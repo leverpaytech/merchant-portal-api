@@ -306,7 +306,8 @@ class AdminController extends BaseController
         }
 
         $users=User::where('role_id','0')->with('kyc')->get();
-        $users->transform(function($user){
+        $users->transform(function($user)
+        {    
             if($user->kyc !==NULL)
             {
                 $county=Country::find($user->kyc->country_id);
