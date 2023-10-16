@@ -311,10 +311,10 @@ class AdminController extends BaseController
      **/
     public function getAllUsers()
     {
-        if(!Auth::user()->id)
-        {
-            return $this->sendError("Authourized user",[], 401);
-        }
+        // if(!Auth::user()->id)
+        // {
+        //     return $this->sendError("Authourized user",[], 401);
+        // }
 
         $users=User::where('role_id','0')->with('kyc')->get();
         // $users->transform(function($user){
