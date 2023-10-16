@@ -24,8 +24,7 @@ use \App\Http\Controllers\BankController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\WebhookController;
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
-
-
+use App\Http\Controllers\ContactUsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -51,8 +50,9 @@ Route::prefix('v1')->group( function(){
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
-
-
+    Route::post('/contact-us', [ContactUsController::class, 'submitForm']);
+    
+    
     Route::post('/investment', [InvestmentController::class, 'submitInvestment']);
     //Route::post('/get-investment-list', [InvestmentController::class, 'getInvestment']);
 
@@ -179,6 +179,10 @@ Route::prefix('v1')->group( function(){
 
             Route::get('/get-topup-requests', [AdminController::class, 'getAllTopupRequests']);
             Route::post('/approve-topup-request', [AdminController::class, 'approveTopupRequest']);
+            
+            //contact us
+            Route::get('/get-contact-us-messages', [AdminController::class, 'getContactUsForms']);
+            Route::post('/reply-message', [AdminController::class, 'replyMessage']);
         });
     });
 

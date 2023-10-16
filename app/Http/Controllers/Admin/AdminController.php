@@ -3,18 +3,21 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction};
+use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs};
 use App\Models\Bank;
 use App\Models\Card;
 use App\Models\TopupRequest;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
+use Illuminate\Support\Facades\Mail;
 use App\Models\PaymentOption;
 use App\Http\Resources\PaymentOptionResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Mail\GeneralMail;
+use App\Services\SmsService;
 
 class AdminController extends BaseController
 {
@@ -704,12 +707,102 @@ class AdminController extends BaseController
      *)
      **/
 
-     public function getAccountNos(){
+    public function getAccountNos(){
         $acc = DB::table('lever_pay_account_no')->get();
         return $this->successfulResponse($acc, 'Bank created successfully');
-     }
+    }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-contact-us-messages",
+     *   tags={"Admin"},
+     *   summary="Get all contact us messages",
+     *   operationId="Get all contact us messages",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
 
+    public function getContactUsForms()
+    {
+        $list = DB::table('contact_us')->orderBy('status', 'ASC')->get();
+        return $this->successfulResponse($list, 'Contact Us messages');
+    }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/reply-message",
+     *   tags={"Admin"},
+     *   summary="Reply user contact message",
+     *   operationId="Reply user contact message",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid","reply"},
+     *              @OA\Property( property="uuid", type="string"),
+     *              @OA\Property( property="reply", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+    **/
+    
+    public function replyMessage(Request $request)
+    { 
+        $data = $this->validate($request, [
+            'uuid'=>'required|string',
+            'reply'=>'required|string'
+        ]);
+
+        $getEmail=ContactUs::where('uuid',$data['uuid'])->get()->first();
+        if(empty($getEmail['email']))
+        {
+            return $this->sendError("Invalid UUID",[], 401); exit();
+        }
+
+        $getEmail->reply=$data['reply'];
+        $getEmail->status=1;
+        $getEmail->save();
+        
+        //sent mail
+        SmsService::sendMail("",$data['reply'], "LeverPay Replay Message", $getEmail->email);
+        //SmsService::sendMail("Dear {$getEmail->email},", $data['reply'], "LeverPay Replay Message", $getEmail->email);
+
+        return $this->successfulResponse([], 'Reply message successfully sent');
+    }
 
 }
