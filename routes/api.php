@@ -158,6 +158,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/admin-logout', [AdminAuthController::class, 'logout']);
             Route::get('/admin-profile', [AdminAuthController::class, 'adminProfile'])->name('admin-profile');
             Route::get('/get-all-merchants', [AdminController::class, 'getAllMerchants'])->name('merchants.all');
+            Route::get('/get-user/{uuid}', [AdminController::class, 'getUser']);
             Route::get('/get-all-users', [AdminController::class, 'getAllUsers'])->name('users.all');
             Route::get('/get-users-kyc-list', [AdminController::class, 'getUserKyc']);
             Route::get('/get-merchants-kyc-list', [AdminController::class, 'getMerchantKyc']);

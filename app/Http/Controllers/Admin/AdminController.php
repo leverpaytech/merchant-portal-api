@@ -129,6 +129,17 @@ class AdminController extends BaseController
        //  return $this->successfulResponse(new UserResource($users), 'success');
     }
 
+    public function getUser($uuid)
+    {
+        $user = User::where('uuid', $uuid)->with('merchant')->first();
+        if(!$user){
+            return $this->sendError("Merchant not found",[],400);
+        }
+
+        return $this->successfulResponse($user, '');
+       //  return $this->successfulResponse(new UserResource($users), 'success');
+    }
+
         /****************************user services****************************/
     /**
      * @OA\Get(
@@ -541,7 +552,7 @@ class AdminController extends BaseController
      *)
      **/
     public function updateExchangeRates(Request $request){
-        
+
         $data = $this->validate($request, [
             'rate'=>'nullable|numeric',
             'local_transaction_rate'=>'nullable|numeric',
@@ -551,7 +562,7 @@ class AdminController extends BaseController
             'notes'=>'nullable|string'
         ]);
         $latest=ExchangeRate::latest()->get()->first();
-        
+
         $data2=[
             'rate'=>$latest->rate,
             'local_transaction_rate'=>$latest->local_transaction_rate,
