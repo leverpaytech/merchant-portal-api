@@ -78,6 +78,10 @@ class InvestmentController extends BaseController
      **/
     public function submitInvestment(Request $request){
         $user = User::where('email', $request['email'])->first();
+        // $data = $request->all();
+        // return "{$data['first_name']} {$data['last_name']} (Leverpay)";
+        // $providus = ProvidusService::generateDynamicAccount("{$data['first_name']} {$data['last_name']} (Leverpay)");
+        // return ['data'=>$providus];
         DB::transaction( function() use($user, $request) {
             $data = $request->all();
             if(!$user){
