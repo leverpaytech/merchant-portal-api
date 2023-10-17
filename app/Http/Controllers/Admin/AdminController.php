@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs};
+use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice};
 use App\Models\Bank;
 use App\Models\Card;
 use App\Models\TopupRequest;
@@ -126,10 +126,25 @@ class AdminController extends BaseController
         {
             return $this->sendError("Authourized user",[], 401);
         }
-        $users=User::where('role_id', '1')->get();
-
+        $users=User::where('role_id', '1')->with('kyc')->get();
+        $users->transform(function($user){
+            if($user->kyc !==NULL)
+            {
+                $county=Country::find($user->kyc->country_id);
+                $docType=DocumentType::find($user->kyc->document_type_id);
+                $user->kyc->country=[
+                    'country_id'=>$county->id,
+                    'country_name'=>$county->country_name,
+                ];
+                $user->kyc->document_type=[
+                    'document_type_id'=>$docType->id,
+                    'name'=>$docType->name,
+                ];
+            }
+            return $user;
+        });
         return $this->successfulResponse($users, 'Merchants list');
-       //  return $this->successfulResponse(new UserResource($users), 'success');
+       
     }
 
     public function getUser($uuid)
@@ -812,6 +827,42 @@ class AdminController extends BaseController
         //SmsService::sendMail("Dear {$getEmail->email},", $data['reply'], "LeverPay Replay Message", $getEmail->email);
 
         return $this->successfulResponse([], 'Reply message successfully sent');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-all-invoices",
+     *   tags={"Admin"},
+     *   summary="Get list of invoices",
+     *   operationId="get list of invoices",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+
+     public function getInvoices(Request $request){
+        $invoices = Invoice::with('user')->with('merchant')->get();
+
+        /*$filter = strval($request->query('status'));
+
+        if($filter == 'pending'){
+            $invoices = $invoices->where('status', 0)->get();
+        }else if($filter == 'paid'){
+            $invoices = $invoices->where('status', 1)->get();
+        }else if($filter == 'cancelled'){
+            $invoices = $invoices->where('status', 2)->get();
+        }else{
+            $invoices = $invoices->get();
+        }*/
+
+        return $this->successfulResponse($invoices, '');
     }
 
 }

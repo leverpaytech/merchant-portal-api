@@ -593,6 +593,25 @@
                 ]
             }
         },
+        "/api/v1/admin/get-all-invoices": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get list of invoices",
+                "operationId": "get list of invoices",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [
