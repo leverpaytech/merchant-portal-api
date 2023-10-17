@@ -30,7 +30,7 @@ class WebhookController extends Controller
 
         $validator = Validator::make($request->all(), [
             'settlementId'=>'required|unique:webhooks,settlementId',
-            'sessionId' => 'required|unique:webhooks,bankSessionId',
+            'sessionId' => 'required|unique:webhooks,sessionId',
             'transactionAmount'=>'required|numeric|min:0',
         ]);
 
@@ -47,7 +47,7 @@ class WebhookController extends Controller
         if(!$account){
             return [
                 'requestSuccessful'=>true,
-                'sessionId'=>$request['sessionId'],
+                // 'sessionId'=>$request['sessionId'],
                 'responseMessage'=>'rejected',
                 'responseCode'=>'02'
             ];
@@ -58,7 +58,7 @@ class WebhookController extends Controller
         // try {
             $web = new Webhook;
             $web->raw = json_encode($request->all());
-            $web->sessionId = hexdec(Str::random(30));
+            $web->sessionId = $request['sessionId'];
             $web->bankSessionId = $request['sessionId'];
             $web->accountNumber = $request['accountNumber'];
             $web->tranRemarks = $request['tranRemarks'];
