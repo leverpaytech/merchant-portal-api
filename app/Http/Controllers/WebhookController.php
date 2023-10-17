@@ -149,7 +149,7 @@ class WebhookController extends Controller
                 'requestSuccessful'=>true,
                 'sessionId'=>$request['sessionId'],
                 'responseMessage'=>'success',
-                'responseCode'=>'01'
+                'responseCode'=>'00'
             ];
         }catch(\Exception $e){
             DB::rollBack();
