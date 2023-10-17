@@ -91,7 +91,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
 
-
+            Route::get('/product/{uuid}', [InvoiceController::class, 'getInvoice']);
             Route::get('get-invoices', [InvoiceController::class, 'getMerchantInvoices']);
         });
 

@@ -9,7 +9,7 @@ class BankController extends BaseController
 {
     /**
      * @OA\Get(
-     ** path="/api/v1/user/get-all-banks}",
+     ** path="/api/v1/user/get-all-banks",
      *   tags={"User"},
      *   summary="Get all banks",
      *   operationId="get all banks",
