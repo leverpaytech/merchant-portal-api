@@ -216,7 +216,7 @@
                 ]
             }
         },
-        "/api/v1/admin/get-all-users-kyc-list": {
+        "/api/v1/admin/get-users-kyc-list": {
             "get": {
                 "tags": [
                     "Admin"
