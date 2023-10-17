@@ -38,12 +38,13 @@ class InvoiceController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"product_name","price","vat","email",},
+     *              required={"product_name","price","vat","email","currency"},
      *              @OA\Property( property="product_name", type="string"),
      *              @OA\Property( property="price", type="string"),
      *              @OA\Property( property="quantity", type="string"),
      *              @OA\Property( property="product_description", type="string"),
-     *              @OA\Property( property="vat", type="string"),
+     *              @OA\Property( property="vat", type="string"), 
+     *              @OA\Property( property="currency", type="string")
      *              @OA\Property( property="email", type="string")
      *          ),
      *      ),
@@ -83,6 +84,7 @@ class InvoiceController extends BaseController
             'product_description'=>'nullable|string',
             'price'=>'required|numeric',
             // 'product_image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
+            'quantity'=>'required|numeric|min:1',
             'email'=>'required|email',
             'vat'=>'required|numeric|min:0',
             'currency'=>'required|string'
