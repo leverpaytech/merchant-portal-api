@@ -261,6 +261,16 @@
                 ],
                 "summary": "Find Kyc by uuid",
                 "operationId": "Find Kyc by uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"
