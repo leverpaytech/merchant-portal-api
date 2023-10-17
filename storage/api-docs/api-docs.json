@@ -1118,7 +1118,7 @@
                 }
             }
         },
-        "/api/v1/user/get-all-banks}": {
+        "/api/v1/user/get-all-banks": {
             "get": {
                 "tags": [
                     "User"
@@ -1650,7 +1650,8 @@
                                     "product_name",
                                     "price",
                                     "vat",
-                                    "email"
+                                    "email",
+                                    "currency"
                                 ],
                                 "properties": {
                                     "product_name": {
@@ -1666,6 +1667,9 @@
                                         "type": "string"
                                     },
                                     "vat": {
+                                        "type": "string"
+                                    },
+                                    "currency": {
                                         "type": "string"
                                     },
                                     "email": {
