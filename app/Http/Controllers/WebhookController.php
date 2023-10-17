@@ -53,9 +53,9 @@ class WebhookController extends Controller
             ];
         }
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
 
-        try {
+        // try {
         $web = new Webhook;
         $web->raw = json_encode($request->all());
         $web->sessionId = hexdec(Str::random(30));
