@@ -1657,13 +1657,13 @@
                                     "product_name": {
                                         "type": "string"
                                     },
+                                    "product_description": {
+                                        "type": "string"
+                                    },
                                     "price": {
                                         "type": "string"
                                     },
                                     "quantity": {
-                                        "type": "string"
-                                    },
-                                    "product_description": {
                                         "type": "string"
                                     },
                                     "vat": {
