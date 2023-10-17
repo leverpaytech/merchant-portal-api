@@ -40,9 +40,9 @@ class InvoiceController extends BaseController
      *          @OA\Schema(
      *              required={"product_name","price","vat","email","currency"},
      *              @OA\Property( property="product_name", type="string"),
+     *              @OA\Property( property="product_description", type="string"),
      *              @OA\Property( property="price", type="string"),
      *              @OA\Property( property="quantity", type="string"),
-     *              @OA\Property( property="product_description", type="string"),
      *              @OA\Property( property="vat", type="string"), 
      *              @OA\Property( property="currency", type="string"),
      *              @OA\Property( property="email", type="string")
@@ -102,6 +102,7 @@ class InvoiceController extends BaseController
 
         $currency = ExchangeRate::where('status', 1)->latest()->first();
 
+        $data['currency']=strtolower($data['currency']);
 
         if($data['currency'] == 'dollar'){
             $fee = $request['price'] * ($currency->international_transaction_rate / 100);
