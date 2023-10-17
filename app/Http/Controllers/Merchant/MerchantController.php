@@ -329,12 +329,11 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","state_id","business_address","id_card_front","bvn","nin","business_certificate","rc_number"},
+     *              required={"document_type_id","country_id","business_address","id_card_front","bvn","nin","business_certificate","rc_number"},
      *              @OA\Property( property="document_type_id", enum="[1]"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
      *              @OA\Property( property="country_id", enum="[1]"),
-     *              @OA\Property( property="state_id", enum="[1]"),
      *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="nin", type="string"),
      *              @OA\Property( property="business_address", type="string"),
@@ -382,7 +381,7 @@ class MerchantController extends BaseController
             'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
             'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
             'country_id' => 'required',
-            'state_id' => 'required',
+            'state_id' => 'nullable',
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'business_address' => 'required',

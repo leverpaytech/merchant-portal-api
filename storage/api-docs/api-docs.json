@@ -2033,7 +2033,6 @@
                                 "required": [
                                     "document_type_id",
                                     "country_id",
-                                    "state_id",
                                     "business_address",
                                     "id_card_front",
                                     "bvn",
@@ -2052,9 +2051,6 @@
                                         "type": "file"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
-                                    },
-                                    "state_id": {
                                         "enum": "[1]"
                                     },
                                     "bvn": {
