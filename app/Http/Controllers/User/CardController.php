@@ -116,10 +116,4 @@ class CardController extends BaseController
 
     }
 
-    public function createCard(Request $request) {
-        $cardNumber = null;
-        $cvv = null;
-        $pin = null;
-    }
-
 }
