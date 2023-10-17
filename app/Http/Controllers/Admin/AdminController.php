@@ -378,7 +378,7 @@ class AdminController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-all-merchants-kyc-list",
+     ** path="/api/v1/admin/get-merchants-kyc-list",
      *   tags={"Admin"},
      *   summary="Get all merchants kyc list",
      *   operationId="Get all merchants kyc list",

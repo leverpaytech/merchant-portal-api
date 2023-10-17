@@ -235,7 +235,7 @@
                 ]
             }
         },
-        "/api/v1/admin/get-all-merchants-kyc-list": {
+        "/api/v1/admin/get-merchants-kyc-list": {
             "get": {
                 "tags": [
                     "Admin"
