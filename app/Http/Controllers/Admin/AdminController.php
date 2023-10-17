@@ -370,7 +370,13 @@ class AdminController extends BaseController
      **/
     public function getUserKyc()
     {
-        $kycs=Kyc::where('status', '0')->orderBy('status', 'DESC')->with('user')->with('country')->with('documentType')->get();
+        $kycs=Kyc::join('users','users.id','=','kycs.user_id')
+            ->where('users.role_id', '0')
+            ->orderBy('kycs.status', 'DESC')
+            ->with('user')
+            ->with('country')
+            ->with('documentType')
+            ->get();
 
         return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
 
@@ -395,7 +401,13 @@ class AdminController extends BaseController
      **/
     public function getMerchantKyc()
     {
-        $kycs=Kyc::where('status', '1')->orderBy('status', 'DESC')->with('user')->with('country')->with('documentType')->get();
+        $kycs=Kyc::join('users','users.id','=','kycs.user_id')
+            ->where('users.role_id', '1')
+            ->orderBy('kycs.status', 'DESC')
+            ->with('user')
+            ->with('country')
+            ->with('documentType')
+            ->get();
 
         return $this->successfulResponse($kycs, 'Merchants kyc details successfully retrieved');
 
