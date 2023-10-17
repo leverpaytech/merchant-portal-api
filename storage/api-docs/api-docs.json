@@ -593,6 +593,25 @@
                 ]
             }
         },
+        "/api/v1/admin/get-all-invoices": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get list of invoices",
+                "operationId": "get list of invoices",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [
@@ -2014,7 +2033,6 @@
                                 "required": [
                                     "document_type_id",
                                     "country_id",
-                                    "state_id",
                                     "business_address",
                                     "id_card_front",
                                     "bvn",
@@ -2033,9 +2051,6 @@
                                         "type": "file"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
-                                    },
-                                    "state_id": {
                                         "enum": "[1]"
                                     },
                                     "bvn": {

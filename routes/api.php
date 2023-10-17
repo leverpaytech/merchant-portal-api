@@ -186,6 +186,10 @@ Route::prefix('v1')->group( function(){
             //contact us
             Route::get('/get-contact-us-messages', [AdminController::class, 'getContactUsForms']);
             Route::post('/reply-message', [AdminController::class, 'replyMessage']);
+            //get all invoices
+            Route::get('/get-all-invoices', [AdminController::class, 'getInvoices']);
+        
+            
         });
     });
 
