@@ -459,7 +459,6 @@ class MerchantController extends BaseController
     {
         $user_id=Auth::user()->id;
         $kycs=Kyc::join('countries','countries.id','=','kycs.country_id')
-            ->join('states','states.id','=','kycs.state_id')
             ->join('document_types','document_types.id','=','kycs.document_type_id')
             ->where('user_id', $user_id)
             ->get([
@@ -467,7 +466,6 @@ class MerchantController extends BaseController
                 'kycs.id_card_front',
                 'kycs.id_card_back',
                 'countries.country_name',
-                'states.state_name',
                 'kycs.bvn',
                 'kycs.nin',
                 'kycs.business_address',
