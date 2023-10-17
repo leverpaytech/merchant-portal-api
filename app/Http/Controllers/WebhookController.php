@@ -110,7 +110,7 @@ class WebhookController extends Controller
         }
 
         $trans->extra = json_encode([
-            'webhook'=>$request->all()
+            'webhook'=>json_encode($request->all())
         ]);
         $trans->save();
 
@@ -118,12 +118,27 @@ class WebhookController extends Controller
             $html = "<p style='margin-bottom: 8px'>
                     Dear {$user->first_name},
                 </p>
-                <p style='margin-bottom: 10px'>An investment of {$request['transactionAmount']} has been completed</p>
+                <p style='margin-bottom: 10px'>An investment of ₦{$request['transactionAmount']} has been completed</p>
 
                 <p> Best regards, </p>
                 <p> Leverpay </p>
             ";
             SmsService::sendMail('', $html, 'Invoice Completed', $user->email);
+            $account->accountNumber = rand(1000,9999).'_'.$request['accountNumber'];
+            $account->save();
+        }else{
+            $html = "<p style='margin-bottom: 8px'>
+                    Dear {$user->first_name},
+                </p>
+                <p style='margin-bottom: 10px'>An amount of ₦{$request['transactionAmount']} has been credited to your wallet</p>
+                <p style='margin-bottom: 2px'> Sender Account Number:  {$request['sourceAccountNumber']}</p>
+                <p style='margin-bottom: 2px'> Sender Account Name:  {$request['sourceAccountName']}</p>
+                <p style='margin-bottom: 2px'> Sender Bank Name:  {$request['sourceBankName']}</p>
+                <p style='margin-bottom: 2px'> Date:  {$request['tranDateTime']}</p>
+                <p> Best regards, </p>
+                <p> Leverpay </p>
+            ";
+            SmsService::sendMail('', $html, 'Wallet Credit', $user->email);
         }
         return [
             'requestSuccessful'=>true,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\Wallet;
 use App\Services\CardService;
 use App\Services\MerchantKeyService;
@@ -284,6 +285,16 @@ class AuthController extends BaseController
 
         if($user->role_id == 1){
             MerchantKeyService::createKeys($user->id);
+            $providus = ProvidusService::generateReservedAccount('22387362881', $user['first_name'].' '.$user['lastname'].'(leverpay)');
+            if($providus->requestSuccessful){
+                $account = New Account;
+                $account->user_id = $user->id;
+                $account->accountName = $providus->account_name;
+                $account->accountNumber = $providus->account_number;
+                $account->bank = 'providus';
+                $account->save();
+            }
+
         }else{
             CardService::createCard($user['id']);
         }
