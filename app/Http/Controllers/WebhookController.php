@@ -11,6 +11,7 @@ use App\Services\ProvidusService;
 use App\Services\SmsService;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -18,7 +19,7 @@ class WebhookController extends Controller
 {
     public function providus(Request $request){
         // come back to validate amount
-        if(!$request->hasHeader('X-Auth-Signature') || $request->header('X-Auth-Signature') != env('PROVIDUS_X_AUTH_SIGNATURE')){
+        if(!$request->hasHeader('X-Auth-Signature') || strtolower($request->header('X-Auth-Signature')) != strtolower(env('PROVIDUS_X_AUTH_SIGNATURE'))){
             return [
                 'requestSuccessful'=>true,
                 'sessionId'=>$request['sessionId'],
@@ -52,6 +53,9 @@ class WebhookController extends Controller
             ];
         }
 
+        // DB::beginTransaction();
+
+        // try {
         $web = new Webhook;
         $web->raw = json_encode($request->all());
         $web->sessionId = hexdec(Str::random(30));
@@ -140,6 +144,7 @@ class WebhookController extends Controller
             ";
             SmsService::sendMail('', $html, 'Wallet Credit', $user->email);
         }
+
         return [
             'requestSuccessful'=>true,
             'sessionId'=>$web->sessionId,
