@@ -30,7 +30,7 @@ class WebhookController extends Controller
 
         $validator = Validator::make($request->all(), [
             'settlementId'=>'required|unique:webhooks,settlementId',
-            'sessionId' => 'required|unique:webhooks,sessionId',
+            'sessionId' => 'required|unique:webhooks,bankSessionId',
             'transactionAmount'=>'required|numeric|min:0',
         ]);
 
@@ -53,9 +53,9 @@ class WebhookController extends Controller
             ];
         }
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
 
-        try {
+        // try {
             $web = new Webhook;
             $web->raw = json_encode($request->all());
             $web->sessionId = hexdec(Str::random(30));
@@ -151,14 +151,14 @@ class WebhookController extends Controller
                 'responseMessage'=>'success',
                 'responseCode'=>'00'
             ];
-        }catch(\Exception $e){
-            DB::rollBack();
-            return [
-                'requestSuccessful'=>true,
-                'sessionId'=>$request['sessionId'],
-                'responseMessage'=>'rejected',
-                'responseCode'=>'02'
-            ];
-        }
+        // }catch(\Exception $e){
+        //     DB::rollBack();
+        //     return [
+        //         'requestSuccessful'=>true,
+        //         'sessionId'=>$request['sessionId'],
+        //         'responseMessage'=>'rejected',
+        //         'responseCode'=>'02'
+        //     ];
+        // }
     }
 }
