@@ -435,6 +435,15 @@ class AdminController extends BaseController
      *   summary="Find Kyc by uuid",
      *   operationId="Find Kyc by uuid",
      *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
      *   @OA\Response(
      *      response=200,
      *       description="Success",
