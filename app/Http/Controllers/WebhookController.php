@@ -47,7 +47,7 @@ class WebhookController extends Controller
         if(!$account){
             return [
                 'requestSuccessful'=>true,
-                // 'sessionId'=>$request['sessionId'],
+                'sessionId'=>$request['sessionId'],
                 'responseMessage'=>'rejected',
                 'responseCode'=>'02'
             ];
