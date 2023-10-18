@@ -129,6 +129,7 @@ class WebhookController extends Controller
                 ";
                 SmsService::sendMail('', $html, 'Invoice Completed', $user->email);
                 $account->accountNumber = rand(1000,9999).'_'.$request['accountNumber'];
+                $account->status = 0;
                 $account->save();
             }else{
                 $html = "<p style='margin-bottom: 8px'>
