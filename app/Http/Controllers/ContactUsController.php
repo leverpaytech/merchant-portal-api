@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\ContactUs;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
+use App\Services\SmsService;
 
 class ContactUsController extends BaseController
 {
@@ -63,6 +64,16 @@ class ContactUsController extends BaseController
 
         $data['uuid'] = Uuid::generate()->string;
         $contact=ContactUs::create($data);
+
+        $html = "
+            <p style='margin-bottom: 8px'>{$data['message']}</p>
+            <h2 style='margin-bottom: 8px'>
+                Sent by: {$data['email']}
+            </h2>
+        ";
+        $to="contact@leverpay.io";
+        //sent mail
+        SmsService::sendMail($dat['subject'], $html, "Contact message", $to);
 
         return $this->successfulResponse($contact, 'Message successfully sent');
     }

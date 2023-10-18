@@ -126,7 +126,7 @@ class AdminController extends BaseController
         {
             return $this->sendError("Authourized user",[], 401);
         }
-        $users=User::where('role_id', '1')->with('kyc')->get();
+        $users=User::where('role_id', '1')->with('kyc')->with('wallet')->get();
         $users->transform(function($user){
             if($user->kyc !==NULL)
             {
@@ -150,12 +150,13 @@ class AdminController extends BaseController
     public function getUser($uuid)
     {
         $user = User::where('uuid', $uuid)->with('merchant')->first();
+
         if(!$user){
             return $this->sendError("Merchant not found",[],400);
         }
 
         return $this->successfulResponse($user, '');
-       //  return $this->successfulResponse(new UserResource($users), 'success');
+       
     }
 
         /****************************user services****************************/
@@ -871,19 +872,119 @@ class AdminController extends BaseController
      public function getInvoices(Request $request){
         $invoices = Invoice::with('user')->with('merchant')->get();
 
-        /*$filter = strval($request->query('status'));
-
-        if($filter == 'pending'){
-            $invoices = $invoices->where('status', 0)->get();
-        }else if($filter == 'paid'){
-            $invoices = $invoices->where('status', 1)->get();
-        }else if($filter == 'cancelled'){
-            $invoices = $invoices->where('status', 2)->get();
-        }else{
-            $invoices = $invoices->get();
-        }*/
-
         return $this->successfulResponse($invoices, '');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-user-details/{uuid}",
+     *   tags={"Admin"},
+     *   summary="Get user details by uuid",
+     *   operationId="Get user details by uuid",
+     *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getUserDetails($uuid)
+    {
+        if(empty($uuid))
+            return $this->sendError('UUID cannot be empty',[],401);
+        //active exchange rate
+        $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
+        $rate=$getExchageRate->rate;
+
+        $user = User::where('uuid', $uuid)->where('role_id', '0')->with('wallet')->with('card')->with('currencies')->with('state')->with('city')->get()->first();
+
+        if(!$user)
+            return $this->sendError('User not found',[],404);
+
+        $getV1=Transaction::where('user_id',$user->id)->where('type','credit')->sum('amount');
+        $user->total_save= [
+            'ngn'=>$getV1,
+            'usdt'=>round($getV1/$rate,6)
+        ];
+        $getV2=Transaction::where('user_id',$user->id)->where('type','debit')->sum('amount');
+        $user->total_spending= [
+            'ngn'=>$getV2,
+            'usdt'=>round($getV2/$rate,6)
+        ];
+        $user->wallet->amount=[
+            'ngn'=>$user->wallet->amount,
+            'usdt'=>round($user->wallet->amount/$rate,6)
+        ];
+
+        $user->wallet->withdrawable_amount=[
+            'ngn'=>$user->wallet->withdrawable_amount,
+            'usdt'=>round($user->wallet->withdrawable_amount/$rate,6)
+        ];
+
+        //transactions history
+        $user->transaction_history=Transaction::where('user_id',$user->id)->get();
+
+        //kyc details
+        $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->get();
+
+        return $this->successfulResponse($user, 'User details successfully retrieved');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-merchant-details/{uuid}",
+     *   tags={"Admin"},
+     *   summary="Get merchant details by uuid",
+     *   operationId="Get merchant details by uuid",
+     *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantDetails($uuid)
+    {
+        $user = User::where('uuid', $uuid)->where('role_id', '1')->with('merchant')->with('wallet')->first();
+        
+        if(!$user){
+            return $this->sendError("Merchant not found",[],400);
+        }
+        //transactions history
+        $user->transaction_history=Transaction::where('user_id',$user->id)->get();
+        //kyc details
+        $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->get();
+
+        return $this->successfulResponse($user, '');
+       
     }
 
 }
