@@ -622,6 +622,64 @@
                 ]
             }
         },
+        "/api/v1/admin/get-user-details/{uuid}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get user details by uuid",
+                "operationId": "Get user details by uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-merchant-details/{uuid}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get merchant details by uuid",
+                "operationId": "Get merchant details by uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [

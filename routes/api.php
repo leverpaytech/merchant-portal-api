@@ -51,8 +51,8 @@ Route::prefix('v1')->group( function(){
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
     Route::post('/contact-us', [ContactUsController::class, 'submitForm']);
-    
-    
+
+
     Route::post('/investment', [InvestmentController::class, 'submitInvestment']);
     //Route::post('/get-investment-list', [InvestmentController::class, 'getInvestment']);
 
@@ -144,6 +144,8 @@ Route::prefix('v1')->group( function(){
             Route::post('pay-invoice', [InvoiceController::class, 'payInvoice']);
             Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
+
+            Route::get('generate-dynamic-account', [WalletController::class, 'generateDynamicAccount']);
         });
     });
 
@@ -180,18 +182,24 @@ Route::prefix('v1')->group( function(){
             Route::post('add-account-number', [AdminController::class, 'addAccountNo']);
             Route::get('get-account-numbers', [AdminController::class, 'getAccountNos']);
 
+            Route::get('/get-topup-request/{uuid}', [AdminController::class, 'getTopupRequest']);
             Route::get('/get-topup-requests', [AdminController::class, 'getAllTopupRequests']);
             Route::post('/approve-topup-request', [AdminController::class, 'approveTopupRequest']);
-            
+
             //contact us
             Route::get('/get-contact-us-messages', [AdminController::class, 'getContactUsForms']);
             Route::post('/reply-message', [AdminController::class, 'replyMessage']);
             //get all invoices
             Route::get('/get-all-invoices', [AdminController::class, 'getInvoices']);
+<<<<<<< HEAD
             Route::get('/get-user-details/{uuid}', [AdminController::class, 'getUserDetails']);
             Route::get('/get-merchant-details/{uuid}', [AdminController::class, 'getMerchantDetails']);
             
             
+=======
+
+
+>>>>>>> b6c4f5105d0f32b0c1ecf13ec9fa94c0226118df
         });
     });
 

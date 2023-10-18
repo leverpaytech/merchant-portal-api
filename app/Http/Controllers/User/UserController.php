@@ -454,6 +454,7 @@ class UserController extends BaseController
 
         $validator = Validator::make($data, [
             'account_no'=>'unique:user_banks,account_no|required',
+            'account_name'=> 'required|string',
             'bank_id'=>'required|string'
         ]);
 
@@ -466,6 +467,7 @@ class UserController extends BaseController
         $userBank->user_id = Auth::user()->id;
         $userBank->bank_id  = $data['bank_id'];
         $userBank->account_no  = $data['account_no'];
+        $userBank->account_name  = $data['account_name'];
         $userBank->save();
 
         return $this->successfulResponse($userBank,'Account successfully added');

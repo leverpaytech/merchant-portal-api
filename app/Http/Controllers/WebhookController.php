@@ -53,12 +53,12 @@ class WebhookController extends Controller
             ];
         }
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
 
-        try {
+        // try {
             $web = new Webhook;
             $web->raw = json_encode($request->all());
-            $web->sessionId = hexdec(Str::random(30));
+            $web->sessionId = $request['sessionId'];
             $web->bankSessionId = $request['sessionId'];
             $web->accountNumber = $request['accountNumber'];
             $web->tranRemarks = $request['tranRemarks'];
@@ -129,6 +129,7 @@ class WebhookController extends Controller
                 ";
                 SmsService::sendMail('', $html, 'Invoice Completed', $user->email);
                 $account->accountNumber = rand(1000,9999).'_'.$request['accountNumber'];
+                $account->status = 0;
                 $account->save();
             }else{
                 $html = "<p style='margin-bottom: 8px'>
@@ -151,14 +152,14 @@ class WebhookController extends Controller
                 'responseMessage'=>'success',
                 'responseCode'=>'00'
             ];
-        }catch(\Exception $e){
-            DB::rollBack();
-            return [
-                'requestSuccessful'=>true,
-                'sessionId'=>$request['sessionId'],
-                'responseMessage'=>'rejected',
-                'responseCode'=>'02'
-            ];
-        }
+        // }catch(\Exception $e){
+        //     DB::rollBack();
+        //     return [
+        //         'requestSuccessful'=>true,
+        //         'sessionId'=>$request['sessionId'],
+        //         'responseMessage'=>'rejected',
+        //         'responseCode'=>'02'
+        //     ];
+        // }
     }
 }
