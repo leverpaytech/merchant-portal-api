@@ -30,7 +30,7 @@ class WebhookController extends Controller
 
         $validator = Validator::make($request->all(), [
             'settlementId'=>'required|unique:webhooks,settlementId',
-            'sessionId' => 'required',
+            'sessionId' => 'required|unique:webhooks,sessionId',
             'transactionAmount'=>'required|numeric|min:0',
         ]);
 
