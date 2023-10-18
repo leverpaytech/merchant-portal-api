@@ -144,7 +144,7 @@ class AdminController extends BaseController
             return $user;
         });
         return $this->successfulResponse($users, 'Merchants list');
-       
+
     }
 
     public function getUser($uuid)
@@ -194,6 +194,14 @@ class AdminController extends BaseController
         }
 
         return $this->successfulResponse($topup, 'Topup requests');
+    }
+
+    public function getTopupRequest($uuid){
+        $topup = TopupRequest::where('uuid', $uuid)->with('user')->first();
+        if(!$topup){
+            return $this->sendError("Topup request not found",[], 400);
+        }
+        return $this->successfulResponse($topup,"");
     }
 
 
@@ -443,7 +451,7 @@ class AdminController extends BaseController
      *           type="string",
      *      )
      *   ),
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",

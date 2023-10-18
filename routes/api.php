@@ -182,6 +182,7 @@ Route::prefix('v1')->group( function(){
             Route::post('add-account-number', [AdminController::class, 'addAccountNo']);
             Route::get('get-account-numbers', [AdminController::class, 'getAccountNos']);
 
+            Route::get('/get-topup-request/{uuid}', [AdminController::class, 'getTopupRequest']);
             Route::get('/get-topup-requests', [AdminController::class, 'getAllTopupRequests']);
             Route::post('/approve-topup-request', [AdminController::class, 'approveTopupRequest']);
 
