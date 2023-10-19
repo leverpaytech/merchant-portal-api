@@ -71,8 +71,8 @@ class ContactUsController extends BaseController
                 reply to :<a href='mailto:".$data['email']."'>{$data['email']}</a> 
             </h4>
         ";
-        //$to="contact@leverpay.io";
-        $to="abdilkura@gmail.com";
+        $to="contact@leverpay.io";
+        //$to="abdilkura@gmail.com";
         //sent mail
         SmsService::sendMail($data['subject'], $html, "Contact message", $to);
 
