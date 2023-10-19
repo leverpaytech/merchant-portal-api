@@ -76,6 +76,6 @@ class ContactUsController extends BaseController
         //sent mail
         SmsService::sendMail($data['subject'], $html, "Contact message", $to);
 
-        return $this->successfulResponse($contact, 'Message successfully sent');
+        return $this->successfulResponse($contact, 'Message successfully sent, please keep an eye on your inbox and spam box for our response');
     }
 }
