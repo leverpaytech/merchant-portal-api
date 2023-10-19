@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice};
+use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice};
 use App\Models\Bank;
 use App\Models\Card;
 use App\Models\TopupRequest;
@@ -853,7 +853,7 @@ class AdminController extends BaseController
         $getEmail->save();
 
         //sent mail
-        SmsService::sendMail("",$data['reply'], "LeverPay Replay Message", $getEmail->email);
+        SmsService::sendMail("",$data['reply'], "LeverPay Replied Message", $getEmail->email);
         //SmsService::sendMail("Dear {$getEmail->email},", $data['reply'], "LeverPay Replay Message", $getEmail->email);
 
         return $this->successfulResponse([], 'Reply message successfully sent');
@@ -993,6 +993,152 @@ class AdminController extends BaseController
 
         return $this->successfulResponse($user, '');
        
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/activate-account",
+     *   tags={"Admin"},
+     *   summary="Activate account",
+     *   operationId="Activate account",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function activate(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'uuid' => 'string|required'
+        ]);
+
+        if ($validator->fails())
+            return $this->sendError('Error',$validator->errors(),422);
+        
+        $user=User::where('uuid', $data['uuid'])->get()->first();
+        if(!$user)
+            return $this->sendError("Account not found",[],400);
+
+        $user->status = true;
+        $user->save();
+
+        $data2['activity']="Account successfully activated";
+        $data2['user_id']=Auth::user()->id;
+        ActivityLog::createActivity($data2);
+
+        $response = [
+            'success' => true,
+            'message' => "Account successfully activated"
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/deactivate-account",
+     *   tags={"Admin"},
+     *   summary="Deactivate account",
+     *   operationId="Deactivate account",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function deActivate(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'uuid' => 'string|required'
+        ]);
+
+        if ($validator->fails())
+            return $this->sendError('Error',$validator->errors(),422);
+        
+        $user=User::where('uuid', $data['uuid'])->get()->first();
+        if(!$user)
+            return $this->sendError("Account not found",[],400);
+            
+        $user->status = false;
+        $user->save();
+
+        $data2['activity']="Account successfully activated";
+        $data2['user_id']=Auth::user()->id;
+        ActivityLog::createActivity($data2);
+
+        $response = [
+            'success' => true,
+            'message' => "Account successfully Deactivated"
+        ];
+
+        return response()->json($response, 200);
     }
 
 }

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->foreignId('state_id')->nullable()->constrained(); 
         });
     }
-
     /**
      * Reverse the migrations.
      *

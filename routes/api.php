@@ -194,7 +194,9 @@ Route::prefix('v1')->group( function(){
 
             Route::get('/get-user-details/{uuid}', [AdminController::class, 'getUserDetails']);
             Route::get('/get-merchant-details/{uuid}', [AdminController::class, 'getMerchantDetails']);
-
+            Route::post('/activate-account', [AdminController::class, 'activate']);
+            Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
+            
         });
     });
 
