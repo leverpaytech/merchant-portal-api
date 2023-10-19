@@ -67,9 +67,9 @@ class ContactUsController extends BaseController
 
         $html = "
             <p style='margin-bottom: 8px'>{$data['message']}</p>
-            <h2 style='margin-bottom: 8px'>
-                Sent by: {$data['email']}
-            </h2>
+            <h4 style='margin-bottom: 8px'>
+                reply to :<a href='mailto:".$data['email']."'>{$data['email']}</a> 
+            </h4>
         ";
         //$to="contact@leverpay.io";
         $to="abdilkura@gmail.com";
