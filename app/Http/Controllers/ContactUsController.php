@@ -71,9 +71,10 @@ class ContactUsController extends BaseController
                 Sent by: {$data['email']}
             </h2>
         ";
-        $to="contact@leverpay.io";
+        //$to="contact@leverpay.io";
+        $to="abdilkura@gmail.com";
         //sent mail
-        SmsService::sendMail($dat['subject'], $html, "Contact message", $to);
+        SmsService::sendMail($data['subject'], $html, "Contact message", $to);
 
         return $this->successfulResponse($contact, 'Message successfully sent');
     }
