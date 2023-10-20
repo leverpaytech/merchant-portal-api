@@ -156,7 +156,7 @@ class AdminController extends BaseController
         }
 
         return $this->successfulResponse($user, '');
-       
+
     }
 
         /****************************user services****************************/
@@ -982,7 +982,7 @@ class AdminController extends BaseController
     public function getMerchantDetails($uuid)
     {
         $user = User::where('uuid', $uuid)->where('role_id', '1')->with('merchant')->with('wallet')->first();
-        
+
         if(!$user){
             return $this->sendError("Merchant not found",[],400);
         }
@@ -992,7 +992,7 @@ class AdminController extends BaseController
         $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->get();
 
         return $this->successfulResponse($user, '');
-       
+
     }
 
     /**
@@ -1048,7 +1048,7 @@ class AdminController extends BaseController
 
         if ($validator->fails())
             return $this->sendError('Error',$validator->errors(),422);
-        
+
         $user=User::where('uuid', $data['uuid'])->get()->first();
         if(!$user)
             return $this->sendError("Account not found",[],400);
@@ -1060,12 +1060,7 @@ class AdminController extends BaseController
         $data2['user_id']=Auth::user()->id;
         ActivityLog::createActivity($data2);
 
-        $response = [
-            'success' => true,
-            'message' => "Account successfully activated"
-        ];
-
-        return response()->json($response, 200);
+        return $this->successfulResponse([], 'Account successfully activated');
     }
 
     /**
@@ -1121,11 +1116,11 @@ class AdminController extends BaseController
 
         if ($validator->fails())
             return $this->sendError('Error',$validator->errors(),422);
-        
+
         $user=User::where('uuid', $data['uuid'])->get()->first();
         if(!$user)
             return $this->sendError("Account not found",[],400);
-            
+
         $user->status = false;
         $user->save();
 
@@ -1133,12 +1128,60 @@ class AdminController extends BaseController
         $data2['user_id']=Auth::user()->id;
         ActivityLog::createActivity($data2);
 
-        $response = [
-            'success' => true,
-            'message' => "Account successfully Deactivated"
-        ];
+        return $this->successfulResponse([], 'Account successfully Deactivated');
+    }
 
-        return response()->json($response, 200);
+    public function fundWallet(Request $request){
+        $this->validate($request, [
+            'amount'=>'required|numeric|min:1',
+            'email'=>'required|email',
+            'reference'=>'nullable',
+            'currency'=>'nullable'
+        ]);
+
+        $user=User::where('email', $request['email'])->first();
+        if(!$user){
+            return $this->sendError('User not found',[],400);
+        }
+
+        if($request['reference']){
+            $ext = $request['reference'];
+        }else{
+            $ext = 'LP_'.Uuid::generate()->string;
+        }
+
+        if($request['currency']){
+            $currency = $request['currency'];
+        }else{
+            $currency = 'naira';
+        }
+
+        DB::transaction(function () use ($user, $ext, $currency, $request){
+
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
+            $transaction->tnx_reference_no	= $ext;
+            $transaction->amount =$request['amount'];
+            $balance = floatval($user->wallet->withdrawable_amount) + floatval($request['amount']);
+            if($currency == 'dollar'){
+                $balance = floatval($user->wallet->dollar) + floatval($request['amount']);
+            }
+            $transaction->balance = $balance;
+            $transaction->type = 'credit';
+            $transaction->merchant = 'admin';
+            $transaction->status = 1;
+            $transaction->currency = $currency;
+            $transaction->save();
+
+            WalletService::addToWallet($user->id, $request['amount'], $currency);
+
+        });
+        $sym = $currency == 'naira' ? '₦': '$';
+        $content = "You have received {$sym}{$request['amount']} ";
+        SmsService::sendMail("Dear {$user->first_name},", $content, "Wallet Credit", $user->email);
+
+        return $this->successfulResponse([], 'Wallet funded successfully');
     }
 
 }

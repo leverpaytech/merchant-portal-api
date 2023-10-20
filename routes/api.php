@@ -197,6 +197,7 @@ Route::prefix('v1')->group( function(){
             Route::post('/activate-account', [AdminController::class, 'activate']);
             Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
 
+            Route::post('fund-wallet', [AdminController::class,'fundWallet']);
         });
     });
 
