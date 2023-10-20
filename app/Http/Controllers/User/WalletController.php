@@ -148,6 +148,18 @@ class WalletController extends BaseController
         }
 
         $topup->save();
+
+        //sent user funding request notification
+        $html2 = "
+            <2 style='margin-bottom: 8px'>Details</h2>
+            <div style='margin-bottom: 8px'>Amounr: {$request['amount']} {$data['last_name']} </div>
+            <div style='margin-bottom: 8px'>Refrence ID: {$topup->reference} </div>
+            <div style='margin-bottom: 8px'>Document: {$topup->image_url} </div>
+        ";
+        $to="contact@leverpay.io";
+        
+        SmsService::sendMail("", $html2, "user funding request notification", $to);
+
         return $this->successfulResponse([], 'Topup request submitted successfulss');
     }
 

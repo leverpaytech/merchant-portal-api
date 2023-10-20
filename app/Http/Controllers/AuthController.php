@@ -119,6 +119,7 @@ class AuthController extends BaseController
             $accessToken = Auth::user()->createToken('access_token');
         }
         $user = Auth::user();
+        
         if ($user->status==1)
         {
             $user->last_seen_at = Carbon::now()->format('Y-m-d H:i:s');

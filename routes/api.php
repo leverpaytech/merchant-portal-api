@@ -191,8 +191,11 @@ Route::prefix('v1')->group( function(){
             Route::post('/reply-message', [AdminController::class, 'replyMessage']);
             //get all invoices
             Route::get('/get-all-invoices', [AdminController::class, 'getInvoices']);
+
             Route::get('/get-user-details/{uuid}', [AdminController::class, 'getUserDetails']);
             Route::get('/get-merchant-details/{uuid}', [AdminController::class, 'getMerchantDetails']);
+            Route::post('/activate-account', [AdminController::class, 'activate']);
+            Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
 
         });
     });
