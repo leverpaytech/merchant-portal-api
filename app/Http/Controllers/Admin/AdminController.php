@@ -1101,11 +1101,15 @@ class AdminController extends BaseController
         }
 
         if($user->role_id == 1){
-            if(!$user->kyc->bvn){
-                return $this->sendError("KYC does not contain bvn",[],400);
-            }
-            if(!$user->kyc->nin){
-                return $this->sendError("KYC does not contain NIN",[],400);
+            if(!$user->kyc){
+                return $this->sendError("KYC details has not been uploaded",[],400);
+            }else{
+                if(!$user->kyc->bvn){
+                    return $this->sendError("KYC does not contain bvn",[],400);
+                }
+                if(!$user->kyc->nin){
+                    return $this->sendError("KYC does not contain NIN",[],400);
+                }
             }
             $providus = ProvidusService::generateReservedAccount($user->kyc->bvn, $user->merchant->business_name);
             $account = new Account();

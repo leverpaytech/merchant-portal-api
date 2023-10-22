@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Merchant;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Account;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\User;
@@ -257,6 +258,28 @@ class MerchantController extends BaseController
     }
 
     /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-account",
+     *   tags={"Merchant"},
+     *   summary="Get merchant virtual account",
+     *   operationId="get merchant virtual account",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantAccount(){
+        $account = Account::where('user_id', Auth::id())->where('type', 'reserved')->first();
+        return $this->successfulResponse($account, '');
+    }
+
+    /**
      * @OA\Post(
      ** path="/api/v1/merchant/change-mode",
      *   tags={"Merchant"},
@@ -438,8 +461,7 @@ class MerchantController extends BaseController
             'merchant' =>$user,
             'message' => "Merchant KYC submitted"
         ];
-
-        return response()->json($response, 200);
+        return $this->successfulResponse($user, "Merchant KYC submitted");
     }
 
     /**

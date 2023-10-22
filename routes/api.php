@@ -92,6 +92,7 @@ Route::prefix('v1')->group( function(){
                 Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
                 Route::post('/change-mode', [MerchantController::class, 'changeMode']);
                 Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
+                Route::get('/get-merchant-account', [MerchantController::class, 'getMerchantAccount']);
             });
         });
 
