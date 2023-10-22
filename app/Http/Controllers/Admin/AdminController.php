@@ -3,10 +3,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice};
+use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys};
+use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Card;
+use App\Models\Investment;
+use App\Models\Merchant;
 use App\Models\TopupRequest;
+use App\Models\Transfer;
+use App\Models\UserBank;
+use App\Models\Wallet;
+use App\Services\ProvidusService;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
@@ -412,20 +419,55 @@ class AdminController extends BaseController
     {
         $kycs=Kyc::join('users','users.id','=','kycs.user_id')
             ->where('users.role_id', '1')
+            ->where('users.kyc_status', '0')
             ->orderBy('kycs.status', 'DESC')
             ->with('user')
             ->with('country')
             ->with('documentType')
-            ->get();
+            ->select('kycs.*')
+            ->paginate(20);
 
         return $this->successfulResponse($kycs, 'Merchants kyc details successfully retrieved');
 
     }
 
-    public function approveKyc($id){
-        $kyc = Kyc::find($id);
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/approve-kyc/{uuid}",
+     *   tags={"Admin"},
+     *   summary="Approve KYC",
+     *   operationId="Approve KYC",
+     *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function approveKyc($uuid){
+        $kyc = Kyc::where('uuid',$uuid)->first();
         if(!$kyc){
             return $this->sendError('Kyc not found',[],400);
+        }
+
+        if(!$kyc->bvn){
+            return $this->sendError('KYC does not contain BVN',[],400);
+        }
+        if(!$kyc->nin){
+            return $this->sendError('KYC does not contain NIN',[],400);
         }
 
         $kyc->status = 1;
@@ -433,7 +475,9 @@ class AdminController extends BaseController
 
         User::where('id', $kyc->user_id)->update(['kyc_status'=>1]);
 
-        Card::where('user_id', $kyc->user_id)->update(['type'=>$kyc->card_type]);
+        if($kyc->user->role_id == 0){
+            Card::where('user_id', $kyc->user_id)->update(['type'=>$kyc->card_type]);
+        }
         return $this->successfulResponse($kyc, 'Kyc approved successfully');
     }
 
@@ -473,7 +517,6 @@ class AdminController extends BaseController
         $kycs=Kyc::where('user_id', $getY->id)->with('user')->with('country')->with('documentType')->get();
 
         return $this->successfulResponse($kycs, 'KYC details successfully find');
-
     }
 
 
@@ -1043,17 +1086,40 @@ class AdminController extends BaseController
     {
         $data = $request->all();
         $validator = Validator::make($data, [
-            'uuid' => 'string|required'
+            'uuid' => 'required'
         ]);
 
         if ($validator->fails())
             return $this->sendError('Error',$validator->errors(),422);
 
         $user=User::where('uuid', $data['uuid'])->get()->first();
-        if(!$user)
+        if(!$user){
             return $this->sendError("Account not found",[],400);
+        }
+        if($user->kyc_status == 1){
+            return $this->sendError("Merchant account is already verified",[],400);
+        }
 
-        $user->status = true;
+        if($user->role_id == 1){
+            if(!$user->kyc->bvn){
+                return $this->sendError("KYC does not contain bvn",[],400);
+            }
+            if(!$user->kyc->nin){
+                return $this->sendError("KYC does not contain NIN",[],400);
+            }
+            $providus = ProvidusService::generateReservedAccount($user->kyc->bvn, $user->merchant->business_name);
+            $account = new Account();
+            $account->user_id = $user->id;
+            $account->bank = 'providus';
+            $account->accountNumber = $providus->account_number;
+            $account->accountName = $providus->account_name;
+            $account->type = 'reserved';
+            $account->save();
+        }else{
+            return $this->sendError("Account is not a merchant profile",[],400);
+        }
+
+        $user->kyc_status = 1;
         $user->save();
 
         $data2['activity']="Account successfully activated";
@@ -1184,4 +1250,32 @@ class AdminController extends BaseController
         return $this->successfulResponse([], 'Wallet funded successfully');
     }
 
+    public function totalDelete(Request $request){
+        $this->validate($request,[
+            'email'=>'required'
+        ]);
+
+        $user = User::where('email', $request['email'])->first();
+        if(!$user){
+            return $this->sendError('User not found',[],400);
+        }
+
+        Account::where('user_id', $user->id)->delete();
+        Card::where('user_id', $user->id)->delete();
+        Investment::where('user_id', $user->id)->delete();
+        Invoice::where('user_id', $user->id)->delete();
+        Invoice::where('merchant_id', $user->id)->delete();
+        Kyc::where('user_id', $user->id)->delete();
+        Merchant::where('user_id', $user->id)->delete();
+        MerchantKeys::where('user_id', $user->id)->delete();
+        TopupRequest::where('user_id', $user->id)->delete();
+        Transaction::where('user_id', $user->id)->delete();
+        Transfer::where('user_id', $user->id)->delete();
+        UserBank::where('user_id', $user->id)->delete();
+        Wallet::where('user_id', $user->id)->delete();
+        ActivityLog::where('user_id', $user->id)->delete();
+
+        $user->delete();
+        return $this->successfulResponse([], 'User deleted');
+    }
 }

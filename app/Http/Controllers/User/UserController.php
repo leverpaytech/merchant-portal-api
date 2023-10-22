@@ -746,7 +746,6 @@ class UserController extends BaseController
         }
 
         $user=Kyc::create($data);
-        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for gold card upgrade";
         $data2['user_id']=$user_id;
@@ -895,7 +894,6 @@ class UserController extends BaseController
         }
 
         $user=Kyc::create($data);
-        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for diamond card upgrade";
         $data2['user_id']=$user_id;
@@ -1019,7 +1017,6 @@ class UserController extends BaseController
 
 
         $user=Kyc::create($data);
-        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for enterprise card upgrade";
         $data2['user_id']=$user_id;
@@ -1074,5 +1071,5 @@ class UserController extends BaseController
         return $this->successfulResponse($rates, '');
     }
 
-    
+
 }

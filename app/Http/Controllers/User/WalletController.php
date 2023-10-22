@@ -569,10 +569,27 @@ class WalletController extends BaseController
         return $this->successfulResponse($acc, '');
     }*/
 
-    public function generateDynamicAccount(){
-        $providus = ProvidusService::generateDynamicAccount(Auth::user()->first_name);
+    public function generateAccount(Request $request){
+        $this->validate($request,[
+            'type'=> 'required|string',
+            'amount'=>'nullable|numeric|min:1'
+        ]);
+        $providus = ProvidusService::generateDynamicAccount(Auth::user()->first_name.' '. Auth::user()->last_name);
         $account = new Account();
         $account->user_id = Auth::user()->id;
+        $account->bank = 'providus';
+        $account->amount = $request->amount;
+        $account->accountNumber = $providus->account_number;
+        $account->accountName = $providus->account_name;
+        if($request->type == 'topup'){
+            $account->type = 'topup';
+        }else if($request->type == 'merchant'){
+            $account->type = 'merchant';
+        }else{
+            $account->type = 'other';
+        }
+        $account->save();
 
+        return $this->successfulResponse($account,'Account generated successfully');
     }
 }

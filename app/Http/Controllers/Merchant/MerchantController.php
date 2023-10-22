@@ -339,7 +339,7 @@ class MerchantController extends BaseController
      *              @OA\Property( property="business_address", type="string"),
      *              @OA\Property( property="business_certificate", type="file"),
      *              @OA\Property( property="rc_number", type="string")
-     *              
+     *
      *          ),
      *      ),
      *   ),
@@ -386,7 +386,11 @@ class MerchantController extends BaseController
             'nin' => 'required|numeric',
             'business_address' => 'required',
             'business_certificate'=>'required|nullable|mimes:jpeg,png,jpg|max:2048',
-            'rc_number'=>'required'    
+            'rc_number'=>'required'
+        ],[
+            'document_type_id.required'=>'Document type is required',
+            'country_id.required'=>'Country is required',
+            'rc_number.required'=>'RC number or CAC number is required',
         ]);
 
         if ($validator->fails())
@@ -403,7 +407,7 @@ class MerchantController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-    
+
         if($request->has('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
@@ -419,10 +423,10 @@ class MerchantController extends BaseController
             )->getSecurePath();
             $data['business_certificate']=$bsCert;
         }
-        
+        $data['card_type'] = 100;
 
         $user=Kyc::create($data);
-        User::where('id', $user_id)->update(['kyc_status'=>1]);
+        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="Add Merchant KYC";
         $data2['user_id']=$user_id;
@@ -432,7 +436,7 @@ class MerchantController extends BaseController
         $response = [
             'success' => true,
             'merchant' =>$user,
-            'message' => "Merchant KYC successfully sent"
+            'message' => "Merchant KYC submitted"
         ];
 
         return response()->json($response, 200);

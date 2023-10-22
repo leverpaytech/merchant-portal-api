@@ -13,9 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->uuid('uuid')->unique();
-            $table->string('referral_code');
+        Schema::table('accounts', function (Blueprint $table) {
+            $table->decimal('amount',10,2)->default(0);
+            $table->decimal('amount_paid',10,2)->default(0);
+            $table->bigInteger('model_id')->nullable();
         });
     }
 
@@ -26,9 +27,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-            $table->dropColumn('referral_code');
+        Schema::table('accounts', function (Blueprint $table) {
+            //
         });
     }
 };
