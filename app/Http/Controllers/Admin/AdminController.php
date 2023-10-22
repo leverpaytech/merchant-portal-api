@@ -1271,6 +1271,7 @@ class AdminController extends BaseController
         TopupRequest::where('user_id', $user->id)->delete();
         Transaction::where('user_id', $user->id)->delete();
         Transfer::where('user_id', $user->id)->delete();
+        Transfer::where('receiver_id', $user->id)->delete();
         UserBank::where('user_id', $user->id)->delete();
         Wallet::where('user_id', $user->id)->delete();
         ActivityLog::where('user_id', $user->id)->delete();
