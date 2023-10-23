@@ -408,12 +408,11 @@ class MerchantController extends BaseController
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'business_address' => 'required',
-            'business_certificate'=>'required|nullable|mimes:jpeg,png,jpg|max:2048',
-            'rc_number'=>'required'
+            'business_certificate'=>'nullable|mimes:jpeg,png,jpg|max:2048',
+            'rc_number'=>'nullable'
         ],[
             'document_type_id.required'=>'Document type is required',
             'country_id.required'=>'Country is required',
-            'rc_number.required'=>'RC number or CAC number is required',
         ]);
 
         if ($validator->fails())

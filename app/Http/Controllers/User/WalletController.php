@@ -123,7 +123,7 @@ class WalletController extends BaseController
     public function submitTopupRequest(Request $request){
         $this->validate($request, [
             'amount'=>'required|numeric|min:1',
-            'reference'=>'nullable|string',
+            'reference'=>'nullable',
             'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
         $topup = new TopupRequest;
@@ -563,11 +563,11 @@ class WalletController extends BaseController
 
     //it has been already done in admin controller
 
-    /*public function getAccountNos()
+    public function getAccountNos()
     {
         $acc = DB::table('lever_pay_account_no')->get();
         return $this->successfulResponse($acc, '');
-    }*/
+    }
 
     public function generateAccount(Request $request){
         $this->validate($request,[
