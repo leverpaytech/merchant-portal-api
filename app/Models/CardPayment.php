@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class CardPayment extends Model
 {
     use HasFactory;
+
+    protected $primaryKey = 'uuid';
 }
