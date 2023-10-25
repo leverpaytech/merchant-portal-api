@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\CheckoutController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AuthController;
@@ -144,6 +145,10 @@ Route::prefix('v1')->group( function(){
             Route::post('pay-invoice', [InvoiceController::class, 'payInvoice']);
             Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
+
+            Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
+            Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
+
         });
     });
 
