@@ -107,6 +107,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
             Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
 
+            Route::get('/get-document-type', [UserController::class,'getDocumentType']);
+
             Route::post('/upgrade-to-gold-card-kyc', [UserController::class, 'goldUpgradeKyc']);
             Route::get('/gold-kyc-upgrade-details', [UserController::class, 'goldKycUpgradeDetails']);
 
