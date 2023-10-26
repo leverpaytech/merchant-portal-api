@@ -216,7 +216,7 @@
                 ]
             }
         },
-        "/api/v1/admin/get-all-users-kyc-list": {
+        "/api/v1/admin/get-users-kyc-list": {
             "get": {
                 "tags": [
                     "Admin"
@@ -235,7 +235,7 @@
                 ]
             }
         },
-        "/api/v1/admin/get-all-merchants-kyc-list": {
+        "/api/v1/admin/get-merchants-kyc-list": {
             "get": {
                 "tags": [
                     "Admin"
@@ -261,6 +261,16 @@
                 ],
                 "summary": "Find Kyc by uuid",
                 "operationId": "Find Kyc by uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -510,6 +520,259 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-contact-us-messages": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all contact us messages",
+                "operationId": "Get all contact us messages",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/reply-message": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Reply user contact message",
+                "operationId": "Reply user contact message",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid",
+                                    "reply"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string"
+                                    },
+                                    "reply": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-all-invoices": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get list of invoices",
+                "operationId": "get list of invoices",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-user-details/{uuid}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get user details by uuid",
+                "operationId": "Get user details by uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-merchant-details/{uuid}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get merchant details by uuid",
+                "operationId": "Get merchant details by uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/activate-account": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Activate account",
+                "operationId": "Activate account",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/deactivate-account": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Deactivate account",
+                "operationId": "Deactivate account",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [
@@ -1025,7 +1288,7 @@
                 }
             }
         },
-        "/api/v1/user/get-all-banks}": {
+        "/api/v1/user/get-all-banks": {
             "get": {
                 "tags": [
                     "User"
@@ -1060,6 +1323,65 @@
                                 ],
                                 "properties": {
                                     "state_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/contact-us": {
+            "post": {
+                "tags": [
+                    "ContactUs"
+                ],
+                "summary": "Contact Us",
+                "operationId": "Contact Us",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "subject",
+                                    "message"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "type": "string"
+                                    },
+                                    "message": {
                                         "type": "string"
                                     }
                                 },
@@ -1236,7 +1558,7 @@
                                     "password": {
                                         "type": "string"
                                     },
-                                    "confirm_password": {
+                                    "password_confirmation": {
                                         "type": "string"
                                     },
                                     "country_id": {
@@ -1498,10 +1820,14 @@
                                     "product_name",
                                     "price",
                                     "vat",
-                                    "email"
+                                    "email",
+                                    "currency"
                                 ],
                                 "properties": {
                                     "product_name": {
+                                        "type": "string"
+                                    },
+                                    "product_description": {
                                         "type": "string"
                                     },
                                     "price": {
@@ -1510,10 +1836,10 @@
                                     "quantity": {
                                         "type": "string"
                                     },
-                                    "product_description": {
+                                    "vat": {
                                         "type": "string"
                                     },
-                                    "vat": {
+                                    "currency": {
                                         "type": "string"
                                     },
                                     "email": {
@@ -1881,7 +2207,6 @@
                                 "required": [
                                     "document_type_id",
                                     "country_id",
-                                    "state_id",
                                     "business_address",
                                     "id_card_front",
                                     "bvn",
@@ -1900,9 +2225,6 @@
                                         "type": "file"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
-                                    },
-                                    "state_id": {
                                         "enum": "[1]"
                                     },
                                     "bvn": {

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Kyc extends Model
 {
@@ -36,8 +37,16 @@ class Kyc extends Model
     ];
 
     //card_type 1=gold, 2=diamond 3=pink-lady 4=enterprise
+
+    public static function boot(): void
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            $model->uuid = Str::uuid()->toString();
+        });
+    }
     protected $hidden = ['id','card_type','document_type_id','country_id','state_id', 'user_id', 'created_at', 'updated_at'];
-    
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id','id');

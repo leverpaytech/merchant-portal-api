@@ -25,8 +25,7 @@ use \App\Http\Controllers\BankController;
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\WebhookController;
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
-
-
+use App\Http\Controllers\ContactUsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -52,6 +51,7 @@ Route::prefix('v1')->group( function(){
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
     Route::post('/get-cities', [CityController::class, 'index']);
+    Route::post('/contact-us', [ContactUsController::class, 'submitForm']);
 
 
     Route::post('/investment', [InvestmentController::class, 'submitInvestment']);
@@ -80,20 +80,21 @@ Route::prefix('v1')->group( function(){
             Route::get('/logout', [MerchantAuthController::class, 'logout'])->name('merchant.logout');
             Route::get('/get-merchant-profile', [MerchantController::class, 'getMerchantProfile'])->name('merchant.get');
             Route::post('/update-merchant-profile', [MerchantController::class, 'updateMerchantProfile'])->name('merchant.update');
-
             Route::post('/add-merchant-kyc', [MerchantController::class, 'addMerchantKyc']);
             Route::get('/merchant-kyc-details', [MerchantController::class, 'getKycDocument']);
 
             Route::get('/get-merchant-currencies', [MerchantController::class, 'getUserCurrencies']);
-            Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
 
-            Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
-            Route::post('/change-mode', [MerchantController::class, 'changeMode']);
-
-            Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
-
-
+            Route::get('/product/{uuid}', [InvoiceController::class, 'getInvoice']);
             Route::get('get-invoices', [InvoiceController::class, 'getMerchantInvoices']);
+
+            Route::middleware('checkMerchantStatus')->group(function () {
+                Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
+                Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
+                Route::post('/change-mode', [MerchantController::class, 'changeMode']);
+                Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
+                Route::get('/get-merchant-account', [MerchantController::class, 'getMerchantAccount']);
+            });
         });
 
     });
@@ -106,6 +107,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
             Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
+
+            Route::get('/get-document-type', [UserController::class,'getDocumentType']);
 
             Route::post('/upgrade-to-gold-card-kyc', [UserController::class, 'goldUpgradeKyc']);
             Route::get('/gold-kyc-upgrade-details', [UserController::class, 'goldKycUpgradeDetails']);
@@ -130,7 +133,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
 
             Route::post('search-user', [UserController::class, 'searchUser']);
-            Route::post('transfer', [WalletController::class, 'transfer']);
+
             Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
@@ -146,6 +149,12 @@ Route::prefix('v1')->group( function(){
             Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
 
+            Route::post('generate-account', [WalletController::class, 'generateAccount']);
+
+            Route::middleware('checkMerchantStatus')->group(function () {
+                Route::post('transfer', [WalletController::class, 'transfer']);
+            });
+
             Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
             Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
 
@@ -158,16 +167,19 @@ Route::prefix('v1')->group( function(){
         Route::post('/admin-verify-email', [AdminAuthController::class, 'resetPasswordVerify']);
         Route::post('/admin-reset-password', [AdminAuthController::class, 'resetPassword']);
 
+        //Route::get('/test-users', [AdminController::class, 'getAllUsers']);
+
         Route::middleware('auth:api')->group( function ()
         {
             Route::get('/admin-logout', [AdminAuthController::class, 'logout']);
             Route::get('/admin-profile', [AdminAuthController::class, 'adminProfile'])->name('admin-profile');
             Route::get('/get-all-merchants', [AdminController::class, 'getAllMerchants'])->name('merchants.all');
+            Route::get('/get-user/{uuid}', [AdminController::class, 'getUser']);
             Route::get('/get-all-users', [AdminController::class, 'getAllUsers'])->name('users.all');
             Route::get('/get-users-kyc-list', [AdminController::class, 'getUserKyc']);
             Route::get('/get-merchants-kyc-list', [AdminController::class, 'getMerchantKyc']);
             Route::get('/find-kyc/{uuid}', [AdminController::class, 'findKyc']);
-            Route::get('/approve-kyc/{id}', [AdminController::class, 'approveKyc']);
+            Route::get('/approve-kyc/{uuid}', [AdminController::class, 'approveKyc']);
 
 
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
@@ -182,8 +194,24 @@ Route::prefix('v1')->group( function(){
             Route::post('add-account-number', [AdminController::class, 'addAccountNo']);
             Route::get('get-account-numbers', [AdminController::class, 'getAccountNos']);
 
+            Route::get('/get-topup-request/{uuid}', [AdminController::class, 'getTopupRequest']);
             Route::get('/get-topup-requests', [AdminController::class, 'getAllTopupRequests']);
             Route::post('/approve-topup-request', [AdminController::class, 'approveTopupRequest']);
+
+            //contact us
+            Route::get('/get-contact-us-messages', [AdminController::class, 'getContactUsForms']);
+            Route::post('/reply-message', [AdminController::class, 'replyMessage']);
+            //get all invoices
+            Route::get('/get-all-invoices', [AdminController::class, 'getInvoices']);
+
+            Route::get('/get-user-details/{uuid}', [AdminController::class, 'getUserDetails']);
+            Route::get('/get-merchant-details/{uuid}', [AdminController::class, 'getMerchantDetails']);
+            Route::post('/activate-account', [AdminController::class, 'activate']);
+            Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
+
+            Route::post('fund-wallet', [AdminController::class,'fundWallet']);
+
+            Route::post('total-delete', [AdminController::class,'totalDelete']);
         });
     });
 

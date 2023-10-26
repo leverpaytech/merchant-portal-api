@@ -78,6 +78,10 @@ class InvestmentController extends BaseController
      **/
     public function submitInvestment(Request $request){
         $user = User::where('email', $request['email'])->first();
+        // $data = $request->all();
+        // // return "{$data['first_name']} {$data['last_name']} (Leverpay)";
+        // $providus = ProvidusService::generateDynamicAccount("{$data['first_name']} {$data['last_name']} (Leverpay)");
+        // return $providus->requestSuccessful;
         DB::transaction( function() use($user, $request) {
             $data = $request->all();
             if(!$user){
@@ -109,50 +113,20 @@ class InvestmentController extends BaseController
                     'password'=>$data['password'],
                     'verify_email_token'=>Str::random(5)
                 ]);
-
-                // $wallet = new Wallet();
-                // $wallet->user_id = $user['id'];
-                // $wallet->save();
-
-                // DB::transaction( function() use($data, $uuid) {
-                    // $user=User::create([
-                    //     'first_name'=>$data['first_name'],
-                    //     'last_name'=>$data['last_name'],
-                    //     'other_name'=>$data['other_name'],
-                    //     'gender'=>$data['gender'],
-                    //     'email'=>$data['email'],
-                    //     'phone'=>$data['phone'],
-                    //     'country_id'=>$data['country_id'],
-                    //     'state_id'=>$data['state_id'],
-                    //     'password'=>$data['password']
-                    // ]);
-
-                    // $providus = ProvidusService::generateDynamicAccount("{$data['first_name']} {$data['last_name']} (Leverpay)");
-                    // $invest = new Investment();
-                    // $invest->uuid = $uuid;
-                    // $invest->user_id = $user->id;
-                    // $invest->amount = $data['amount'];
-                    // if($providus['requestSuccessful']){
-                    //     $invest->account_number = $providus['account_number'];
-                    //     $invest->account_name = $providus['account_name'];
-                    // }
-                    // $invest->save();
-
-                // });
             }
-            $providus = ProvidusService::generateDynamicAccount("{$data['first_name']} {$data['last_name']} (Leverpay)");
+            $providus = ProvidusService::generateDynamicAccount("{$data['first_name']} {$data['last_name']}");
             $invest = new Investment();
             $invest->user_id = $user->id;
             $invest->amount = $data['amount'];
-            if($providus['requestSuccessful']){
-                $invest->accountNumber = $providus['account_number'];
-                $invest->accountName = $providus['account_name'];
+            if($providus->requestSuccessful){
+                $invest->accountNumber = $providus->account_number;
+                $invest->accountName = $providus->account_name;
 
                 $account = new Account;
                 $account->user_id = $user->id;
                 $account->type='investment';
-                $account->accountName = $providus['account_name'];
-                $account->accountNumber = $providus['account_number'];
+                $account->accountName = $providus->account_name;
+                $account->accountNumber = $providus->account_number;
                 $account->bank = 'providus';
                 $account->save();
             }
