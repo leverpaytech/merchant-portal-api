@@ -60,6 +60,9 @@ Route::prefix('v1')->group( function(){
     //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
     //Route::get('/on-boarding', [UserController::class, 'onBoarding']);
 
+    Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
+    Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
+
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
@@ -145,10 +148,6 @@ Route::prefix('v1')->group( function(){
             Route::post('pay-invoice', [InvoiceController::class, 'payInvoice']);
             Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
-
-            Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
-            Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
-
         });
     });
 
