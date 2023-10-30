@@ -197,6 +197,8 @@ Route::prefix('v1')->group( function(){
             Route::post('/activate-account', [AdminController::class, 'activate']);
             Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
             
+            //send-mail-to-user
+            Route::post('/send-mail-to-user', [AdminController::class, 'sendMailToUser']);
         });
     });
 
