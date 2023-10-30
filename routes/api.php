@@ -79,20 +79,21 @@ Route::prefix('v1')->group( function(){
             Route::get('/logout', [MerchantAuthController::class, 'logout'])->name('merchant.logout');
             Route::get('/get-merchant-profile', [MerchantController::class, 'getMerchantProfile'])->name('merchant.get');
             Route::post('/update-merchant-profile', [MerchantController::class, 'updateMerchantProfile'])->name('merchant.update');
-
             Route::post('/add-merchant-kyc', [MerchantController::class, 'addMerchantKyc']);
             Route::get('/merchant-kyc-details', [MerchantController::class, 'getKycDocument']);
 
             Route::get('/get-merchant-currencies', [MerchantController::class, 'getUserCurrencies']);
-            Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
-
-            Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
-            Route::post('/change-mode', [MerchantController::class, 'changeMode']);
-
-            Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
 
             Route::get('/product/{uuid}', [InvoiceController::class, 'getInvoice']);
             Route::get('get-invoices', [InvoiceController::class, 'getMerchantInvoices']);
+
+            Route::middleware('checkMerchantStatus')->group(function () {
+                Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
+                Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
+                Route::post('/change-mode', [MerchantController::class, 'changeMode']);
+                Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
+                Route::get('/get-merchant-account', [MerchantController::class, 'getMerchantAccount']);
+            });
         });
 
     });
@@ -105,6 +106,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
             Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
             Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
+
+            Route::get('/get-document-type', [UserController::class,'getDocumentType']);
 
             Route::post('/upgrade-to-gold-card-kyc', [UserController::class, 'goldUpgradeKyc']);
             Route::get('/gold-kyc-upgrade-details', [UserController::class, 'goldKycUpgradeDetails']);
@@ -129,7 +132,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
 
             Route::post('search-user', [UserController::class, 'searchUser']);
-            Route::post('transfer', [WalletController::class, 'transfer']);
+
             Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
@@ -145,7 +148,11 @@ Route::prefix('v1')->group( function(){
             Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
 
-            Route::get('generate-dynamic-account', [WalletController::class, 'generateDynamicAccount']);
+            Route::post('generate-account', [WalletController::class, 'generateAccount']);
+
+            Route::middleware('checkMerchantStatus')->group(function () {
+                Route::post('transfer', [WalletController::class, 'transfer']);
+            });
         });
     });
 
@@ -167,7 +174,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-users-kyc-list', [AdminController::class, 'getUserKyc']);
             Route::get('/get-merchants-kyc-list', [AdminController::class, 'getMerchantKyc']);
             Route::get('/find-kyc/{uuid}', [AdminController::class, 'findKyc']);
-            Route::get('/approve-kyc/{id}', [AdminController::class, 'approveKyc']);
+            Route::get('/approve-kyc/{uuid}', [AdminController::class, 'approveKyc']);
 
 
             Route::post('/add-payment-option', [AdminController::class, 'createPaymentOption']);
@@ -199,6 +206,10 @@ Route::prefix('v1')->group( function(){
             
             //send-mail-to-user
             Route::post('/send-mail-to-user', [AdminController::class, 'sendMailToUser']);
+
+            Route::post('fund-wallet', [AdminController::class,'fundWallet']);
+
+            Route::post('total-delete', [AdminController::class,'totalDelete']);
         });
     });
 

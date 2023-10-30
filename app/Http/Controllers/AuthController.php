@@ -119,7 +119,7 @@ class AuthController extends BaseController
             $accessToken = Auth::user()->createToken('access_token');
         }
         $user = Auth::user();
-        
+
         if ($user->status==1)
         {
             $user->last_seen_at = Carbon::now()->format('Y-m-d H:i:s');
@@ -275,30 +275,17 @@ class AuthController extends BaseController
             return $this->sendError("invalid token, please try again",[], 401);
         }
 
+        if($user->role_id == 1){
+            MerchantKeyService::createKeys($user->id);
+        }else{
+            CardService::createCard($user['id']);
+        }
+
         $user->verify_email_token = bin2hex(random_bytes(15));
         $user->verify_email_status = true;
         $user->save();
 
-        //Moved to Observers
-        // $wallet = new Wallet();
-        // $wallet->user_id = $user['id'];
-        // $wallet->save();
 
-        if($user->role_id == 1){
-            MerchantKeyService::createKeys($user->id);
-            // $providus = ProvidusService::generateReservedAccount('22387362881', $user['first_name'].' '.$user['lastname'].'(leverpay)');
-            // if($providus->requestSuccessful){
-            //     $account = New Account;
-            //     $account->user_id = $user->id;
-            //     $account->accountName = $providus->account_name;
-            //     $account->accountNumber = $providus->account_number;
-            //     $account->bank = 'providus';
-            //     $account->save();
-            // }
-
-        }else{
-            CardService::createCard($user['id']);
-        }
 
         $data2['activity']="VerifyEmail";
         $data2['user_id']=$user->id;

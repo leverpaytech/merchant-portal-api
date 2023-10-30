@@ -18,7 +18,7 @@ class WalletService
             $wallet->amount = floatval($wallet->amount) + floatval($amount);
             $wallet->withdrawable_amount = floatval($wallet->withdrawable_amount) + floatval($amount);
         }else{
-            $wallet->dollar = floatval($wallet->amount) + floatval($amount);
+            $wallet->dollar = floatval($wallet->dollar) + floatval($amount);
         }
         $wallet->save();
 

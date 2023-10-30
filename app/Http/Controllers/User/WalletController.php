@@ -5,12 +5,14 @@ namespace App\Http\Controllers\user;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Mail\GeneralMail;
+use App\Models\Account;
 use App\Models\ActivityLog;
 use App\Models\TopupRequest;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\Transaction;
 use App\Models\Transfer;
+use App\Services\ProvidusService;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -121,7 +123,7 @@ class WalletController extends BaseController
     public function submitTopupRequest(Request $request){
         $this->validate($request, [
             'amount'=>'required|numeric|min:1',
-            'reference'=>'nullable|string',
+            'reference'=>'nullable',
             'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
         $topup = new TopupRequest;
@@ -157,7 +159,7 @@ class WalletController extends BaseController
             <div style='margin-bottom: 8px'>Document: {$topup->image_url} </div>
         ";
         $to="contact@leverpay.io";
-        
+
         SmsService::sendMail("", $html2, "user funding request notification", $to);
 
         return $this->successfulResponse([], 'Topup request submitted successfulss');
@@ -550,15 +552,44 @@ class WalletController extends BaseController
         $data2['user_id']=$user->id;
         ActivityLog::createActivity($data2);
 
+        $content = "Transfer of {$request['amount']} is successful";
+        SmsService::sendMail("Dear {$user->first_name},", $content, "Transfer Successful", $user->email);
+
+        $content = "You have received {$request['amount']} from {$user->first_name} {$user->last_name}";
+        SmsService::sendMail("Dear {$trans->recipient->first_name},", $content, "Wallet Credit", $trans->receiver_id);
+
         return $this->successfulResponse([], 'Transfer successful');
     }
 
     //it has been already done in admin controller
 
-    /*public function getAccountNos()
+    public function getAccountNos()
     {
         $acc = DB::table('lever_pay_account_no')->get();
         return $this->successfulResponse($acc, '');
-    }*/
+    }
 
+    public function generateAccount(Request $request){
+        $this->validate($request,[
+            'type'=> 'required|string',
+            'amount'=>'nullable|numeric|min:1'
+        ]);
+        $providus = ProvidusService::generateDynamicAccount(Auth::user()->first_name.' '. Auth::user()->last_name);
+        $account = new Account();
+        $account->user_id = Auth::user()->id;
+        $account->bank = 'providus';
+        $account->amount = $request->amount;
+        $account->accountNumber = $providus->account_number;
+        $account->accountName = $providus->account_name;
+        if($request->type == 'topup'){
+            $account->type = 'topup';
+        }else if($request->type == 'merchant'){
+            $account->type = 'merchant';
+        }else{
+            $account->type = 'other';
+        }
+        $account->save();
+
+        return $this->successfulResponse($account,'Account generated successfully');
+    }
 }

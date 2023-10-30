@@ -8,9 +8,10 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{User,Transaction,ExchangeRate,UserBank,Kyc};
+use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc};
 use App\Services\SmsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -140,6 +141,12 @@ class UserController extends BaseController
         if(!$user)
             return $this->sendError('User not found',[],404);
         return $this->successfulResponse(new UserResource($user), 'User details successfully retrieved');
+    }
+
+
+    public function getDocumentType(){
+        $all = DB::table('document_types')->get();
+        return $this->successfulResponse($all, '');
     }
 
 
@@ -746,7 +753,6 @@ class UserController extends BaseController
         }
 
         $user=Kyc::create($data);
-        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for gold card upgrade";
         $data2['user_id']=$user_id;
@@ -895,7 +901,6 @@ class UserController extends BaseController
         }
 
         $user=Kyc::create($data);
-        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for diamond card upgrade";
         $data2['user_id']=$user_id;
@@ -1019,7 +1024,6 @@ class UserController extends BaseController
 
 
         $user=Kyc::create($data);
-        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="User kyc for enterprise card upgrade";
         $data2['user_id']=$user_id;
@@ -1074,5 +1078,5 @@ class UserController extends BaseController
         return $this->successfulResponse($rates, '');
     }
 
-    
+
 }

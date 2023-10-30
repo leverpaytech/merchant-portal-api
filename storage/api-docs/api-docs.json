@@ -254,6 +254,35 @@
                 ]
             }
         },
+        "/api/v1/admin/approve-kyc/{uuid}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Approve KYC",
+                "operationId": "Approve KYC",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/find-kyc/{uuid}": {
             "get": {
                 "tags": [
@@ -2189,6 +2218,25 @@
                 ],
                 "summary": "Get merchant's merchant keys",
                 "operationId": "get merchant's merchant keys",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-account": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant virtual account",
+                "operationId": "get merchant virtual account",
                 "responses": {
                     "200": {
                         "description": "Success"
