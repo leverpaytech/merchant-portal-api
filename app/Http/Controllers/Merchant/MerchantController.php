@@ -352,7 +352,7 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","business_address","id_card_front","bvn","nin","business_certificate","rc_number"},
+     *              required={"document_type_id","country_id","business_address","id_card_front","bvn","nin"},
      *              @OA\Property( property="document_type_id", enum="[1]"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),

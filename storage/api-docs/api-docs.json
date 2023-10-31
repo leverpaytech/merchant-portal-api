@@ -2317,9 +2317,7 @@
                                     "business_address",
                                     "id_card_front",
                                     "bvn",
-                                    "nin",
-                                    "business_certificate",
-                                    "rc_number"
+                                    "nin"
                                 ],
                                 "properties": {
                                     "document_type_id": {
