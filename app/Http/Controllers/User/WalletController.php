@@ -166,8 +166,8 @@ class WalletController extends BaseController
         //sent user funding request notification
         $html2 = "
             <2 style='margin-bottom: 8px'>Details</h2>
-            <div style='margin-bottom: 8px'>User Details: {$details} </div>
-            <div style='margin-bottom: 8px'>Amount: {$names} </div>
+            <div style='margin-bottom: 8px'>User: {$details} </div>
+            <div style='margin-bottom: 8px'>Amount: {$request['amount']} </div>
             <div style='margin-bottom: 8px'>Refrence ID: {$topup->reference} </div>
             <div style='margin-bottom: 8px'>Document: {$topup->image_url} </div>
         ";
