@@ -3205,7 +3205,7 @@
                 ]
             }
         },
-        "/api/v1/user/get-topup-requests": {
+        "/api/v1/user/get-all-topup-requests": {
             "get": {
                 "tags": [
                     "User"

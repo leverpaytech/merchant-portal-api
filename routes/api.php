@@ -136,7 +136,7 @@ Route::prefix('v1')->group( function(){
             Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
-            Route::get('get-topup-requests', [WalletController::class, 'getTopupRequests']);
+            Route::get('get-all-topup-requests', [WalletController::class, 'getAllTopupRequests']);
 
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
