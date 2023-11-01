@@ -3245,6 +3245,10 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
+                                "required": [
+                                    "amount",
+                                    "document"
+                                ],
                                 "properties": {
                                     "reference": {
                                         "type": "string"
