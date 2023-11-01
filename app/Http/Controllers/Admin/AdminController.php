@@ -829,7 +829,7 @@ class AdminController extends BaseController
 
     public function getContactUsForms()
     {
-        $list = DB::table('contact_us')->orderBy('status', 'ASC')->get();
+        $list = DB::table('contact_us')->where('status','<', 2)->orderBy('status', 'ASC')->get();
         return $this->successfulResponse($list, 'Contact Us messages');
     }
 
@@ -1252,6 +1252,79 @@ class AdminController extends BaseController
         SmsService::sendMail("Dear {$user->first_name},", $content, "Wallet Credit", $user->email);
 
         return $this->successfulResponse([], 'Wallet funded successfully');
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/send-mail-to-user",
+     *   tags={"Admin"},
+     *   summary="Send message to user by admin",
+     *   operationId="Send message to user by admin",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email","subject","message"},
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="subject", type="string"),
+     *              @OA\Property( property="message", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+    **/
+    public function sendMailToUser(Request $request)
+    { 
+        $data = $this->validate($request, [
+            'email'=>'required|string',
+            'subject'=>'required|string',
+            'message'=>'required|string'
+        ]);
+
+        $data['uuid'] = Uuid::generate()->string;
+        $data['status']=2;
+        $data['reply']="no-reply";
+        $contact=ContactUs::create($data);
+
+        $from="contact@leverpay.io";
+
+        $html = "
+            <p style='margin-bottom: 8px'>{$data['message']}</p>
+            <h4 style='margin-bottom: 8px'>
+                reply to :<a href='mailto:".$from."'>{$from}</a> 
+            </h4>
+        ";
+        
+        SmsService::sendMail($data['subject'], $html, "Message from LeverPay", $data['email']);
+
+        return $this->successfulResponse($contact, 'Message successfully sent');
     }
 
     public function totalDelete(Request $request){

@@ -352,7 +352,7 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","business_address","id_card_front","bvn","nin","business_certificate","rc_number"},
+     *              required={"document_type_id","country_id","business_address","id_card_front","bvn","nin"},
      *              @OA\Property( property="document_type_id", enum="[1]"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
@@ -401,14 +401,14 @@ class MerchantController extends BaseController
 
         $validator = Validator::make($data, [
             'document_type_id' => 'required',
-            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:4096',
+            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             'country_id' => 'required',
             'state_id' => 'nullable',
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'business_address' => 'required',
-            'business_certificate'=>'nullable|mimes:jpeg,png,jpg|max:2048',
+            'business_certificate'=>'nullable|mimes:jpeg,png,jpg|max:4096',
             'rc_number'=>'nullable'
         ],[
             'document_type_id.required'=>'Document type is required',

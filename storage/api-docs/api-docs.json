@@ -254,6 +254,35 @@
                 ]
             }
         },
+        "/api/v1/admin/approve-kyc/{uuid}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Approve KYC",
+                "operationId": "Approve KYC",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/find-kyc/{uuid}": {
             "get": {
                 "tags": [
@@ -747,6 +776,65 @@
                                 ],
                                 "properties": {
                                     "uuid": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/send-mail-to-user": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Send message to user by admin",
+                "operationId": "Send message to user by admin",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "subject",
+                                    "message"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "subject": {
+                                        "type": "string"
+                                    },
+                                    "message": {
                                         "type": "string"
                                     }
                                 },
@@ -1914,6 +2002,16 @@
                 ],
                 "summary": "Get all invoices",
                 "operationId": "get all invoices",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -2142,6 +2240,25 @@
                 ]
             }
         },
+        "/api/v1/merchant/get-merchant-account": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant virtual account",
+                "operationId": "get merchant virtual account",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/change-mode": {
             "post": {
                 "tags": [
@@ -2210,9 +2327,7 @@
                                     "business_address",
                                     "id_card_front",
                                     "bvn",
-                                    "nin",
-                                    "business_certificate",
-                                    "rc_number"
+                                    "nin"
                                 ],
                                 "properties": {
                                     "document_type_id": {
@@ -3090,13 +3205,23 @@
                 ]
             }
         },
-        "/api/v1/user/get-topup-requests": {
+        "/api/v1/user/get-all-topup-requests": {
             "get": {
                 "tags": [
                     "User"
                 ],
-                "summary": "Get user topup request",
-                "operationId": "get user  topup request",
+                "summary": "Get user all topup request",
+                "operationId": "get user all topup request",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -3120,6 +3245,10 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
+                                "required": [
+                                    "amount",
+                                    "document"
+                                ],
                                 "properties": {
                                     "reference": {
                                         "type": "string"
