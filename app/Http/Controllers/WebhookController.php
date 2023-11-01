@@ -109,8 +109,10 @@ class WebhookController extends Controller
             SmsService::sendMail('', $html, 'Investment Successful', $user['email']);
 
         }else{
-            WalletService::addToWallet($user->id, $request['transactionAmount']);
-            $trans->balance = floatval($user->wallet->withdrawable_amount) + floatval($request['transactionAmount']);
+            // #100 is the bank VAT fee
+            $t_amt = floatval($request['transactionAmount']) - 100;
+            WalletService::addToWallet($user->id, $t_amt);
+            $trans->balance = floatval($user->wallet->withdrawable_amount) + floatval($t_amt);
         }
 
         $trans->extra = json_encode([
@@ -128,10 +130,14 @@ class WebhookController extends Controller
                 <p> Leverpay </p>
             ";
             SmsService::sendMail('', $html, 'Investment Completed', $user->email);
-            $account->accountNumber = rand(1000,9999).'_'.$request['accountNumber'];
+            $account->accountNumber = rand(1,9999999999).'_'.$request['accountNumber'];
             $account->status = 0;
-            $account->save();
+
         }else{
+            if($account->type == 'top'){
+                $account->accountNumber = rand(1,9999999999).'_'.$request['accountNumber'];
+                $account->status = 0;
+            }
             $html = "<p style='margin-bottom: 8px'>
                     Dear {$user->first_name},
                 </p>
@@ -145,6 +151,8 @@ class WebhookController extends Controller
             ";
             SmsService::sendMail('', $html, 'Wallet Credit', $user->email);
         }
+
+        $account->save();
 
         return [
             'requestSuccessful'=>true,

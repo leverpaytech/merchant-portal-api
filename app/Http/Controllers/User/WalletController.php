@@ -39,14 +39,22 @@ class WalletController extends BaseController
         dd($response);
     }
 
-        /**
+    /**
      * @OA\Get(
-     ** path="/api/v1/user/get-topup-requests",
+     ** path="/api/v1/user/get-all-topup-requests",
      *   tags={"User"},
-     *   summary="Get user topup request",
-     *   operationId="get user  topup request",
+     *   summary="Get user all topup request",
+     *   operationId="get user all topup request",
      *
-     *
+     ** * @OA\Parameter(
+     *      name="status",
+     *      in="path",
+     *      required=false,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -56,9 +64,9 @@ class WalletController extends BaseController
      *     }
      *
      *)
-     **/
-
-    public function getTopupRequests(Request $request){
+    **/
+    public function getAllTopupRequests(Request $request)
+    {
         $filter = strval($request->query('status'));
 
         $req = Auth::user()->topuprequests();
@@ -83,6 +91,7 @@ class WalletController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
+     *              required={"amount","document"},
      *              @OA\Property( property="reference", type="string"),
      *              @OA\Property( property="amount", type="number"),
      *              @OA\Property( property="document", type="file"),
@@ -126,6 +135,7 @@ class WalletController extends BaseController
             'reference'=>'nullable',
             'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
+        
         $topup = new TopupRequest;
         if($request->file('document'))
         {
@@ -151,10 +161,13 @@ class WalletController extends BaseController
 
         $topup->save();
 
+        $user=User::where('id',Auth::id())->get(['first_name','last_name','email'])->first();
+        $details=$user->first_name." ".$user->last_name." ".$user->email;
         //sent user funding request notification
         $html2 = "
             <2 style='margin-bottom: 8px'>Details</h2>
-            <div style='margin-bottom: 8px'>Amounr: {$request['amount']} {$data['last_name']} </div>
+            <div style='margin-bottom: 8px'>User: {$details} </div>
+            <div style='margin-bottom: 8px'>Amount: {$request['amount']} </div>
             <div style='margin-bottom: 8px'>Refrence ID: {$topup->reference} </div>
             <div style='margin-bottom: 8px'>Document: {$topup->image_url} </div>
         ";

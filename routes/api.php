@@ -140,7 +140,7 @@ Route::prefix('v1')->group( function(){
             Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
-            Route::get('get-topup-requests', [WalletController::class, 'getTopupRequests']);
+            Route::get('get-all-topup-requests', [WalletController::class, 'getAllTopupRequests']);
 
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
@@ -211,6 +211,9 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-details/{uuid}', [AdminController::class, 'getMerchantDetails']);
             Route::post('/activate-account', [AdminController::class, 'activate']);
             Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
+            
+            //send-mail-to-user
+            Route::post('/send-mail-to-user', [AdminController::class, 'sendMailToUser']);
 
             Route::post('fund-wallet', [AdminController::class,'fundWallet']);
 
