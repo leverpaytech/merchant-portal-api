@@ -3210,8 +3210,8 @@
                 "tags": [
                     "User"
                 ],
-                "summary": "Get user topup request",
-                "operationId": "get user  topup request",
+                "summary": "Get user all topup request",
+                "operationId": "get user all topup request",
                 "parameters": [
                     {
                         "name": "status",

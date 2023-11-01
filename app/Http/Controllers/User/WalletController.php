@@ -43,8 +43,8 @@ class WalletController extends BaseController
      * @OA\Get(
      ** path="/api/v1/user/get-all-topup-requests",
      *   tags={"User"},
-     *   summary="Get user topup request",
-     *   operationId="get user  topup request",
+     *   summary="Get user all topup request",
+     *   operationId="get user all topup request",
      *
      ** * @OA\Parameter(
      *      name="status",
@@ -64,8 +64,7 @@ class WalletController extends BaseController
      *     }
      *
      *)
-     **/
-
+    **/
     public function getAllTopupRequests(Request $request)
     {
         $filter = strval($request->query('status'));
