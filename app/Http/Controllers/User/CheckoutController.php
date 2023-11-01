@@ -10,13 +10,58 @@ use App\Services\CardService;
 use App\Services\SmsService;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Symfony\Component\Uid\Ulid;
 use Webpatser\Uuid\Uuid;
 
 class CheckoutController extends BaseController
 {
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/checkout/create-payment",
+     *   tags={"User"},
+     *   summary="Create Card Payment",
+     *   operationId="Create Card Payment",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"pin"},
+     *              @OA\Property( property="pin", type="number"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
     public function createPayment(Request $request) {
         $this->validate($request, [
             'amount' => 'required',
@@ -25,14 +70,6 @@ class CheckoutController extends BaseController
             'cvv',
             'expiry'
         ]);
-
-        $user = Auth::user();
-
-        $walletBalance = Auth::user()->wallet->withdrawable_amount;
-
-        if ($walletBalance < $request->get('amount')) {
-            $this->sendError('Insufficient balance to create payment');
-        }
 
         if (!(new CardService)->validateCredentials(
             $request->get('pan'),
@@ -43,22 +80,30 @@ class CheckoutController extends BaseController
             $this->sendError('Card details incorrect');
         }
 
-        $card = Card::where('user_id',Auth::id())
-            ->where('card_number', $request->get('pan'))
+        $card = Card::where('card_number', $request->get('pan'))
             ->first();
 
+        $user = $card->user;
+
+        $walletBalance = $user->wallet->withdrawable_amount;
+
+        if ($walletBalance < $request->get('amount')) {
+            $this->sendError('Insufficient balance to create payment');
+        }
+        $otp = random_int(1000,9999);
         $cardPayment = new CardPayment();
         $cardPayment->uuid = Uuid::generate(4)->string;
         $cardPayment->amount = $request->get('amount');
         $cardPayment->card_id = $card->id;
         $cardPayment->merchant_reference = $request->get('merchant_reference');
         $cardPayment->payment_reference = 'LP_'.Ulid::generate();
-        $cardPayment->otp = random_int(1000,9999);
+        $cardPayment->otp = Hash::make($otp);
+        $cardPayment->status = 'PENDING';
         $cardPayment->save();
 
-        $content = "A card transaction with value {$request['amount']} has been initiated on your account, to verify your otp is: <br /> {$cardPayment->otp}";
+        $content = "A card transaction with value {$request['amount']} has been initiated on your account, to verify your otp is: <br /> {$otp}";
 
-        SmsService::sendSms("Dear {$user->first_name},A card transaction with value {$request['amount']} has been initiated on your account, to verify your One-time Confirmation code is {$cardPayment->otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$user->phone);
+        SmsService::sendSms("Dear {$user->first_name},A card transaction with value {$request['amount']} has been initiated on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$user->phone);
         SmsService::sendMail("Dear {$user->first_name},", $content, "LeverPay Card Transaction OTP", $user->email);
 
         $this->successfulResponse([
@@ -77,7 +122,7 @@ class CheckoutController extends BaseController
 
         $cardPayment = CardPayment::where('uuid', $request->get('payment_id'))->firstOrFail();
 
-        if ($cardPayment->otp !== (integer)$request->get('otp')) {
+        if (!Hash::check($request->get('otp'), $cardPayment->otp)) {
             $cardPayment->retries_left -= 1;
             $cardPayment->save();
 
@@ -90,7 +135,7 @@ class CheckoutController extends BaseController
         }
 
 
-        $user = Auth::user();
+        $user = $cardPayment->card->user;
 
         DB::transaction( function() use($user, $cardPayment) {
             $transaction = new Transaction();

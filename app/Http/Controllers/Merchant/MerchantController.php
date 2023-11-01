@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Merchant;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Account;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\User;
@@ -257,6 +258,28 @@ class MerchantController extends BaseController
     }
 
     /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-account",
+     *   tags={"Merchant"},
+     *   summary="Get merchant virtual account",
+     *   operationId="get merchant virtual account",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantAccount(){
+        $account = Account::where('user_id', Auth::id())->where('type', 'reserved')->first();
+        return $this->successfulResponse($account, '');
+    }
+
+    /**
      * @OA\Post(
      ** path="/api/v1/merchant/change-mode",
      *   tags={"Merchant"},
@@ -329,18 +352,17 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","state_id","business_address","id_card_front","bvn","nin","business_certificate","rc_number"},
+     *              required={"document_type_id","country_id","business_address","id_card_front","bvn","nin","business_certificate","rc_number"},
      *              @OA\Property( property="document_type_id", enum="[1]"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
      *              @OA\Property( property="country_id", enum="[1]"),
-     *              @OA\Property( property="state_id", enum="[1]"),
      *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="nin", type="string"),
      *              @OA\Property( property="business_address", type="string"),
      *              @OA\Property( property="business_certificate", type="file"),
      *              @OA\Property( property="rc_number", type="string")
-     *              
+     *
      *          ),
      *      ),
      *   ),
@@ -382,12 +404,15 @@ class MerchantController extends BaseController
             'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
             'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
             'country_id' => 'required',
-            'state_id' => 'required',
+            'state_id' => 'nullable',
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'business_address' => 'required',
-            'business_certificate'=>'required|nullable|mimes:jpeg,png,jpg|max:2048',
-            'rc_number'=>'required'    
+            'business_certificate'=>'nullable|mimes:jpeg,png,jpg|max:2048',
+            'rc_number'=>'nullable'
+        ],[
+            'document_type_id.required'=>'Document type is required',
+            'country_id.required'=>'Country is required',
         ]);
 
         if ($validator->fails())
@@ -404,7 +429,7 @@ class MerchantController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-    
+
         if($request->has('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
@@ -420,10 +445,10 @@ class MerchantController extends BaseController
             )->getSecurePath();
             $data['business_certificate']=$bsCert;
         }
-        
+        $data['card_type'] = 100;
 
         $user=Kyc::create($data);
-        User::where('id', $user_id)->update(['kyc_status'=>1]);
+        // User::where('id', $user_id)->update(['kyc_status'=>1]);
 
         $data2['activity']="Add Merchant KYC";
         $data2['user_id']=$user_id;
@@ -433,10 +458,9 @@ class MerchantController extends BaseController
         $response = [
             'success' => true,
             'merchant' =>$user,
-            'message' => "Merchant KYC successfully sent"
+            'message' => "Merchant KYC submitted"
         ];
-
-        return response()->json($response, 200);
+        return $this->successfulResponse($user, "Merchant KYC submitted");
     }
 
     /**
@@ -460,7 +484,6 @@ class MerchantController extends BaseController
     {
         $user_id=Auth::user()->id;
         $kycs=Kyc::join('countries','countries.id','=','kycs.country_id')
-            ->join('states','states.id','=','kycs.state_id')
             ->join('document_types','document_types.id','=','kycs.document_type_id')
             ->where('user_id', $user_id)
             ->get([
@@ -468,7 +491,6 @@ class MerchantController extends BaseController
                 'kycs.id_card_front',
                 'kycs.id_card_back',
                 'countries.country_name',
-                'states.state_name',
                 'kycs.bvn',
                 'kycs.nin',
                 'kycs.business_address',

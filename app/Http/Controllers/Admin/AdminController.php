@@ -3,18 +3,28 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, TopupReques, CardType, DocumentType, Country, Transaction};
+use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys};
+use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Card;
+use App\Models\Investment;
+use App\Models\Merchant;
 use App\Models\TopupRequest;
+use App\Models\Transfer;
+use App\Models\UserBank;
+use App\Models\Wallet;
+use App\Services\ProvidusService;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
+use Illuminate\Support\Facades\Mail;
 use App\Models\PaymentOption;
 use App\Http\Resources\PaymentOptionResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Mail\GeneralMail;
+use App\Services\SmsService;
 
 class AdminController extends BaseController
 {
@@ -123,10 +133,37 @@ class AdminController extends BaseController
         {
             return $this->sendError("Authourized user",[], 401);
         }
-        $users=User::where('role_id', '1')->get();
-
+        $users=User::where('role_id', '1')->with('kyc')->with('wallet')->get();
+        $users->transform(function($user){
+            if($user->kyc !==NULL)
+            {
+                $county=Country::find($user->kyc->country_id);
+                $docType=DocumentType::find($user->kyc->document_type_id);
+                $user->kyc->country=[
+                    'country_id'=>$county->id,
+                    'country_name'=>$county->country_name,
+                ];
+                $user->kyc->document_type=[
+                    'document_type_id'=>$docType->id,
+                    'name'=>$docType->name,
+                ];
+            }
+            return $user;
+        });
         return $this->successfulResponse($users, 'Merchants list');
-       //  return $this->successfulResponse(new UserResource($users), 'success');
+
+    }
+
+    public function getUser($uuid)
+    {
+        $user = User::where('uuid', $uuid)->with('merchant')->first();
+
+        if(!$user){
+            return $this->sendError("Merchant not found",[],400);
+        }
+
+        return $this->successfulResponse($user, '');
+
     }
 
         /****************************user services****************************/
@@ -165,6 +202,14 @@ class AdminController extends BaseController
         }
 
         return $this->successfulResponse($topup, 'Topup requests');
+    }
+
+    public function getTopupRequest($uuid){
+        $topup = TopupRequest::where('uuid', $uuid)->with('user')->first();
+        if(!$topup){
+            return $this->sendError("Topup request not found",[], 400);
+        }
+        return $this->successfulResponse($topup,"");
     }
 
 
@@ -316,17 +361,15 @@ class AdminController extends BaseController
                     'document_type_id'=>$docType->id,
                     'name'=>$docType->name,
                 ];
-
-                return $user;
             }
-
+            return $user;
         });
         return $this->successfulResponse($users, 'Users List');
     }
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-all-users-kyc-list",
+     ** path="/api/v1/admin/get-users-kyc-list",
      *   tags={"Admin"},
      *   summary="Get all users kyc list",
      *   operationId="Get all users kyc list",
@@ -343,7 +386,13 @@ class AdminController extends BaseController
      **/
     public function getUserKyc()
     {
-        $kycs=Kyc::where('status', '0')->orderBy('status', 'DESC')->with('user')->with('country')->with('documentType')->get();
+        $kycs=Kyc::join('users','users.id','=','kycs.user_id')
+            ->where('users.role_id', '0')
+            ->orderBy('kycs.status', 'DESC')
+            ->with('user')
+            ->with('country')
+            ->with('documentType')
+            ->get();
 
         return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
 
@@ -351,7 +400,7 @@ class AdminController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-all-merchants-kyc-list",
+     ** path="/api/v1/admin/get-merchants-kyc-list",
      *   tags={"Admin"},
      *   summary="Get all merchants kyc list",
      *   operationId="Get all merchants kyc list",
@@ -368,16 +417,57 @@ class AdminController extends BaseController
      **/
     public function getMerchantKyc()
     {
-        $kycs=Kyc::where('status', '1')->orderBy('status', 'DESC')->with('user')->with('country')->with('documentType')->get();
+        $kycs=Kyc::join('users','users.id','=','kycs.user_id')
+            ->where('users.role_id', '1')
+            ->where('users.kyc_status', '0')
+            ->orderBy('kycs.status', 'DESC')
+            ->with('user')
+            ->with('country')
+            ->with('documentType')
+            ->select('kycs.*')
+            ->paginate(20);
 
         return $this->successfulResponse($kycs, 'Merchants kyc details successfully retrieved');
 
     }
 
-    public function approveKyc($id){
-        $kyc = Kyc::find($id);
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/approve-kyc/{uuid}",
+     *   tags={"Admin"},
+     *   summary="Approve KYC",
+     *   operationId="Approve KYC",
+     *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function approveKyc($uuid){
+        $kyc = Kyc::where('uuid',$uuid)->first();
         if(!$kyc){
             return $this->sendError('Kyc not found',[],400);
+        }
+
+        if(!$kyc->bvn){
+            return $this->sendError('KYC does not contain BVN',[],400);
+        }
+        if(!$kyc->nin){
+            return $this->sendError('KYC does not contain NIN',[],400);
         }
 
         $kyc->status = 1;
@@ -385,7 +475,9 @@ class AdminController extends BaseController
 
         User::where('id', $kyc->user_id)->update(['kyc_status'=>1]);
 
-        Card::where('user_id', $kyc->user_id)->update(['type'=>$kyc->card_type]);
+        if($kyc->user->role_id == 0){
+            Card::where('user_id', $kyc->user_id)->update(['type'=>$kyc->card_type]);
+        }
         return $this->successfulResponse($kyc, 'Kyc approved successfully');
     }
 
@@ -395,6 +487,15 @@ class AdminController extends BaseController
      *   tags={"Admin"},
      *   summary="Find Kyc by uuid",
      *   operationId="Find Kyc by uuid",
+     *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
      *
      *   @OA\Response(
      *      response=200,
@@ -416,7 +517,6 @@ class AdminController extends BaseController
         $kycs=Kyc::where('user_id', $getY->id)->with('user')->with('country')->with('documentType')->get();
 
         return $this->successfulResponse($kycs, 'KYC details successfully find');
-
     }
 
 
@@ -541,7 +641,7 @@ class AdminController extends BaseController
      *)
      **/
     public function updateExchangeRates(Request $request){
-        
+
         $data = $this->validate($request, [
             'rate'=>'nullable|numeric',
             'local_transaction_rate'=>'nullable|numeric',
@@ -551,7 +651,7 @@ class AdminController extends BaseController
             'notes'=>'nullable|string'
         ]);
         $latest=ExchangeRate::latest()->get()->first();
-        
+
         $data2=[
             'rate'=>$latest->rate,
             'local_transaction_rate'=>$latest->local_transaction_rate,
@@ -704,12 +804,483 @@ class AdminController extends BaseController
      *)
      **/
 
-     public function getAccountNos(){
+    public function getAccountNos(){
         $acc = DB::table('lever_pay_account_no')->get();
         return $this->successfulResponse($acc, 'Bank created successfully');
-     }
+    }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-contact-us-messages",
+     *   tags={"Admin"},
+     *   summary="Get all contact us messages",
+     *   operationId="Get all contact us messages",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
 
+    public function getContactUsForms()
+    {
+        $list = DB::table('contact_us')->orderBy('status', 'ASC')->get();
+        return $this->successfulResponse($list, 'Contact Us messages');
+    }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/reply-message",
+     *   tags={"Admin"},
+     *   summary="Reply user contact message",
+     *   operationId="Reply user contact message",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid","reply"},
+     *              @OA\Property( property="uuid", type="string"),
+     *              @OA\Property( property="reply", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+    **/
 
+    public function replyMessage(Request $request)
+    {
+        $data = $this->validate($request, [
+            'uuid'=>'required|string',
+            'reply'=>'required|string'
+        ]);
+
+        $getEmail=ContactUs::where('uuid',$data['uuid'])->get()->first();
+        if(empty($getEmail['email']))
+        {
+            return $this->sendError("Invalid UUID",[], 401); exit();
+        }
+
+        $getEmail->reply=$data['reply'];
+        $getEmail->status=1;
+        $getEmail->save();
+
+        //sent mail
+        SmsService::sendMail("",$data['reply'], "LeverPay Replied Message", $getEmail->email);
+        //SmsService::sendMail("Dear {$getEmail->email},", $data['reply'], "LeverPay Replay Message", $getEmail->email);
+
+        return $this->successfulResponse([], 'Reply message successfully sent');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-all-invoices",
+     *   tags={"Admin"},
+     *   summary="Get list of invoices",
+     *   operationId="get list of invoices",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+
+     public function getInvoices(Request $request){
+        $invoices = Invoice::with('user')->with('merchant')->get();
+
+        return $this->successfulResponse($invoices, '');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-user-details/{uuid}",
+     *   tags={"Admin"},
+     *   summary="Get user details by uuid",
+     *   operationId="Get user details by uuid",
+     *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getUserDetails($uuid)
+    {
+        if(empty($uuid))
+            return $this->sendError('UUID cannot be empty',[],401);
+        //active exchange rate
+        $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
+        $rate=$getExchageRate->rate;
+
+        $user = User::where('uuid', $uuid)->where('role_id', '0')->with('wallet')->with('card')->with('currencies')->with('state')->with('city')->get()->first();
+
+        if(!$user)
+            return $this->sendError('User not found',[],404);
+
+        $getV1=Transaction::where('user_id',$user->id)->where('type','credit')->sum('amount');
+        $user->total_save= [
+            'ngn'=>$getV1,
+            'usdt'=>round($getV1/$rate,6)
+        ];
+        $getV2=Transaction::where('user_id',$user->id)->where('type','debit')->sum('amount');
+        $user->total_spending= [
+            'ngn'=>$getV2,
+            'usdt'=>round($getV2/$rate,6)
+        ];
+        $user->wallet->amount=[
+            'ngn'=>$user->wallet->amount,
+            'usdt'=>round($user->wallet->amount/$rate,6)
+        ];
+
+        $user->wallet->withdrawable_amount=[
+            'ngn'=>$user->wallet->withdrawable_amount,
+            'usdt'=>round($user->wallet->withdrawable_amount/$rate,6)
+        ];
+
+        //transactions history
+        $user->transaction_history=Transaction::where('user_id',$user->id)->get();
+
+        //kyc details
+        $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->get();
+
+        return $this->successfulResponse($user, 'User details successfully retrieved');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-merchant-details/{uuid}",
+     *   tags={"Admin"},
+     *   summary="Get merchant details by uuid",
+     *   operationId="Get merchant details by uuid",
+     *
+     * * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantDetails($uuid)
+    {
+        $user = User::where('uuid', $uuid)->where('role_id', '1')->with('merchant')->with('wallet')->first();
+
+        if(!$user){
+            return $this->sendError("Merchant not found",[],400);
+        }
+        //transactions history
+        $user->transaction_history=Transaction::where('user_id',$user->id)->get();
+        //kyc details
+        $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->get();
+
+        return $this->successfulResponse($user, '');
+
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/activate-account",
+     *   tags={"Admin"},
+     *   summary="Activate account",
+     *   operationId="Activate account",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function activate(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'uuid' => 'required'
+        ]);
+
+        if ($validator->fails())
+            return $this->sendError('Error',$validator->errors(),422);
+
+        $user=User::where('uuid', $data['uuid'])->get()->first();
+        if(!$user){
+            return $this->sendError("Account not found",[],400);
+        }
+        if($user->kyc_status == 1){
+            return $this->sendError("Merchant account is already verified",[],400);
+        }
+
+        if($user->role_id == 1){
+            if(!$user->kyc){
+                return $this->sendError("KYC details has not been uploaded",[],400);
+            }else{
+                if(!$user->kyc->bvn){
+                    return $this->sendError("KYC does not contain bvn",[],400);
+                }
+                if(!$user->kyc->nin){
+                    return $this->sendError("KYC does not contain NIN",[],400);
+                }
+            }
+            $providus = ProvidusService::generateReservedAccount($user->kyc->bvn, $user->merchant->business_name);
+            $account = new Account();
+            $account->user_id = $user->id;
+            $account->bank = 'providus';
+            $account->accountNumber = $providus->account_number;
+            $account->accountName = $providus->account_name;
+            $account->type = 'reserved';
+            $account->save();
+        }else{
+            return $this->sendError("Account is not a merchant profile",[],400);
+        }
+
+        $user->kyc_status = 1;
+        $user->save();
+
+        $data2['activity']="Account successfully activated";
+        $data2['user_id']=Auth::user()->id;
+        ActivityLog::createActivity($data2);
+
+        return $this->successfulResponse([], 'Account successfully activated');
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/deactivate-account",
+     *   tags={"Admin"},
+     *   summary="Deactivate account",
+     *   operationId="Deactivate account",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function deActivate(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'uuid' => 'string|required'
+        ]);
+
+        if ($validator->fails())
+            return $this->sendError('Error',$validator->errors(),422);
+
+        $user=User::where('uuid', $data['uuid'])->get()->first();
+        if(!$user)
+            return $this->sendError("Account not found",[],400);
+
+        $user->status = false;
+        $user->save();
+
+        $data2['activity']="Account successfully activated";
+        $data2['user_id']=Auth::user()->id;
+        ActivityLog::createActivity($data2);
+
+        return $this->successfulResponse([], 'Account successfully Deactivated');
+    }
+
+    public function fundWallet(Request $request){
+        $this->validate($request, [
+            'amount'=>'required|numeric|min:1',
+            'email'=>'required|email',
+            'reference'=>'nullable',
+            'currency'=>'nullable'
+        ]);
+
+        $user=User::where('email', $request['email'])->first();
+        if(!$user){
+            return $this->sendError('User not found',[],400);
+        }
+
+        if($request['reference']){
+            $ext = $request['reference'];
+        }else{
+            $ext = 'LP_'.Uuid::generate()->string;
+        }
+
+        if($request['currency']){
+            $currency = $request['currency'];
+        }else{
+            $currency = 'naira';
+        }
+
+        DB::transaction(function () use ($user, $ext, $currency, $request){
+
+            $transaction = new Transaction();
+            $transaction->user_id = $user->id;
+            $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
+            $transaction->tnx_reference_no	= $ext;
+            $transaction->amount =$request['amount'];
+            $balance = floatval($user->wallet->withdrawable_amount) + floatval($request['amount']);
+            if($currency == 'dollar'){
+                $balance = floatval($user->wallet->dollar) + floatval($request['amount']);
+            }
+            $transaction->balance = $balance;
+            $transaction->type = 'credit';
+            $transaction->merchant = 'admin';
+            $transaction->status = 1;
+            $transaction->currency = $currency;
+            $transaction->save();
+
+            WalletService::addToWallet($user->id, $request['amount'], $currency);
+
+        });
+        $sym = $currency == 'naira' ? '₦': '$';
+        $content = "You have received {$sym}{$request['amount']} ";
+        SmsService::sendMail("Dear {$user->first_name},", $content, "Wallet Credit", $user->email);
+
+        return $this->successfulResponse([], 'Wallet funded successfully');
+    }
+
+    public function totalDelete(Request $request){
+        $this->validate($request,[
+            'email'=>'required'
+        ]);
+
+        $user = User::where('email', $request['email'])->first();
+        if(!$user){
+            return $this->sendError('User not found',[],400);
+        }
+
+        Account::where('user_id', $user->id)->delete();
+        Card::where('user_id', $user->id)->delete();
+        Investment::where('user_id', $user->id)->delete();
+        Invoice::where('user_id', $user->id)->delete();
+        Invoice::where('merchant_id', $user->id)->delete();
+        Kyc::where('user_id', $user->id)->delete();
+        Merchant::where('user_id', $user->id)->delete();
+        MerchantKeys::where('user_id', $user->id)->delete();
+        TopupRequest::where('user_id', $user->id)->delete();
+        Transaction::where('user_id', $user->id)->delete();
+        Transfer::where('user_id', $user->id)->delete();
+        Transfer::where('receiver_id', $user->id)->delete();
+        UserBank::where('user_id', $user->id)->delete();
+        Wallet::where('user_id', $user->id)->delete();
+        ActivityLog::where('user_id', $user->id)->delete();
+
+        $user->delete();
+        return $this->successfulResponse([], 'User deleted');
+    }
 }

@@ -13,12 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->uuid('uuid')->unique();
-            $table->string('referral_code');
+        Schema::table('kycs', function (Blueprint $table) {
+            $table->dropColumn('city_id');
+            $table->foreignId('document_type_id')->change();
+            $table->foreignId('country_id')->change();
+            $table->foreignId('state_id')->nullable()->constrained(); 
         });
     }
-
     /**
      * Reverse the migrations.
      *
@@ -26,9 +27,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-            $table->dropColumn('referral_code');
+        Schema::table('kycs', function (Blueprint $table) {
+            //
         });
     }
 };

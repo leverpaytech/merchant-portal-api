@@ -168,8 +168,18 @@ class AuthController extends BaseController
                     {$verifyToken}
                 </h2>
         ";
-
         $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
+
+        //sent sign up notification to leverpay admin
+        $html2 = "
+            <2 style='margin-bottom: 8px'>User Details</h2>
+            <div style='margin-bottom: 8px'>User's Name: {$data['first_name']} {$data['last_name']} </div>
+            <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
+            <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
+        ";
+        $to="contact@leverpay.io";
+        
+        SmsService::sendMail("", $html2, "new user sign up", $to);
 
         return $user;
     }
