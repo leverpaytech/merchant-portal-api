@@ -46,7 +46,15 @@ class WalletController extends BaseController
      *   summary="Get user topup request",
      *   operationId="get user  topup request",
      *
-     *
+     ** * * @OA\Parameter(
+     *      name="status",
+     *      in="path",
+     *      required=false,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
      *   @OA\Response(
      *      response=200,
      *       description="Success",

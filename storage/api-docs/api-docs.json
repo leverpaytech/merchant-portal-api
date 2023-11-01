@@ -3212,6 +3212,16 @@
                 ],
                 "summary": "Get user topup request",
                 "operationId": "get user  topup request",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"
