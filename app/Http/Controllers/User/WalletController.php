@@ -161,12 +161,13 @@ class WalletController extends BaseController
 
         $topup->save();
 
-        //$user=User::where('id',Auth::id())->get(['first_name','last_name'])->first();
-        //$names="";
+        $user=User::where('id',Auth::id())->get(['first_name','last_name','email'])->first();
+        $details=$user->first_name." ".$user->last_name." ".$user->email;
         //sent user funding request notification
         $html2 = "
             <2 style='margin-bottom: 8px'>Details</h2>
-            <div style='margin-bottom: 8px'>Amounr: {$request['amount']} {$names} </div>
+            <div style='margin-bottom: 8px'>User Details: {$details} </div>
+            <div style='margin-bottom: 8px'>Amount: {$names} </div>
             <div style='margin-bottom: 8px'>Refrence ID: {$topup->reference} </div>
             <div style='margin-bottom: 8px'>Document: {$topup->image_url} </div>
         ";
