@@ -401,14 +401,14 @@ class MerchantController extends BaseController
 
         $validator = Validator::make($data, [
             'document_type_id' => 'required',
-            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:4096',
+            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             'country_id' => 'required',
             'state_id' => 'nullable',
             'bvn' => 'required|numeric',
             'nin' => 'required|numeric',
             'business_address' => 'required',
-            'business_certificate'=>'nullable|mimes:jpeg,png,jpg|max:2048',
+            'business_certificate'=>'nullable|mimes:jpeg,png,jpg|max:4096',
             'rc_number'=>'nullable'
         ],[
             'document_type_id.required'=>'Document type is required',

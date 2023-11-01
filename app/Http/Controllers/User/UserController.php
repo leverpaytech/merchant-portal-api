@@ -283,7 +283,7 @@ class UserController extends BaseController
             'city_id' => 'nullable',
             'address' => 'nullable',
             'gender' => 'nullable',
-            'passport' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048'
+            'passport' => 'nullable|mimes:jpeg,png,jpg,gif|max:4096'
         ]);
 
 
@@ -707,10 +707,10 @@ class UserController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'passport' => 'required|mimes:jpeg,png,jpg|max:2048',
+            'passport' => 'required|mimes:jpeg,png,jpg|max:4096',
             'document_type_id' => 'required',
-            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
+            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:4096',
+            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:4096',
             'country_id' => 'required',
             'state_id' => 'required',
             'residential_address' => 'required',
@@ -864,9 +864,9 @@ class UserController extends BaseController
 
         $validator = Validator::make($data, [
             'document_type_id' => 'required',
-            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:2048',
-            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:2048',
-            'utility_bill' => 'required|mimes:jpeg,png,jpg|max:2048'
+            'id_card_front' => 'required|mimes:jpeg,png,jpg|max:4096',
+            'id_card_back' => 'nullable|mimes:jpeg,png,jpg|max:4096',
+            'utility_bill' => 'required|mimes:jpeg,png,jpg|max:4096'
         ],[
             'document_type_id.required' => 'Document type is required'
         ]);
@@ -1004,7 +1004,7 @@ class UserController extends BaseController
         $validator = Validator::make($data, [
             'business_address' => 'required',
             'rc_number' => 'required',
-            'business_certificate' => 'required|mimes:jpeg,png,jpg|max:2048'
+            'business_certificate' => 'required|mimes:jpeg,png,jpg|max:4096'
         ]);
 
         if ($validator->fails())

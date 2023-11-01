@@ -176,9 +176,9 @@ class InvoiceController extends BaseController
     public function getInvoice($uuid)
     {
         $invoice = Invoice::query()->where('uuid',$uuid)->with(['merchant' => function ($query) {
-            $query->select('id','uuid', 'first_name','last_name','phone');
+            $query->select('id','uuid', 'first_name','last_name','phone','email');
         }])->with(['user' => function ($query) {
-            $query->select('id','uuid', 'first_name','last_name','phone');
+            $query->select('id','uuid', 'first_name','last_name','phone','email');
         }])->first();
 
         if(!$invoice){
