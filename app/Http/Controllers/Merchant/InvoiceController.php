@@ -194,6 +194,15 @@ class InvoiceController extends BaseController
      *   summary="Get all invoices",
      *   operationId="get all invoices",
      *
+     * * * @OA\Parameter(
+     *      name="status",
+     *      in="path",
+     *      required=false,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -205,12 +214,6 @@ class InvoiceController extends BaseController
      *)
      **/
 
-
-    /*$invoice = Invoice::query()->where('uuid',$uuid)->with(['merchant' => function ($query) {
-        $query->select('id','uuid', 'first_name','last_name','phone','email');
-    }])->with(['user' => function ($query) {
-        $query->select('id','uuid', 'first_name','last_name','phone','email');
-    }])->first();*/
     public function getInvoices(Request $request){
         $invoices = Auth::user()->invoices();
 

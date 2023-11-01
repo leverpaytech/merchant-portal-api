@@ -2002,6 +2002,16 @@
                 ],
                 "summary": "Get all invoices",
                 "operationId": "get all invoices",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"
