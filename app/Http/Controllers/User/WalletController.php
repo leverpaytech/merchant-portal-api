@@ -172,7 +172,7 @@ class WalletController extends BaseController
         ";
         $to="contact@leverpay.io";
 
-        //SmsService::sendMail("", $html2, "user funding request notification", $to);
+        SmsService::sendMail("", $html2, "user funding request notification", $to);
 
         return $this->successfulResponse([], 'Topup request submitted successfulss');
     }
