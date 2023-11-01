@@ -214,7 +214,8 @@ class InvoiceController extends BaseController
      *)
      **/
 
-    public function getInvoices(Request $request){
+    public function getInvoices(Request $request)
+    {
         $invoices = Auth::user()->invoices();
 
         $filter = strval($request->query('status'));
