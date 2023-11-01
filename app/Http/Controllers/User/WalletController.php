@@ -68,6 +68,12 @@ class WalletController extends BaseController
 
     public function getTopupRequests(Request $request)
     {
+        \Artisan::call('route:cache');
+        \Artisan::call('config:cache');
+        \Artisan::call('cache:clear');
+        \Artisan::call('view:clear');
+        \Artisan::call('optimize:clear');
+        
         $filter = strval($request->query('status'));
 
         $req = Auth::user()->topuprequests();
@@ -162,7 +168,7 @@ class WalletController extends BaseController
         $topup->save();
 
         //$user=User::where('id',Auth::id())->get(['first_name','last_name'])->first();
-        $names="";
+        //$names="";
         //sent user funding request notification
         $html2 = "
             <2 style='margin-bottom: 8px'>Details</h2>
