@@ -205,19 +205,45 @@ class InvoiceController extends BaseController
      *)
      **/
 
+
+    /*$invoice = Invoice::query()->where('uuid',$uuid)->with(['merchant' => function ($query) {
+        $query->select('id','uuid', 'first_name','last_name','phone','email');
+    }])->with(['user' => function ($query) {
+        $query->select('id','uuid', 'first_name','last_name','phone','email');
+    }])->first();*/
     public function getInvoices(Request $request){
         $invoices = Auth::user()->invoices();
 
         $filter = strval($request->query('status'));
 
         if($filter == 'pending'){
-            $invoices = $invoices->where('status', 0)->get();
+            $invoices = $invoices->where('status', 0)
+                ->with(['merchant' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->with(['user' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->get();
+
         }else if($filter == 'paid'){
-            $invoices = $invoices->where('status', 1)->get();
+            $invoices = $invoices->where('status', 1)
+                ->with(['merchant' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->with(['user' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->get();
         }else if($filter == 'cancelled'){
-            $invoices = $invoices->where('status', 2)->get();
+            $invoices = $invoices->where('status', 2)
+                ->with(['merchant' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->with(['user' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->get();
         }else{
-            $invoices = $invoices->get();
+            $invoices = $invoices->with(['merchant' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->with(['user' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->get();
         }
 
         return $this->successfulResponse($invoices, '');
