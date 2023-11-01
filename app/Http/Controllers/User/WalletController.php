@@ -68,12 +68,6 @@ class WalletController extends BaseController
 
     public function getTopupRequests(Request $request)
     {
-        \Artisan::call('route:cache');
-        \Artisan::call('config:cache');
-        \Artisan::call('cache:clear');
-        \Artisan::call('view:clear');
-        \Artisan::call('optimize:clear');
-        
         $filter = strval($request->query('status'));
 
         $req = Auth::user()->topuprequests();
