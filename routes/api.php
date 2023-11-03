@@ -157,10 +157,6 @@ Route::prefix('v1')->group( function(){
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('transfer', [WalletController::class, 'transfer']);
             });
-
-            Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
-            Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
-
         });
     });
 
@@ -211,7 +207,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-details/{uuid}', [AdminController::class, 'getMerchantDetails']);
             Route::post('/activate-account', [AdminController::class, 'activate']);
             Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
-            
+
             //send-mail-to-user
             Route::post('/send-mail-to-user', [AdminController::class, 'sendMailToUser']);
 
