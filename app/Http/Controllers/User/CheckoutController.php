@@ -68,7 +68,12 @@ class CheckoutController extends BaseController
             'merchant_reference' => 'required',
             'pan',
             'cvv',
-            'expiry'
+            'expiry',
+            'customer_information' => 'required',
+            'customer_information.email' => 'required',
+            'customer_information.first_name' => 'required',
+            'customer_information.last_name' => 'required',
+            'customer_information.phone_number' => 'required',
         ]);
 
         if (!(new CardService)->validateCredentials(
@@ -99,6 +104,7 @@ class CheckoutController extends BaseController
         $cardPayment->payment_reference = 'LP_'.Ulid::generate();
         $cardPayment->otp = Hash::make($otp);
         $cardPayment->status = 'PENDING';
+        $cardPayment->customer_information = json_encode($request->get('customer_information'));
         $cardPayment->save();
 
         $content = "A card transaction with value {$request['amount']} has been initiated on your account, to verify your otp is: <br /> {$otp}";
