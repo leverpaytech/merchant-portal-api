@@ -195,7 +195,7 @@ class AdminController extends BaseController
 
         if($filter == 'pending'){
             $topup = TopupRequest::where('status', 0)->orderBy('created_at', 'desc')->with('user')->get();
-        }else if($filter == 'paid'){
+        }else if($filter == 'approved'){
             $topup = TopupRequest::where('status', 1)->orderBy('created_at', 'desc')->with('user')->get();
         }else{
             $topup = TopupRequest::orderBy('created_at', 'desc')->with('user')->get();
@@ -1301,7 +1301,7 @@ class AdminController extends BaseController
      *)
     **/
     public function sendMailToUser(Request $request)
-    { 
+    {
         $data = $this->validate($request, [
             'email'=>'required|string',
             'subject'=>'required|string',
@@ -1318,10 +1318,10 @@ class AdminController extends BaseController
         $html = "
             <p style='margin-bottom: 8px'>{$data['message']}</p>
             <h4 style='margin-bottom: 8px'>
-                reply to :<a href='mailto:".$from."'>{$from}</a> 
+                reply to :<a href='mailto:".$from."'>{$from}</a>
             </h4>
         ";
-        
+
         SmsService::sendMail($data['subject'], $html, "Message from LeverPay", $data['email']);
 
         return $this->successfulResponse($contact, 'Message successfully sent');
