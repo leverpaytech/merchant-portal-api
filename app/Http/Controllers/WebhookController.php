@@ -154,6 +154,20 @@ class WebhookController extends Controller
 
         $account->save();
 
+        $html = "<p style='margin-bottom: 8px'>
+                    Providus Credit Alert ({$user->first_name} {$user->last_name}),
+                </p>
+                <p style='margin-bottom: 10px'>{$user->first_name} deposited ₦{$request['transactionAmount']} into providus</p>
+                <p style='margin-bottom: 2px'> Sender Account Number:  {$request['sourceAccountNumber']}</p>
+                <p style='margin-bottom: 2px'> Sender Account Name:  {$request['sourceAccountName']}</p>
+                <p style='margin-bottom: 2px'> Sender Bank Name:  {$request['sourceBankName']}</p>
+                <p style='margin-bottom: 2px'> Date:  {$request['tranDateTime']}</p>
+                <p> Best regards, </p>
+                <p> Leverpay </p>
+            ";
+        SmsService::sendMail('', $html, "Providus Credit Alert ({$user->first_name} {$user->last_name})", 'funmi@leverpay.io');
+
+        SmsService::sendSms("Providus Account Credit, User: {$user->first_name} {$user->last_name}, Amount: {$request['transactionAmount']}, Type: {$account->type}", '2347063415220');
         return [
             'requestSuccessful'=>true,
             'sessionId'=>$request['sessionId'],
