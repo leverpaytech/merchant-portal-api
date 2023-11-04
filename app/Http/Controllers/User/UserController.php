@@ -744,7 +744,7 @@ class UserController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        if($request->has('id_card_back'))
+        if($request->hasFile('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -892,7 +892,7 @@ class UserController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        if($request->has('id_card_back'))
+        if($request->hasFile('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']

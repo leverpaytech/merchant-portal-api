@@ -2325,9 +2325,7 @@
                                     "document_type_id",
                                     "country_id",
                                     "business_address",
-                                    "id_card_front",
-                                    "bvn",
-                                    "nin"
+                                    "id_card_front"
                                 ],
                                 "properties": {
                                     "document_type_id": {
@@ -2340,6 +2338,9 @@
                                         "type": "file"
                                     },
                                     "country_id": {
+                                        "enum": "[1]"
+                                    },
+                                    "state_id": {
                                         "enum": "[1]"
                                     },
                                     "bvn": {

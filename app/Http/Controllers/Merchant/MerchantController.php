@@ -431,7 +431,7 @@ class MerchantController extends BaseController
         $data['id_card_front']=$idFront;
 
 
-        if($request->has('id_card_back'))
+        if($request->hasFile('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -439,7 +439,7 @@ class MerchantController extends BaseController
             $data['id_card_back']=$idBack;
         }
 
-        if($request->has('business_certificate'))
+        if($request->hasFile('business_certificate'))
         {
             $bsCert = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
             ['folder'=>'leverpay/kyc']
