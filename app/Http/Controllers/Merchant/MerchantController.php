@@ -487,7 +487,7 @@ class MerchantController extends BaseController
         $kycs=Kyc::join('countries','countries.id','=','kycs.country_id')
             ->join('document_types','document_types.id','=','kycs.document_type_id')
             ->where('user_id', $user_id)
-            ->orderByDesc('kyc.created_at')
+            ->orderByDesc('kycs.created_at')
             ->limit(1)
             ->get([
                 'document_types.name',
