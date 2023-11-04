@@ -352,7 +352,7 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","business_address","id_card_front"},
+     *              required={"document_type_id","country_id","id_card_front"},
      *              @OA\Property( property="document_type_id", enum="[1]"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
@@ -487,6 +487,8 @@ class MerchantController extends BaseController
         $kycs=Kyc::join('countries','countries.id','=','kycs.country_id')
             ->join('document_types','document_types.id','=','kycs.document_type_id')
             ->where('user_id', $user_id)
+            ->orderByDesc('kyc.created_at')
+            ->limit(1)
             ->get([
                 'document_types.name',
                 'kycs.id_card_front',

@@ -2324,7 +2324,6 @@
                                 "required": [
                                     "document_type_id",
                                     "country_id",
-                                    "business_address",
                                     "id_card_front"
                                 ],
                                 "properties": {
