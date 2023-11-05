@@ -2047,6 +2047,16 @@
                 ],
                 "summary": "Get merchant total transactions by either monthly, weekly or daily",
                 "operationId": "Get merchant total transactions by either monthly, weekly or daily",
+                "parameters": [
+                    {
+                        "name": "description",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"

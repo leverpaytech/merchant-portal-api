@@ -475,6 +475,15 @@ class InvoiceController extends BaseController
      *   summary="Get merchant total transactions by either monthly, weekly or daily",
      *   operationId="Get merchant total transactions by either monthly, weekly or daily",
      *
+     * * * @OA\Parameter(
+     *      name="description",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -492,7 +501,7 @@ class InvoiceController extends BaseController
 
         $totalTransaction=Invoice::where('merchant_id', $user_id)->sum('total');
 
-        return $this->successfulResponse($totalTransaction, "total {$description} successfully retrieved");
+        return $this->successfulResponse($totalTransaction, "merchant total {$description} transaction successfully retrieved");
 
     }
 }
