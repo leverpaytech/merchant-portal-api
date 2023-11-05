@@ -505,4 +505,6 @@ class MerchantController extends BaseController
         return $this->successfulResponse($kycs, 'merchant kyc details successfully retrieved');
 
     }
+
+    
 }

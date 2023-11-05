@@ -467,4 +467,32 @@ class InvoiceController extends BaseController
 
         return $this->successfulResponse($invoices, '');
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-total-transactions/{description}",
+     *   tags={"Merchant"},
+     *   summary="Get merchant total transactions by either monthly, weekly or daily",
+     *   operationId="Get merchant total transactions by either monthly, weekly or daily",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantTransaction($description)
+    {
+        $description=strtolower($description);
+        $user_id=Auth::user()->id;
+
+        $totalTransaction=Invoice::where('merchant_id', $user_id)->sum('total');
+
+        return $this->successfulResponse($totalTransaction, "total {$description} successfully retrieved");
+
+    }
 }
