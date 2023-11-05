@@ -498,10 +498,26 @@ class InvoiceController extends BaseController
     {
         $description=strtolower($description);
         $user_id=Auth::user()->id;
+        
+        $monthly=Invoice::where('merchant_id', $user_id)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total');
 
-        $totalTransaction=Invoice::where('merchant_id', $user_id)->sum('total');
+        $weekly=Invoice::where('merchant_id', $user_id)
+            ->whereMonth('created_at', Carbon::now()->week)
+            ->sum('total');
 
-        return $this->successfulResponse($totalTransaction, "merchant total {$description} transaction successfully retrieved");
+        $daily=Invoice::where('merchant_id', $user_id)
+            ->whereMonth('created_at', Carbon::today())
+            ->sum('total');
+
+        $totalTransaction=[
+            'monthly'=>$monthly,
+            'weekly'=>$weekly,
+            'daily'=>$daily,
+        ];
+
+        return $this->successfulResponse($totalTransaction, "merchant total transactions successfully retrieved");
 
     }
 }
