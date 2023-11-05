@@ -2040,6 +2040,25 @@
                 ]
             }
         },
+        "/api/v1/merchant/get-merchant-total-transactions/{description}": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant total transactions by either monthly, weekly or daily",
+                "operationId": "Get merchant total transactions by either monthly, weekly or daily",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/get-merchant-profile": {
             "get": {
                 "tags": [
