@@ -1921,9 +1921,6 @@
                                     "price": {
                                         "type": "string"
                                     },
-                                    "quantity": {
-                                        "type": "string"
-                                    },
                                     "vat": {
                                         "type": "string"
                                     },
