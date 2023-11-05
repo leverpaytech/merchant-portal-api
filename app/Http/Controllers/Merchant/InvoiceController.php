@@ -471,19 +471,10 @@ class InvoiceController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/merchant/get-merchant-total-transactions/{description}",
+     ** path="/api/v1/merchant/get-merchant-total-transactions",
      *   tags={"Merchant"},
      *   summary="Get merchant total transactions by either monthly, weekly or daily",
      *   operationId="Get merchant total transactions by either monthly, weekly or daily",
-     *
-     * * * @OA\Parameter(
-     *      name="description",
-     *      in="path",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string",
-     *      )
-     *   ),
      * 
      *   @OA\Response(
      *      response=200,
@@ -495,9 +486,8 @@ class InvoiceController extends BaseController
      *
      *)
      **/
-    public function getMerchantTransaction($description)
+    public function getMerchantTransaction()
     {
-        $description=strtolower($description);
         $user_id=Auth::user()->id;
         
         $monthly=Invoice::where('merchant_id', $user_id)
@@ -505,11 +495,13 @@ class InvoiceController extends BaseController
             ->sum('total');
 
         $weekly=Invoice::where('merchant_id', $user_id)
-            ->whereMonth('created_at', Carbon::now()->week)
+            ->whereBetween('created_at', 
+                [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
+            )
             ->sum('total');
 
         $daily=Invoice::where('merchant_id', $user_id)
-            ->whereMonth('created_at', Carbon::today())
+            ->where('created_at', Carbon::today())
             ->sum('total');
 
         $totalTransaction=[
