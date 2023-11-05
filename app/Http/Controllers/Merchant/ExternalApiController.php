@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Checkout;
 use App\Models\MerchantKeys;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ExternalApiController extends Controller
 {
@@ -23,7 +24,7 @@ class ExternalApiController extends Controller
     public function initialize(Request $request){
         $this->validate($request, [
             'amount'=> 'required|numeric|min:1',
-            'reference'=> "nullable",
+            'merchant_reference'=> "nullable",
             'currency'=>'nullable|string',
             'product'=>'nullable|string',
         ]);
@@ -36,12 +37,18 @@ class ExternalApiController extends Controller
         if(!$request->currency || empty($request->currency)) {
             $currency = 'naira';
         }
+
+        $ref = $request->merchant_reference;
+        if(!$ref){
+            $ref = strtolower(Str::random(30));
+        }
         $checkout = new Checkout();
         $checkout->merchant_id = $this->merchant->user_id;
         $checkout->amount = $request->amount;
         $checkout->currency = $currency;
         $checkout->email = $request->email;
         $checkout->product = $request->product;
+        $checkout->merchant_reference = $ref;
 
     }
 }

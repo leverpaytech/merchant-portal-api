@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->foreignId('merchant_id');
-            $table->string('');
             $table->double('amount', 8,2)->default(0);
             $table->double('vat', 8,2)->default(0);
             $table->double('fee', 8,2)->default(0);
