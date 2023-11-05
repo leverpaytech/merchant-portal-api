@@ -136,7 +136,7 @@ class InvoiceController extends BaseController
 
         //sent create invoice notification to user
         $html = "
-            <2 style='margin-bottom: 8px'>Invoice Details</h2>
+            <h2 style='margin-bottom: 8px'>Invoice Details</h2>
             <div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div>
             <div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div>
             <div style='margin-bottom: 8px'>Price: {$data['price']} </div>
