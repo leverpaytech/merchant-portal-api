@@ -353,7 +353,7 @@ class MerchantController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"document_type_id","country_id","id_card_front"},
-     *              @OA\Property( property="document_type_id", enum="{1=>'International Passport',2=>'Driver Licences'}"),
+     *              @OA\Property( property="document_type_id", enum="1"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
      *              @OA\Property( property="country_id", enum="1"),

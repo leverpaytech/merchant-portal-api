@@ -2328,7 +2328,7 @@
                                 ],
                                 "properties": {
                                     "document_type_id": {
-                                        "enum": "{1=>'International Passport',2=>'Driver Licences'}"
+                                        "enum": "1"
                                     },
                                     "id_card_front": {
                                         "type": "file"
