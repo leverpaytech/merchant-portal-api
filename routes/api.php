@@ -26,6 +26,8 @@ use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\WebhookController;
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 use App\Http\Controllers\ContactUsController;
+use App\Http\Controllers\Merchant\ExternalApiController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -223,7 +225,13 @@ Route::prefix('v1')->group( function(){
         });
     });
 
+    // MERCHANT EXTERNAL API
+
+
 });
 
+Route::prefix('v1/leverchain')->middleware('authorizationValidator')->group(function() {
+    Route::post('transaction/initialize', [ExternalApiController::class, 'initialize']);
+});
 
 
