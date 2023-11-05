@@ -501,7 +501,7 @@ class InvoiceController extends BaseController
             ->sum('total');
 
         $daily=Invoice::where('merchant_id', $user_id)
-            ->where('created_at', Carbon::today())
+            ->where('created_at', Carbon::now())
             ->sum('total');
 
         $totalTransaction=[
