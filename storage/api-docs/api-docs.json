@@ -2328,7 +2328,7 @@
                                 ],
                                 "properties": {
                                     "document_type_id": {
-                                        "enum": "[1]"
+                                        "enum": "{1=>'International Passport',2=>'Driver Licences'}"
                                     },
                                     "id_card_front": {
                                         "type": "file"
@@ -2337,10 +2337,10 @@
                                         "type": "file"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "enum": "1"
                                     },
                                     "state_id": {
-                                        "enum": "[1]"
+                                        "enum": "1"
                                     },
                                     "bvn": {
                                         "type": "string"

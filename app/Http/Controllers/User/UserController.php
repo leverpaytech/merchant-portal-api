@@ -939,6 +939,8 @@ class UserController extends BaseController
         $kycs=Kyc::join('document_types','document_types.id','=','kycs.document_type_id')
             ->where('user_id', $user_id)
             ->where('card_type', 2)
+            ->orderByDesc('kycs.created_at')
+            ->limit(1)
             ->get([
                 'kycs.utility_bill',
                 'document_types.name',
