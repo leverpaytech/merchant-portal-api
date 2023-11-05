@@ -3484,6 +3484,25 @@
                     }
                 ]
             }
+        },
+        "/api/v1/merchant/get-merchant-wallet": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant wallet balance",
+                "operationId": "get merchant  wallet balance",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
+                    }
+                ]
+            }
         }
     },
     "components": {

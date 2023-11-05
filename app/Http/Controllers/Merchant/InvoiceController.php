@@ -490,24 +490,50 @@ class InvoiceController extends BaseController
     {
         $user_id=Auth::user()->id;
         
-        $monthly=Invoice::where('merchant_id', $user_id)
+        $monthlyDollar=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'dollar')
             ->whereMonth('created_at', Carbon::now()->month)
             ->sum('total');
 
-        $weekly=Invoice::where('merchant_id', $user_id)
+        $weeklyDollar=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'dollar')
             ->whereBetween('created_at', 
                 [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
             )
             ->sum('total');
 
-        $daily=Invoice::where('merchant_id', $user_id)
+        $dailyDollar=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'dollar')
+            ->whereDate('created_at', Carbon::now()->format('Y-m-d'))
+            ->sum('total');
+
+        $monthlyNaira=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'naira')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total');
+
+        $weeklyNaira=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'naira')
+            ->whereBetween('created_at', 
+                [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
+            )->sum('total');
+
+        $dailyNaira=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'naira')
             ->whereDate('created_at', Carbon::now()->format('Y-m-d'))
             ->sum('total');
 
         $totalTransaction=[
-            'monthly'=>$monthly,
-            'weekly'=>$weekly,
-            'daily'=>$daily,
+            'dollar'=>[
+                'monthly'=>$monthlyDollar,
+                'weekly'=>$weeklyDollar,
+                'daily'=>$dailyDollar
+            ],
+            'naira'=>[
+                'monthly'=>$monthlyNaira,
+                'weekly'=>$weeklyNaira,
+                'daily'=>$dailyNaira
+            ]
         ];
 
         return $this->successfulResponse($totalTransaction, "merchant total transactions successfully retrieved");
