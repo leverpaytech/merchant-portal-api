@@ -89,7 +89,7 @@ Route::prefix('v1')->group( function(){
 
             Route::get('/get-merchant-total-transactions', [InvoiceController::class, 'getMerchantTransaction']);
             Route::get('/get-merchant-wallet', [WalletController::class, 'getMerchantWallet']);
-            Route::get('/get-merchant-users-count', [WalletController::class, 'getMerchantUsers']);
+            Route::get('/get-merchant-users-count', [MerchantController::class, 'getMerchantUsers']);
             
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
