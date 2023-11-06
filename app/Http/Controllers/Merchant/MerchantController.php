@@ -506,5 +506,46 @@ class MerchantController extends BaseController
 
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-users-count",
+     *   tags={"Merchant"},
+     *   summary="Get merchant total active and inactive users",
+     *   operationId="Get merchant total active and inactive users",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantUsers()
+    {
+        $user_id=Auth::user()->id;
+
+        $activeUsers=User::join('invoices', 'invoices.merchant_id', '=', 'users.id')
+            ->where('invoices.merchant_id', $user_id)
+            ->where('users.status', 1)
+            ->count();
+        
+        $inActiveUsers=User::join('invoices', 'invoices.merchant_id', '=', 'users.id')
+            ->where('invoices.merchant_id', $user_id)
+            ->where('users.status', 0)
+            ->count();
+        $users=[
+            'total_active_users'=>$activeUsers,
+            'total_active_users'=>$inActiveUsers
+        ];
+
+        return $this->successfulResponse($users, 'merchant kyc details successfully retrieved');
+
+    }
+
+
+
     
 }

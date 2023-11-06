@@ -122,7 +122,6 @@ class AuthController extends BaseController
 
         if ($user->status==1)
         {
-            User::where('email','francis.ujiagbe@gmail.com')->update(['status'=>1]);
             $user->last_seen_at = Carbon::now()->format('Y-m-d H:i:s');
             $user->save();
 
