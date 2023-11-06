@@ -538,7 +538,7 @@ class MerchantController extends BaseController
             ->count();
         $users=[
             'total_active_users'=>$activeUsers,
-            'total_active_users'=>$inActiveUsers
+            'total_inactive_users'=>$inActiveUsers
         ];
 
         return $this->successfulResponse($users, 'merchant total users successfully retrieved');
