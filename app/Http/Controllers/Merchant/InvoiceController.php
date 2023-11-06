@@ -122,6 +122,9 @@ class InvoiceController extends BaseController
         $data['total'] = $cal + $fee;
         $data['fee'] = $fee;
 
+        $getMarchant=User::where('id', $merchantId)->with('merchant')->get()->first();
+        $merchant_business_name=$getMarchant->merchant->business_name;
+
         DB::transaction( function() use($data, $merchantId) {
 
             Invoice::create($data);
@@ -133,20 +136,22 @@ class InvoiceController extends BaseController
         });
 
         $invoice = Invoice::where('uuid', $data['uuid'])->first();
+        $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
         $html = "
-            <h2 style='margin-bottom: 8px'>Invoice Details</h2>
+            <h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2>
             <div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div>
             <div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div>
             <div style='margin-bottom: 8px'>Price: {$data['price']} </div>
-            <div style='margin-bottom: 8px'>vat: {$data['vat']} </div>
+            <div style='margin-bottom: 8px'>vat: {$vat_cal} </div>
             <div style='margin-bottom: 8px'>Charges Fee: {$data['fee']} </div>
             <div style='margin-bottom: 8px'>Total: {$data['total']} </div>
             <div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>
         "; 
         SmsService::sendMail("", $html, "invoice notification", $data['email']);
-
+        
+    
         return $this->successfulResponse($invoice,"Invoice successfully created");
 
     }
