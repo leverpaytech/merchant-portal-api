@@ -11,51 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class KycController extends BaseController
 {
-    /**
-     * @OA\Post(
-     ** path="/api/v1/add-kyc",
-     *   tags={"KYC"},
-     *   summary="Add KYC document",
-     *   operationId="Add KYC document",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"document_name","document_link"},
-     *              @OA\Property( property="document_name", type="string"),
-     *              @OA\Property( property="document_link", type="file"),
-     *          ),
-     *      ),
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   }
-     *)
-     **/
+    
     public function addKyc(Request $request)
     {
         $data = $request->all();
@@ -97,23 +53,7 @@ class KycController extends BaseController
         return response()->json($response, 200);
     }
 
-    /**
-     * @OA\Get(
-     ** path="/api/v1/kyc-details",
-     *   tags={"KYC"},
-     *   summary="Get all kyc details",
-     *   operationId="Get all kyc details",
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *     ),
-     *     security={
-     *       {"bearer_token": {}}
-     *     }
-     *
-     *)
-     **/
+    
     public function getKycDocument()
     {
         $user_id=Auth::user()->id;
