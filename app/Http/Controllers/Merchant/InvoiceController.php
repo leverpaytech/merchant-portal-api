@@ -145,7 +145,7 @@ class InvoiceController extends BaseController
             <div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div>
             <div style='margin-bottom: 8px'>Price: {$data['price']} </div>
             <div style='margin-bottom: 8px'>vat: {$vat_cal} </div>
-            <div style='margin-bottom: 8px'>Charges Fee: {$data['fee']} </div>
+            <div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div>
             <div style='margin-bottom: 8px'>Total: {$data['total']} </div>
             <div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>
         "; 
