@@ -2151,8 +2151,8 @@
                 "tags": [
                     "Merchant"
                 ],
-                "summary": "Get merchant total transactions by either monthly, weekly or daily",
-                "operationId": "Get merchant total transactions by either monthly, weekly or daily",
+                "summary": "Get merchant total transactions (monthly, weekly and daily)",
+                "operationId": "Get merchant total transactions (monthly, weekly and daily)",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -2519,6 +2519,25 @@
                 ],
                 "summary": "Get merchant kyc details",
                 "operationId": "Get merchant kyc details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-users-count": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant total active and inactive users",
+                "operationId": "Get merchant total active and inactive users",
                 "responses": {
                     "200": {
                         "description": "Success"

@@ -573,8 +573,8 @@ class InvoiceController extends BaseController
      * @OA\Get(
      ** path="/api/v1/merchant/get-merchant-total-transactions",
      *   tags={"Merchant"},
-     *   summary="Get merchant total transactions by either monthly, weekly or daily",
-     *   operationId="Get merchant total transactions by either monthly, weekly or daily",
+     *   summary="Get merchant total transactions (monthly, weekly and daily)",
+     *   operationId="Get merchant total transactions (monthly, weekly and daily)",
      * 
      *   @OA\Response(
      *      response=200,
