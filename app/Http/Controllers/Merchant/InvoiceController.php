@@ -186,7 +186,7 @@ class InvoiceController extends BaseController
     public function getInvoice($uuid)
     {
         $invoice = Invoice::query()->where('uuid',$uuid)->with(['merchant' => function ($query) {
-            $query->select('id','uuid', 'first_name','last_name','phone','email');
+            $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
         }])->with(['user' => function ($query) {
             $query->select('id','uuid', 'first_name','last_name','phone','email');
         }])->first();
@@ -233,7 +233,7 @@ class InvoiceController extends BaseController
         if($filter == 'pending'){
             $invoices = $invoices->where('status', 0)
                 ->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
@@ -241,20 +241,20 @@ class InvoiceController extends BaseController
         }else if($filter == 'paid'){
             $invoices = $invoices->where('status', 1)
                 ->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
         }else if($filter == 'cancelled'){
             $invoices = $invoices->where('status', 2)
                 ->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
         }else{
             $invoices = $invoices->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
@@ -262,7 +262,51 @@ class InvoiceController extends BaseController
 
         return $this->successfulResponse($invoices, '');
     }
-
+    
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/pay-invoice",
+     *   tags={"User"},
+     *   summary="Pay invoice",
+     *   operationId="Pay new invoice",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
     public function payInvoice(Request $request){
         $this->validate($request, [
             'uuid'=>'required|string'
@@ -322,6 +366,51 @@ class InvoiceController extends BaseController
         return $this->successfulResponse([], 'OTP sent');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/verify-invoices-otp",
+     *   tags={"User"},
+     *   summary="Verify invoice otp",
+     *   operationId="Verify invoice otp",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid","otp"},
+     *              @OA\Property( property="uuid", type="string"),
+     *              @OA\Property( property="otp", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
     public function verifyInvoiceOTP(Request $request){
         $this->validate($request, [
             'uuid'=>'required|string',
