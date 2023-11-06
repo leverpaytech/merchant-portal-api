@@ -2165,6 +2165,25 @@
                 ]
             }
         },
+        "/api/v1/merchant/merchant-total-successfull-failed-transactions": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant total successfull and failed transactions",
+                "operationId": "Get merchant total successfull and failed transactions",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/get-merchant-profile": {
             "get": {
                 "tags": [

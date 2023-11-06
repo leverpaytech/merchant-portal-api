@@ -639,4 +639,42 @@ class InvoiceController extends BaseController
         return $this->successfulResponse($totalTransaction, "merchant total transactions successfully retrieved");
 
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/merchant-total-successfull-failed-transactions",
+     *   tags={"Merchant"},
+     *   summary="Get merchant total successfull and failed transactions",
+     *   operationId="Get merchant total successfull and failed transactions",
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getTotalTransactions()
+    {
+        $user_id=Auth::user()->id;
+        
+        $success=Invoice::where('merchant_id', $user_id)
+            ->where('status', 1)
+            ->count();
+    
+        $failed=Invoice::where('merchant_id', $user_id)
+            ->where('status', 2)
+            ->count();
+
+        $totalTransaction=[
+            'total_successful_transactions'=>$success,
+            'total_failed_transactions'=>$failed
+        ];
+
+        return $this->successfulResponse($totalTransaction, "merchant total transactions successfully retrieved");
+
+    }
 }

@@ -541,7 +541,7 @@ class MerchantController extends BaseController
             'total_active_users'=>$inActiveUsers
         ];
 
-        return $this->successfulResponse($users, 'merchant kyc details successfully retrieved');
+        return $this->successfulResponse($users, 'merchant total users successfully retrieved');
 
     }
 
