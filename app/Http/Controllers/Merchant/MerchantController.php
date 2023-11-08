@@ -523,6 +523,7 @@ class MerchantController extends BaseController
      *
      *)
      **/
+    
     public function getMerchantUsers()
     {
         $user_id=Auth::user()->id;

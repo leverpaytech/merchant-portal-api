@@ -135,8 +135,8 @@ class AuthController extends BaseController
             'gender' => 'required',
             'email' => 'unique:users,email|required|email',
             'phone' => 'unique:users',
-            'state_id' => 'required|integer',
-            'city_id' => 'required|integer',
+            'state_id' => 'nullable|integer',
+            'city_id' => 'nullable|integer',
             'country_id' => 'required',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
@@ -172,7 +172,7 @@ class AuthController extends BaseController
 
         //sent sign up notification to leverpay admin
         $html2 = "
-            <2 style='margin-bottom: 8px'>User Details</h2>
+            <2 style='margin-bottom: 8px'>New User Sign Up</h2>
             <div style='margin-bottom: 8px'>User's Name: {$data['first_name']} {$data['last_name']} </div>
             <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
             <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
