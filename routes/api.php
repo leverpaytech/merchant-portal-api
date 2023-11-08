@@ -214,6 +214,9 @@ Route::prefix('v1')->group( function(){
             Route::post('fund-wallet', [AdminController::class,'fundWallet']);
 
             Route::post('total-delete', [AdminController::class,'totalDelete']);
+            
+            Route::get('merchants-with-wallet-greater-than-zero', [AdminController::class,'getMerchantListForRemittance']);
+            Route::post('submit-payment', [AdminController::class,'submitPayment']); 
         });
     });
 
