@@ -385,6 +385,7 @@ class WalletController extends BaseController
                 'merchant',
                 'tnx_reference_no',
                 'amount',
+                'currency',
                 'transaction_details',
                 'balance',
                 'status',
