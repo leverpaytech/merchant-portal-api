@@ -165,8 +165,9 @@ class WebhookController extends Controller
                 <p> Best regards, </p>
                 <p> Leverpay </p>
             ";
-        SmsService::sendMail('', $html, "Providus Credit Alert ({$user->first_name} {$user->last_name})", 'funmi@leverpay.io');
 
+            //Send Mail and message to leverpay admin email & phone after successful credit
+        SmsService::sendMail('', $html, "Providus Credit Alert ({$user->first_name} {$user->last_name})", 'funmi@leverpay.io');
         SmsService::sendSms("Providus Account Credit, User: {$user->first_name} {$user->last_name}, Amount: {$request['transactionAmount']}, Type: {$account->type}", '2347063415220');
         return [
             'requestSuccessful'=>true,
