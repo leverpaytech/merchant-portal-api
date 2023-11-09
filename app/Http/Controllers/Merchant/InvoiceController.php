@@ -147,8 +147,9 @@ class InvoiceController extends BaseController
             <div style='margin-bottom: 8px'>vat: {$vat_cal} </div>
             <div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div>
             <div style='margin-bottom: 8px'>Total: {$data['total']} </div>
-            <div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>
+            
         "; 
+        //"<div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>";
         SmsService::sendMail("", $html, "invoice notification", $data['email']);
         
     
