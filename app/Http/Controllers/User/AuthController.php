@@ -176,7 +176,8 @@ class AuthController extends BaseController
                 <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
                 <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
             ";
-            $to="abdilkura@leverpay.io";
+            //$to="contact@leverpay.io";
+            $to="abdilkura@gmail.com";
 
             SmsService::sendMail("", $html2, "new user sign up", $to);
 
