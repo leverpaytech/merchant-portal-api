@@ -181,7 +181,7 @@ class AuthController extends BaseController
             SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         });
 
-        $uDetails=User::where('email', $date['email'])->get()->first();
+        $uDetails=User::where('email', $data['email'])->get()->first();
         
         return $this->successfulResponse(new UserResource($uDetails), 'User successfully sign-up');
     }
