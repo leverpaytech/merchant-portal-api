@@ -270,16 +270,18 @@ class AuthController extends BaseController
         ]);
 
         $user = User::where('email',$request['email'])
-                        ->where('verify_email_token', $request['token'])
-                        ->first();
+            ->where('verify_email_token', $request['token'])
+            ->first();
         if(!$user){
             return $this->sendError("invalid token, please try again",[], 401);
         }
 
         if($user->role_id == 1){
             MerchantKeyService::createKeys($user->id);
+            $details="Merchant User Sign Up";
         }else{
             CardService::createCard($user['id']);
+            $details="New User Sign Up";
         }
 
         $user->verify_email_token = bin2hex(random_bytes(15));
@@ -291,6 +293,19 @@ class AuthController extends BaseController
         $data2['activity']="VerifyEmail";
         $data2['user_id']=$user->id;
         ActivityLog::createActivity($data2);
+
+        //sent sign up notification to leverpay admin
+        $html2 = "
+            <2 style='margin-bottom: 8px'>{$details}</h2>
+            <div style='margin-bottom: 8px'>User's Name: {$user->first_name} {$user->last_name} </div>
+            <div style='margin-bottom: 8px'>Email Address: {$user->email} </div>
+            <div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>
+        ";
+        //$to="contact@leverpay.io";
+        $to="abdilkura@gmail.com";
+
+        SmsService::sendMail("", $html2, $details, $to);
+        
 
         return $this->successfulResponse([], 'Email verified successfully');
     }
