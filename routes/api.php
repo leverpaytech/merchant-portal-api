@@ -46,6 +46,7 @@ Route::prefix('v1')->group( function(){
     });
 
     Route::post('/test-providus', [AuthController::class, 'testProvidus']);
+    Route::post('/test-zeptomail', [AuthController::class, 'testZeptoMail']);
     //get countries
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);

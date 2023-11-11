@@ -38,6 +38,45 @@ class AuthController extends BaseController
         $this->userModel = $user;
     }
 
+    public function testZeptoMail()
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.zeptomail.com/v1.1/email",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => '{
+                "from": { "address": "leverpay.io"},
+                "to": [{"abdilkura@gmail.com": {"address": "development@leverpay.io","name": "Patrick"}}],
+                "subject":"Test Email",
+                "htmlbody":"<div><b> Test email sent successfully. </b></div>",
+            }',
+            CURLOPT_HTTPHEADER => array(
+                "accept: application/json",
+                "authorization: Zoho-enczapikey wSsVR613/0X2W6wuzWD+Lr86mgwDBFqlFkx02FWp6iT1HKvC8sc9lEPMA1KuT6IZF2ZrEGcU8roomB4H1DoPhtksnAsCWyiF9mqRe1U4J3x17qnvhDzIVmpakhOIJIsLwg1im2BkFc0q+g==",
+                "cache-control: no-cache",
+                "content-type: application/json",
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+            return "cURL Error #:" . $err;
+        } else {
+            return $response;
+        }
+    }
+
     public function testProvidus(Request $request){
         // return env('TERMII_API_KEY').'/PiPCreateDynamicAccountNumber';
         $req = ProvidusService::generateDynamicAccount('Timi Adekunle');
@@ -303,8 +342,8 @@ class AuthController extends BaseController
             <div style='margin-bottom: 8px'>Email Address: {$user->email} </div>
             <div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>
         ";
-        //$to="contact@leverpay.io";
-        $to="abdilkura@gmail.com";
+        $to="contact@leverpay.io";
+        //$to="abdilkura@gmail.com";
 
         SmsService::sendMail("", $html2, $details, $to);
         
