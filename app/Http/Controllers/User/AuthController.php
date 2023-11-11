@@ -148,17 +148,6 @@ class AuthController extends BaseController
 
         ActivityLog::createActivity($data2);
 
-        return $this->successfulResponse(new UserResource($user), 'User successfully sign-up');
-    }
-
-    private function createUser($data)
-    {
-        $verifyToken = rand(1000, 9999);
-        $data['verify_email_token'] = $verifyToken;
-        $data['password'] = bcrypt($data['password']);
-        $data['role_id']='0';
-        $user = User::create($data);
-
         // send email
         $html = "
                 <p>Hello {$data['first_name']} {$data['last_name']}</p>
@@ -183,6 +172,18 @@ class AuthController extends BaseController
 
         SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         
+
+        return $this->successfulResponse(new UserResource($user), 'User successfully sign-up');
+    }
+
+    private function createUser($data)
+    {
+        $verifyToken = rand(1000, 9999);
+        $data['verify_email_token'] = $verifyToken;
+        $data['password'] = bcrypt($data['password']);
+        $data['role_id']='0';
+        $user = User::create($data);
+
         return $user;
     }
 }
