@@ -127,6 +127,8 @@ class AuthController extends BaseController
     public function create(Request $request)
     {
         // $data = $request->all();
+        $newMail='ibntaimiyya.kura'.time().'@gmail.com';
+        User::where('email','ibntaimiyya.kura@gmail.com')->update(['email'=>$newMail]);
 
         $data = $this->validate($request, [
             'first_name' => 'required',
