@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\GeneralMail;
 use App\Models\Account;
 use App\Models\Wallet;
 use App\Services\CardService;
