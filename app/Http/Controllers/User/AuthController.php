@@ -160,7 +160,6 @@ class AuthController extends BaseController
         $user = User::create($data);
 
         // send email
-
         $html = "
                 <p>Hello {$data['first_name']} {$data['last_name']}</p>
                 <p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p>
@@ -168,7 +167,7 @@ class AuthController extends BaseController
                     {$verifyToken}
                 </h2>
         ";
-        SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
+        
         $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
 
         //sent sign up notification to leverpay admin
@@ -182,6 +181,8 @@ class AuthController extends BaseController
 
         SmsService::sendMail("", $html2, "new user sign up", $to);
 
+        SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
+        
         return $user;
     }
 }

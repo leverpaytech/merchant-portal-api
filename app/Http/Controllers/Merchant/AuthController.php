@@ -193,8 +193,6 @@ class AuthController extends BaseController
             </h4>
         ";
 
-        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
-
         //sent sign up notification to leverpay admin
         $html2 = "
             <2 style='margin-bottom: 8px'>Merchant Details</h2>
@@ -205,6 +203,8 @@ class AuthController extends BaseController
         $to="contact@leverpay.io";
         
         SmsService::sendMail("", $html2, "new merchant sign up", $to);
+
+        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
         
         return $user;
     }
