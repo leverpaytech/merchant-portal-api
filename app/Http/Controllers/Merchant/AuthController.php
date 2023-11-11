@@ -198,7 +198,7 @@ class AuthController extends BaseController
 
         //sent sign up notification to leverpay admin
         /*$html2 = "
-            <2 style='margin-bottom: 8px'>Merchant Details</h2>
+            <h2 style='margin-bottom: 8px'>Merchant Details</h2>
             <div style='margin-bottom: 8px'>Merchant's Name: {$data['first_name']} {$data['last_name']} </div>
             <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
             <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
