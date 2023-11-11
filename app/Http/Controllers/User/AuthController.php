@@ -127,10 +127,6 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
-        // $data = $request->all();
-        $newMail='ibntaimiyya.kura'.time().'@gmail.com';
-        User::where('email','ibntaimiyya.kura@gmail.com')->update(['email'=>$newMail]);
-
         $data = $this->validate($request, [
             'first_name' => 'required',
             'last_name' => 'required',
@@ -179,7 +175,8 @@ class AuthController extends BaseController
             //$to="contact@leverpay.io";
             $to="abdilkura@gmail.com";
 
-            SmsService::sendMail("", $html2, "new user sign up", $to);*/
+            SmsService::sendMail("", $html2, "new user sign up", $to);
+            */
 
             SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         });
@@ -189,10 +186,4 @@ class AuthController extends BaseController
         return $this->successfulResponse(new UserResource($uDetails), 'User successfully sign-up');
     }
 
-    private function createUser($data)
-    {
-        
-
-        return $user;
-    }
 }

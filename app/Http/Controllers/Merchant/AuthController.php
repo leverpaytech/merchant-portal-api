@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Merchant;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Mail\GeneralMail;
 use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends BaseController
 {
@@ -194,13 +196,13 @@ class AuthController extends BaseController
         ";
 
         //sent sign up notification to leverpay admin
-        $html2 = "
+        /*$html2 = "
             <2 style='margin-bottom: 8px'>Merchant Details</h2>
             <div style='margin-bottom: 8px'>Merchant's Name: {$data['first_name']} {$data['last_name']} </div>
             <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
             <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
         ";
-        $to="contact@leverpay.io";
+        $to="contact@leverpay.io";*/
         
         SmsService::sendMail("", $html2, "new merchant sign up", $to);
 
