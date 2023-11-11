@@ -20,6 +20,8 @@ use App\Mail\ForgotPasswordMail;
 use App\Services\ProvidusService;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+
 class AuthController extends BaseController
 {
     protected $userModel;
@@ -215,9 +217,9 @@ class AuthController extends BaseController
             </h4>
         ";
         // Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
-        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
+        SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
 
-        return response()->json('Email sent sucessfully'.$sms, 200);
+        return response()->json('Email sent sucessfully', 200);
     }
 
     /**
