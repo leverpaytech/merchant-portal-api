@@ -147,7 +147,7 @@ class AuthController extends BaseController
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
 
-        DB::transaction( function() use($data, $merchantId) 
+        DB::transaction( function() use($data, $verifyToken) 
         {
             $user = User::create($data);
 
@@ -155,33 +155,34 @@ class AuthController extends BaseController
             $data2['user_id']=$user->id;
 
             ActivityLog::createActivity($data2);
+        
+            // send email
+            $html = "
+                    <p>Hello {$data['first_name']} {$data['last_name']}</p>
+                    <p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p>
+                    <h2 style='margin-bottom: 8px'>
+                        {$verifyToken}
+                    </h2>
+            ";
+            
+            $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
+
+            //sent sign up notification to leverpay admin
+            $html2 = "
+                <2 style='margin-bottom: 8px'>New User Sign Up</h2>
+                <div style='margin-bottom: 8px'>User's Name: {$data['first_name']} {$data['last_name']} </div>
+                <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
+                <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
+            ";
+            $to="contact@leverpay.io";
+
+            SmsService::sendMail("", $html2, "new user sign up", $to);
+
+            SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         });
 
-        // send email
-        $html = "
-                <p>Hello {$data['first_name']} {$data['last_name']}</p>
-                <p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p>
-                <h2 style='margin-bottom: 8px'>
-                    {$verifyToken}
-                </h2>
-        ";
-        
-        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
-
-        //sent sign up notification to leverpay admin
-        $html2 = "
-            <2 style='margin-bottom: 8px'>New User Sign Up</h2>
-            <div style='margin-bottom: 8px'>User's Name: {$data['first_name']} {$data['last_name']} </div>
-            <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
-            <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
-        ";
-        $to="contact@leverpay.io";
-
-        SmsService::sendMail("", $html2, "new user sign up", $to);
-
-        SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
-        
         $uDetails=User::where('email', $date['email'])->get()->first();
+        
         return $this->successfulResponse(new UserResource($uDetails), 'User successfully sign-up');
     }
 
