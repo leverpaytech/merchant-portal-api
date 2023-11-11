@@ -141,12 +141,20 @@ class AuthController extends BaseController
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
-        $user = $this->createUser($data);
+        $verifyToken = rand(1000, 9999);
+        $data['verify_email_token'] = $verifyToken;
+        $data['password'] = bcrypt($data['password']);
+        $data['role_id']='0';
 
-        $data2['activity']="User Sign Up";
-        $data2['user_id']=$user->id;
+        DB::transaction( function() use($data, $merchantId) 
+        {
+            $user = User::create($data);
 
-        ActivityLog::createActivity($data2);
+            $data2['activity']="User Sign Up";
+            $data2['user_id']=$user->id;
+
+            ActivityLog::createActivity($data2);
+        });
 
         // send email
         $html = "
@@ -172,17 +180,13 @@ class AuthController extends BaseController
 
         SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         
-
-        return $this->successfulResponse(new UserResource($user), 'User successfully sign-up');
+        $uDetails=User::where('email', $date['email'])->get()->first();
+        return $this->successfulResponse(new UserResource($uDetails), 'User successfully sign-up');
     }
 
     private function createUser($data)
     {
-        $verifyToken = rand(1000, 9999);
-        $data['verify_email_token'] = $verifyToken;
-        $data['password'] = bcrypt($data['password']);
-        $data['role_id']='0';
-        $user = User::create($data);
+        
 
         return $user;
     }
