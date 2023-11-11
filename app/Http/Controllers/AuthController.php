@@ -217,7 +217,7 @@ class AuthController extends BaseController
         // Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
         $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
 
-        return response()->json('Email sent sucessfully', 200);
+        return response()->json('Email sent sucessfully'.$sms, 200);
     }
 
     /**
