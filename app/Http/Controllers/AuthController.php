@@ -71,9 +71,11 @@ class AuthController extends BaseController
         curl_close($curl);
 
         if ($err) {
-            return "cURL Error #:" . $err;
+            //return "cURL Error #:" . $err;
+            return response()->json('Email sent sucessfully',$err, 200);
         } else {
-            return $response;
+            //return $response;
+            return response()->json('Email sent sucessfully',$response, 200);
         }
     }
 
