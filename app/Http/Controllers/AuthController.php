@@ -303,7 +303,7 @@ class AuthController extends BaseController
         ActivityLog::createActivity($data2);
 
         //sent sign up notification to leverpay admin
-        $message="<h2 style='margin-bottom: 8px'>{$details}</h2><div style='margin-bottom: 8px'>User's Name: {$user->first_name} {$user->last_name} </div><div style='margin-bottom: 8px'>Email Address: {$user->email} </div><div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>";
+        $message="<h2 style='margin-bottom: 8px'>{$subject}</h2><div style='margin-bottom: 8px'>User's Name: {$user->first_name} {$user->last_name} </div><div style='margin-bottom: 8px'>Email Address: {$user->email} </div><div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>";
         $to="contact@leverpay.io";
         //$to="abdilkura@gmail.com";
         ZeptomailService::sendMailZeptoMail($subject ,$message, $to); 
