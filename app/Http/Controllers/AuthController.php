@@ -52,14 +52,14 @@ class AuthController extends BaseController
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => '{
-                "from": { "address": "leverpay.io"},
+                "from": { "LeverPay": "noreply@leverpay.io"},
                 "to": [{"abdilkura@gmail.com": {"address": "development@leverpay.io","name": "Patrick"}}],
                 "subject":"Test Email",
                 "htmlbody":"<div><b> Test email sent successfully. </b></div>",
             }',
             CURLOPT_HTTPHEADER => array(
                 "accept: application/json",
-                "authorization: Zoho-enczapikey wSsVR613/0X2W6wuzWD+Lr86mgwDBFqlFkx02FWp6iT1HKvC8sc9lEPMA1KuT6IZF2ZrEGcU8roomB4H1DoPhtksnAsCWyiF9mqRe1U4J3x17qnvhDzIVmpakhOIJIsLwg1im2BkFc0q+g==",
+                "authorization: Zoho-enczapikey wSsVR61x+ETwXfovymKucr8/mglcUl/yQU16jVCn6ySvGKuR9Mc/kkCYUFLyFPgdFGBuRjUVpLJ8nEtV0TcIj9t7yVEGCyiF9mqRe1U4J3x17qnvhDzOXWRdkROLJY8Kxg5skmVoEc4k+g==",
                 "cache-control: no-cache",
                 "content-type: application/json",
             ),
@@ -71,10 +71,11 @@ class AuthController extends BaseController
         curl_close($curl);
 
         if ($err) {
-            return "cURL Error #:" . $err;
+            return $err;
         } else {
             return $response;
         }
+        
     }
 
     public function testProvidus(Request $request){
