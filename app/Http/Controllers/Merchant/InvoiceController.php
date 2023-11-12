@@ -8,6 +8,7 @@ use App\Mail\SendEmailVerificationCode;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\SmsService;
+use App\Services\ZeptomailService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -139,18 +140,10 @@ class InvoiceController extends BaseController
         $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        $html = "
-            <h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2>
-            <div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div>
-            <div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div>
-            <div style='margin-bottom: 8px'>Price: {$data['price']} </div>
-            <div style='margin-bottom: 8px'>vat: {$vat_cal} </div>
-            <div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div>
-            <div style='margin-bottom: 8px'>Total: {$data['total']} </div>
-            
-        "; 
+        $message="<h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$data['price']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>"; 
         //"<div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>";
-        SmsService::sendMail("", $html, "invoice notification", $data['email']);
+        ZeptomailService::sendMailZeptoMail("invoice notification" ,$message, $data['email']); 
+        
         
     
         return $this->successfulResponse($invoice,"Invoice successfully created");
@@ -355,15 +348,12 @@ class InvoiceController extends BaseController
         $invoice->save();
 
         $curr = $invoice['currency'] == 'dollar'?'$':'₦';
-        $content = "A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
+        $content="A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
-        // Mail::to($invoice->email)->send(new GeneralMail($content, 'OTP'));
-
+        ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email); 
 
         SmsService::sendSms("Dear {$invoice->user->first_name},A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$invoice->user->phone);
-
-        SmsService::sendMail("Dear {$invoice->user->first_name},", $content, "LeverPay Invoice OTP", $invoice->email);
-
+        
         return $this->successfulResponse([], 'OTP sent');
     }
 
@@ -511,25 +501,15 @@ class InvoiceController extends BaseController
 
             $invoice->status = 1;
             $invoice->save();
-            $html = "<p style='margin-bottom: 8px'>
-                    Dear {$invoice->user->first_name},
-                </p>
-                <p style='margin-bottom: 10px'>You have successfully paid an invoice of $total to {$invoice->merchant->first_name} {$invoice->merchant->last_name}</p>
+            $html="<p style='margin-bottom: 8px'>Dear {$invoice->user->first_name},</p><p style='margin-bottom: 10px'>You have successfully paid an invoice of $total to {$invoice->merchant->first_name} {$invoice->merchant->last_name}</p><p> Best regards, </p><p> Leverpay </p>";
 
-                <p> Best regards, </p>
-                <p> Leverpay </p>
-            ";
-
-            $html2 = "<p style='margin-bottom: 8px'>
-                    Dear {$invoice->merchant->first_name},
-                </p>
-                <p style='margin-bottom: 10px'>An invoice of $total sent to {$invoice->user->first_name} {$invoice->merchant->last_name} has been paid</p>
-
-                <p> Best regards, </p>
-                <p> Leverpay </p>
-            ";
-            SmsService::sendMail('', $html, 'Invoice Completed', $invoice->user->email);
-            SmsService::sendMail('', $html2, 'Invoice Completed', $invoice->merchant->email);
+            $html2="<p style='margin-bottom: 8px'>Dear {$invoice->merchant->first_name},</p><p style='margin-bottom: 10px'>An invoice of $total sent to {$invoice->user->first_name} {$invoice->merchant->last_name} has been paid</p><p> Best regards, </p><p> Leverpay </p>";
+            //mail to user
+            ZeptomailService::sendMailZeptoMail("Invoice Completed" ,$html, $invoice->user->email);
+            //mail to merchant
+            ZeptomailService::sendMailZeptoMail("Invoice Completed" ,$html2, $invoice->merchant->email);
+            //SmsService::sendMail('', $html, 'Invoice Completed', $invoice->user->email);
+            //SmsService::sendMail('', $html2, 'Invoice Completed', $invoice->merchant->email);
         });
 
         return $this->successfulResponse([], 'Invoice paid successfully');

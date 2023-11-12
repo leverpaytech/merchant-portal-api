@@ -204,6 +204,7 @@ class AuthController extends BaseController
             'email'=>'required|email'
         ]);
         $user = User::where('email', $request['email'])->first();
+        
         if(!$user)
         {
            return $this->sendError('Email address not found',[],404);
@@ -222,7 +223,7 @@ class AuthController extends BaseController
 
         $message = "<p>Hello {$user['first_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
         ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $request['email']); 
-        //SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
+        SmsService::sendSms("Hi {$user['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $user['phone']);
 
         return response()->json('Email sent sucessfully', 200);
     }
@@ -365,18 +366,10 @@ class AuthController extends BaseController
         $user->forgot_password_token = $verifyToken;
         $user->save();
 
-        $html = "
-        <p>Hello {$user['first_name']},</p>
-        <p style='margin-bottom: 8px'>
-        Below is your reset password token
-            </p>
-            <h4 style='margin-bottom: 8px'>
-                {$verifyToken}
-            </h4>
-        ";
+        $html="<p>Hello {$user['first_name']},</p><p style='margin-bottom: 8px'>Below is your reset password token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
 
-        // Mail::to($request['email'])->send(new ForgotPasswordMail($user['first_name'], $verifyToken));
-        $sms = SmsService::sendMail("",$html, "LeveryPay Forgot Password Code", $request['email']);
+        ZeptomailService::sendMailZeptoMail("LeveryPay Forgot Password Code", $html, $request['email']);
+        SmsService::sendSms("Your LeveryPay Forgot Password Token is {$verifyToken}. Please do not share, For enquiry: contact@leverpay.io", '234'.$user['phone']);
 
         return response()->json('Email sent sucessfully', 200);
     }
