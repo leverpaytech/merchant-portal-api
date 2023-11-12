@@ -130,7 +130,9 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
-        $data = $this->validate($request, [
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
             'first_name' => 'required',
             'last_name' => 'required',
             'other_name' => 'nullable',
@@ -145,6 +147,11 @@ class AuthController extends BaseController
             'role_id' => 'nullable',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
 
         $user = $this->createMerchant($data);
 
