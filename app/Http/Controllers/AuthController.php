@@ -194,11 +194,11 @@ class AuthController extends BaseController
      **/
     public function resendVerificationEmail(Request $request)
     {
-        /*\Artisan::call('route:cache');
+        \Artisan::call('route:cache');
         \Artisan::call('config:cache');
         \Artisan::call('cache:clear');
         \Artisan::call('view:clear');
-        \Artisan::call('optimize:clear');*/
+        \Artisan::call('optimize:clear');
 
         $this->validate($request, [
             'email'=>'required|email'
@@ -282,10 +282,10 @@ class AuthController extends BaseController
 
         if($user->role_id == 1){
             MerchantKeyService::createKeys($user->id);
-            $details="Merchant User Sign Up";
+            $subject="Merchant User Sign Up";
         }else{
             CardService::createCard($user['id']);
-            $details="New User Sign Up";
+            $subject="New User Sign Up";
         }
 
         $user->verify_email_token = bin2hex(random_bytes(15));
@@ -299,16 +299,10 @@ class AuthController extends BaseController
         ActivityLog::createActivity($data2);
 
         //sent sign up notification to leverpay admin
-        $html2 = "
-            <h2 style='margin-bottom: 8px'>{$details}</h2>
-            <div style='margin-bottom: 8px'>User's Name: {$user->first_name} {$user->last_name} </div>
-            <div style='margin-bottom: 8px'>Email Address: {$user->email} </div>
-            <div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>
-        ";
+        $message="<h2 style='margin-bottom: 8px'>{$details}</h2><div style='margin-bottom: 8px'>User's Name: {$user->first_name} {$user->last_name} </div><div style='margin-bottom: 8px'>Email Address: {$user->email} </div><div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>";
         $to="contact@leverpay.io";
         //$to="abdilkura@gmail.com";
-
-        SmsService::sendMail("", $html2, $details, $to);
+        ZeptomailService::sendMailZeptoMail($subject ,$message, $to); 
         
 
         return $this->successfulResponse([], 'Email verified successfully');
