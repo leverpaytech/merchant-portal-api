@@ -132,7 +132,9 @@ class AuthController extends BaseController
         //$nEmail="abdilkura".time()."@gmail.com";
         //User::where('email','abdilkura@gmail.com')->update(['email'=>$nEmail]);
         //User::where('phone','08136908764')->update(['phone'=>'08136908000']);
-        $data = $this->validate($request, [
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
             'first_name' => 'required',
             'last_name' => 'required',
             'other_name' => 'nullable',
@@ -145,6 +147,11 @@ class AuthController extends BaseController
             'country_id' => 'required',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
 
         $verifyToken = rand(1000, 9999);
         $data['verify_email_token'] = $verifyToken;
