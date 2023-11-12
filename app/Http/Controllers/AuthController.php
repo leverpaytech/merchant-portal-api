@@ -207,9 +207,12 @@ class AuthController extends BaseController
         if(!$user)
         {
            return $this->sendError('Email address not found',[],404);
+           exit();
         }
+
         if($user->verify_email_status){
             return $this->sendError('Email is already verified',[],400);
+            exit();
         }
 
         $verifyToken = rand(1000, 9999);

@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Services\MerchantKeyService;
 use App\Services\SmsService;
+use App\Services\ZeptomailService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -186,28 +187,10 @@ class AuthController extends BaseController
         // send email
         // Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
 
-        $html = "
-        <p>Hello {$data['first_name']} {$data['last_name']},</p>
-        <p style='margin-bottom: 8px'>
-            We are excited to have you here. Below is your verification token
-            </p>
-            <h4 style='margin-bottom: 8px'>
-                {$verifyToken}
-            </h4>
-        ";
+        $message = "<p>Hello {$data['first_name']} {$data['last_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
 
-        //sent sign up notification to leverpay admin
-        /*$html2 = "
-            <h2 style='margin-bottom: 8px'>Merchant Details</h2>
-            <div style='margin-bottom: 8px'>Merchant's Name: {$data['first_name']} {$data['last_name']} </div>
-            <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
-            <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
-        ";
-        $to="contact@leverpay.io";*/
-        
-        SmsService::sendMail("", $html2, "new merchant sign up", $to);
-
-        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
+        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
+        SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         
         return $user;
     }

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Services\CardService;
 use App\Services\SmsService;
+use App\Services\ZeptomailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -159,14 +160,9 @@ class AuthController extends BaseController
             ActivityLog::createActivity($data2);
         
             // send email
-            $html = "
-                    <p>Hello {$data['first_name']} {$data['last_name']}</p>
-                    <p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p>
-                    <h2 style='margin-bottom: 8px'>
-                        {$verifyToken}
-                    </h2>
-            ";
-            SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
+            $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
+            ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
+            
             SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         });
 
