@@ -21,6 +21,7 @@ use App\Services\ProvidusService;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Http;
+use App\Services\ZeptomailService;
 
 class AuthController extends BaseController
 {
@@ -38,45 +39,14 @@ class AuthController extends BaseController
         $this->userModel = $user;
     }
 
-    public function testZeptoMail()
+    /*public function testZeptoMail()
     {
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.zeptomail.com/v1.1/email",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{
-                "from": { "LeverPay": "noreply@leverpay.io"},
-                "to": [{"abdilkura@gmail.com": {"address": "development@leverpay.io","name": "Patrick"}}],
-                "subject":"Test Email",
-                "htmlbody":"<div><b> Test email sent successfully. </b></div>",
-            }',
-            CURLOPT_HTTPHEADER => array(
-                "accept: application/json",
-                "authorization: Zoho-enczapikey wSsVR61x+ETwXfovymKucr8/mglcUl/yQU16jVCn6ySvGKuR9Mc/kkCYUFLyFPgdFGBuRjUVpLJ8nEtV0TcIj9t7yVEGCyiF9mqRe1U4J3x17qnvhDzOXWRdkROLJY8Kxg5skmVoEc4k+g==",
-                "cache-control: no-cache",
-                "content-type: application/json",
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            return $err;
-        } else {
-            return $response;
-        }
-        
-    }
+        $message ="<p>Hello Abdul Kura,</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>8976</h4>";
+        $ubject="LeverPay Test Email";
+        $email="oludarepatrick@gmail.com";
+        $response=ZeptomailService::sendMailZeptoMail($ubject ,$message, $email); 
+        return $response;
+    }*/
 
     public function testProvidus(Request $request){
         // return env('TERMII_API_KEY').'/PiPCreateDynamicAccountNumber';
@@ -247,17 +217,9 @@ class AuthController extends BaseController
         $user->verify_email_token = $verifyToken;
         $user->save();
 
-        $html = "
-        <p>Hello {$user['first_name']},</p>
-        <p style='margin-bottom: 8px'>
-            We are excited to have you here. Below is your verification token
-            </p>
-            <h4 style='margin-bottom: 8px'>
-                {$verifyToken}
-            </h4>
-        ";
-        // Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
-        SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
+        $message = "<p>Hello {$user['first_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
+        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $request['email']); 
+        //SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
 
         return response()->json('Email sent sucessfully', 200);
     }
