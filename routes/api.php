@@ -239,9 +239,9 @@ Route::prefix('v1')->group( function(){
 Route::prefix('v1/leverchain')->middleware('authorizationValidator')->group(function() {
     Route::post('transaction/initialize', [ExternalApiController::class, 'initialize']);
     Route::get('transaction/verify-request/{access_code}', [ExternalApiController::class, 'verifyRequest']);
-    Route::post('save-details', [ExternalApiController::class, 'saveDetails']);
-    Route::post('pay-with-transfer', [ExternalApiController::class, 'payWithTransfer']);
-    Route::post('pay-with-card', [ExternalApiController::class, 'payWithCard']);
+    Route::post('transaction/save-details', [ExternalApiController::class, 'saveDetails']);
+    Route::post('transaction/pay-with-transfer', [ExternalApiController::class, 'payWithTransfer']);
+    Route::post('transaction/pay-with-card', [ExternalApiController::class, 'payWithCard']);
 });
 
 

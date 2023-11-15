@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('card_payments', function (Blueprint $table) {
-            $table->uuid()->primary();
+            $table->uuid('uuid');
             $table->foreignId('card_id');
             $table->float('amount', 10, 2);
             $table->string('merchant_reference');
