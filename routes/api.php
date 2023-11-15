@@ -97,7 +97,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-total-transactions', [InvoiceController::class, 'getMerchantTransaction']);
             Route::get('/get-merchant-wallet', [WalletController::class, 'getMerchantWallet']);
             Route::get('/get-merchant-users-count', [MerchantController::class, 'getMerchantUsers']);
-            
+
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
                 Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
@@ -221,9 +221,9 @@ Route::prefix('v1')->group( function(){
             Route::post('fund-wallet', [AdminController::class,'fundWallet']);
 
             Route::post('total-delete', [AdminController::class,'totalDelete']);
-            
+
             Route::get('merchants-with-wallet-greater-than-zero', [AdminController::class,'getMerchantListForRemittance']);
-            Route::post('submit-payment', [AdminController::class,'submitPayment']); 
+            Route::post('submit-payment', [AdminController::class,'submitPayment']);
         });
     });
 
@@ -232,14 +232,16 @@ Route::prefix('v1')->group( function(){
             Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
         });
     });
-
-    // MERCHANT EXTERNAL API
-
-
 });
 
+
+ // MERCHANT EXTERNAL API
 Route::prefix('v1/leverchain')->middleware('authorizationValidator')->group(function() {
     Route::post('transaction/initialize', [ExternalApiController::class, 'initialize']);
+    Route::get('transaction/verify-request/{access_code}', [ExternalApiController::class, 'verifyRequest']);
+    Route::post('save-details', [ExternalApiController::class, 'saveDetails']);
+    Route::post('pay-with-transfer', [ExternalApiController::class, 'payWithTransfer']);
+    Route::post('pay-with-card', [ExternalApiController::class, 'payWithCard']);
 });
 
 

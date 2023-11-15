@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Merchant;
 
+use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use App\Models\Checkout;
+use App\Models\ExchangeRate;
 use App\Models\MerchantKeys;
+use App\Services\ProvidusService;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class ExternalApiController extends Controller
+class ExternalApiController extends BaseController
 {
     private $merchant;
 
@@ -42,13 +47,89 @@ class ExternalApiController extends Controller
         if(!$ref){
             $ref = strtolower(Str::random(30));
         }
+
+        $rates = ExchangeRate::latest()->first();
+        // $vat = $request->amount * ($rates->vat / 100);
+
+        $fee_percent = $currency == 'naira' ? $rates->local_transaction_rate : $rates->international_transaction_rate;
+        $fee = floatval($request->amount) * ($fee_percent / 100);
+
+        $code = Str::random(12);
+        $check = DB::table('checkouts')->where('access_code', $code)->first();
+        if($check){
+            $code = Str::random(24);
+        }
+
         $checkout = new Checkout();
         $checkout->merchant_id = $this->merchant->user_id;
         $checkout->amount = $request->amount;
+        $checkout->fee = $fee;
+        $checkout->total = floatval($request->amount) + $fee;
         $checkout->currency = $currency;
         $checkout->email = $request->email;
         $checkout->product = $request->product;
         $checkout->merchant_reference = $ref;
+        $checkout->access_code = $code;
+        $checkout->authorization_url = env('CHECKOUT_BASE_URL').'/'.$code;
+        $checkout->save();
 
+        return $this->successfulResponse($checkout);
+
+    }
+
+    public function verifyRequest($access_code){
+        $checkout = Checkout::where('access_code', strval($access_code))->first();
+        if(!$checkout) {
+            abort(400, 'Invalid access code');
+        }
+        // return $checkout->merchant;
+        $checkout['merchant'] = $checkout->merchant->merchant;
+        return $this->successfulResponse($checkout);
+    }
+//
+    public function saveDetails(Request $request){
+        $this->validate($request, [
+            'first_name'=> "required|string",
+            'last_name'=> "required|string",
+            'email'=> "required|string",
+            'phone'=> "required|string",
+            'access_code'=> "required|string",
+        ]);
+
+        $checkout = Checkout::where('access_code', $request->access_code)->first();
+        if(!$checkout) {
+            abort(400, 'Invalid access code');
+        }
+
+        $checkout->first_name = $request->first_name;
+        $checkout->last_name = $request->last_name;
+        $checkout->email = $request->email;
+        $checkout->phone = $request->phone;
+        $checkout->save();
+
+        return $this->successfulResponse($checkout, 'Details saved successfully');
+    }
+
+    public function payWithTransfer(Request $request){
+        $this->validate($request, [
+            'access_code' => 'required|string',
+        ]);
+        $checkout = Checkout::where('access_code', $request->access_code)->first();
+        if(!$checkout) {
+            abort(400, 'Invalid access code');
+        }
+
+        $providus = ProvidusService::generateDynamicAccount('LeverPay-'.$checkout->first_name.' '. $checkout->last_name);
+        $account = new Account();
+        $account->user_id = $checkout->merchant_id;
+        $account->bank = 'providus';
+        $account->amount = $checkout->amount;
+        $account->accountNumber = $providus->account_number;
+        $account->accountName = $providus->account_name;
+        $account->type = 'checkout';
+        $account->model_id = $checkout->uuid;
+        $account->save();
+
+        return $this->successfulResponse($account,'Account generated successfully');
     }
 }

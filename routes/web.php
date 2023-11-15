@@ -17,7 +17,7 @@ Route::get('/', function (){
 
     // php artisan optimize:clear
 
-    dd(env('PROVIDUS_BASEURL'));
+    dd(DB::table('exchange_rates')->get());
 
 
     // DB::table('admin_logins')->insert([

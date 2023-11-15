@@ -54,7 +54,7 @@ class WalletController extends BaseController
      *           type="string",
      *      )
      *   ),
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -135,7 +135,7 @@ class WalletController extends BaseController
             'reference'=>'nullable',
             'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
-        
+
         $topup = new TopupRequest;
         if($request->file('document'))
         {
@@ -599,7 +599,9 @@ class WalletController extends BaseController
             $account->type = 'topup';
         }else if($request->type == 'merchant'){
             $account->type = 'merchant';
-        }else{
+        }else if($request->type == 'checkout'){
+            $account->type = 'checkout';
+        } else{
             $account->type = 'other';
         }
         $account->save();
