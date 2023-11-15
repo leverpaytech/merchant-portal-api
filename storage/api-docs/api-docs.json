@@ -811,6 +811,67 @@
                 ]
             }
         },
+        "/api/v1/admin/fund-wallet": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Fund user wallet by admin",
+                "operationId": "Fund user wallet by admin",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "amount",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "reference": {
+                                        "type": "string"
+                                    },
+                                    "currency": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/send-mail-to-user": {
             "post": {
                 "tags": [
@@ -835,6 +896,145 @@
                                         "type": "string"
                                     },
                                     "message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/total-delete": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Total delete",
+                "operationId": "Total delete",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/merchants_with_wallet_greater_than_zero": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get merchant list with wallet balance > 0",
+                "operationId": "Get merchant list with wallet balance > 0",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/submit-payment": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Submit payment to merchant",
+                "operationId": "Submit payment to merchant",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "amount",
+                                    "date",
+                                    "time"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "string"
+                                    },
+                                    "currency": {
+                                        "type": "string"
+                                    },
+                                    "date": {
+                                        "type": "string"
+                                    },
+                                    "time": {
+                                        "type": "string"
+                                    },
+                                    "remarks": {
                                         "type": "string"
                                     }
                                 },
@@ -1691,80 +1891,6 @@
                 ]
             }
         },
-        "/api/v1/add-kyc": {
-            "post": {
-                "tags": [
-                    "KYC"
-                ],
-                "summary": "Add KYC document",
-                "operationId": "Add KYC document",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "document_name",
-                                    "document_link"
-                                ],
-                                "properties": {
-                                    "document_name": {
-                                        "type": "string"
-                                    },
-                                    "document_link": {
-                                        "type": "file"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/kyc-details": {
-            "get": {
-                "tags": [
-                    "KYC"
-                ],
-                "summary": "Get all kyc details",
-                "operationId": "Get all kyc details",
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
         "/api/v1/merchant/logout": {
             "get": {
                 "tags": [
@@ -1921,9 +2047,6 @@
                                     "price": {
                                         "type": "string"
                                     },
-                                    "quantity": {
-                                        "type": "string"
-                                    },
                                     "vat": {
                                         "type": "string"
                                     },
@@ -2024,6 +2147,112 @@
                 ]
             }
         },
+        "/api/v1/user/pay-invoice": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Pay invoice",
+                "operationId": "Pay new invoice",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/verify-invoices-otp": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Verify invoice otp",
+                "operationId": "Verify invoice otp",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid",
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "type": "string"
+                                    },
+                                    "otp": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/get-invoices": {
             "get": {
                 "tags": [
@@ -2031,6 +2260,44 @@
                 ],
                 "summary": "Get all merchants invoices",
                 "operationId": "get all merchants invoices",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-total-transactions": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant total transactions (monthly, weekly and daily)",
+                "operationId": "Get merchant total transactions (monthly, weekly and daily)",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/merchant-total-successfull-failed-transactions": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant total successfull and failed transactions",
+                "operationId": "Get merchant total successfull and failed transactions",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -2324,14 +2591,11 @@
                                 "required": [
                                     "document_type_id",
                                     "country_id",
-                                    "business_address",
-                                    "id_card_front",
-                                    "bvn",
-                                    "nin"
+                                    "id_card_front"
                                 ],
                                 "properties": {
                                     "document_type_id": {
-                                        "enum": "[1]"
+                                        "enum": "1"
                                     },
                                     "id_card_front": {
                                         "type": "file"
@@ -2340,7 +2604,10 @@
                                         "type": "file"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "enum": "1"
+                                    },
+                                    "state_id": {
+                                        "enum": "1"
                                     },
                                     "bvn": {
                                         "type": "string"
@@ -2397,6 +2664,25 @@
                 ],
                 "summary": "Get merchant kyc details",
                 "operationId": "Get merchant kyc details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-users-count": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant total active and inactive users",
+                "operationId": "Get merchant total active and inactive users",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -3465,6 +3751,25 @@
                 "security": [
                     {
                         "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/get-merchant-wallet": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant wallet balance",
+                "operationId": "get merchant  wallet balance",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "api_key": []
                     }
                 ]
             }

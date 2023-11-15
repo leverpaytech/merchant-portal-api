@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys};
+use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys, SubmitPayment};
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Card;
@@ -1201,7 +1201,55 @@ class AdminController extends BaseController
         return $this->successfulResponse([], 'Account successfully Deactivated');
     }
 
-    public function fundWallet(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/fund-wallet",
+     *   tags={"Admin"},
+     *   summary="Fund user wallet by admin",
+     *   operationId="Fund user wallet by admin",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"amount","email"}, 
+     *              @OA\Property( property="amount", type="string"),
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="reference", type="string"),
+     *              @OA\Property( property="currency", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function fundWallet(Request $request)
+    {
         $this->validate($request, [
             'amount'=>'required|numeric|min:1',
             'email'=>'required|email',
@@ -1327,7 +1375,52 @@ class AdminController extends BaseController
         return $this->successfulResponse($contact, 'Message successfully sent');
     }
 
-    public function totalDelete(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/total-delete",
+     *   tags={"Admin"},
+     *   summary="Total delete",
+     *   operationId="Total delete",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email"},
+     *              @OA\Property( property="email", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+    **/
+    public function totalDelete(Request $request)
+    {
         $this->validate($request,[
             'email'=>'required'
         ]);
@@ -1355,5 +1448,156 @@ class AdminController extends BaseController
 
         $user->delete();
         return $this->successfulResponse([], 'User deleted');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/merchants_with_wallet_greater_than_zero",
+     *   tags={"Admin"},
+     *   summary="Get merchant list with wallet balance > 0",
+     *   operationId="Get merchant list with wallet balance > 0",
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantListForRemittance()
+    {
+        User::join('merchants', 'merchants.user_id','=','users.id')
+            ->join('wallets', 'wallets.user_id', '=', 'users.id')
+            ->where('wallets.withdrawal_amount', '>', 0)
+            ->get([
+                'users.uuid',
+                'users.email',
+                'merchants.	business_name',
+                'merchants.	business_address',
+                'merchants.	business_phone',
+                'users.	first_name as contact_person',
+                'users.	phone as contact_person_phone',
+                'wallets.withdrawal_amount as naira_balance',
+                'wallets.dollar as dollar_balance'
+            ]);
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/submit-payment",
+     *   tags={"Admin"},
+     *   summary="Submit payment to merchant",
+     *   operationId="Submit payment to merchant",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"email","amount","date","time"},
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="amount", type="string"),
+     *              @OA\Property( property="currency", type="string"),
+     *              @OA\Property( property="date", type="string"),
+     *              @OA\Property( property="time", type="string"),
+     *              @OA\Property( property="remarks", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function submitPayment(Request $request)
+    {
+        $data = $this->validate($request, [
+            'email'=>'required|email|min:1',
+            'date'=>'required|date',
+            'amount'=>'required|numeric',
+            'time'=>'nullable|time',
+            'currency'=>'nullable|string',
+            'remarks'=>'nullable|string'
+        ]);
+        
+        $user = User::where('email', $data['email'])->with('merchant')->first();
+        
+        if(!$user)
+        {
+            return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
+        }
+
+        $merchant_id = $user->id;
+        $wallet=Wallet::where('user_id', $merchant_id)->get()->first();
+
+        if($data['currency']=="naira")
+        {
+            if($data['amount'] >= $wallet->withdrawable_amount)
+            {
+                return $this->sendError("Insufficient amount",[],400);
+            }
+            $column="withdrawable_amount";
+            $new_balance= ($wallet->withdrawable_amount-$data['amount']);
+        }
+        else{
+            if($data['amount'] >= $wallet->dollar )
+            {
+                return $this->sendError("Insufficient amount",[],400);
+            }
+            $column="dollar";
+            $new_balance= ($wallet->dollar-$data['amount']);
+        }
+
+        DB::transaction( function() use($data, $merchant_id,$new_balance,$column) {
+            
+            submitPayment::create($data);
+            Wallet::where('user_id',$merchant_id)
+                ->update(['".$column."'=>$new_balance]
+            );
+            
+        });
+
+        //sent create invoice notification to user
+        $html = "
+            <h2 style='margin-bottom: 8px'>Merchant Remittance Details</h2>
+            <div style='margin-bottom: 8px'>Amount: {$data['amount']} </div>
+            <div style='margin-bottom: 8px'>Currency: {$data['currency']} </div>
+            <div style='margin-bottom: 8px'>Date: {$data['date']} </div>
+            <div style='margin-bottom: 8px'>time: {$date['time']} </div>
+            <div style='margin-bottom: 8px'>Remarks: {$data['remarks']} </div>
+        ";
+
+        SmsService::sendSms("Dear {$user->merchant->business_name}, A Payment of  {$data['amount']}-{$data['currency']} has been made to your wallet", '234'.$user->merchant->busines_phone);
+
+        SmsService::sendMail("Dear {$user->merchant->business_name},", $html, "LeverPay Remittance", $data['email']);
+
+        return $this->successfulResponse([], 'Payment successfully sent');
+
+
     }
 }

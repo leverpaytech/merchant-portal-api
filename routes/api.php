@@ -49,6 +49,7 @@ Route::prefix('v1')->group( function(){
     });
 
     Route::post('/test-providus', [AuthController::class, 'testProvidus']);
+    Route::post('/test-zeptomail', [AuthController::class, 'testZeptoMail']);
     //get countries
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
@@ -93,6 +94,10 @@ Route::prefix('v1')->group( function(){
             Route::get('/product/{uuid}', [InvoiceController::class, 'getInvoice']);
             Route::get('get-invoices', [InvoiceController::class, 'getMerchantInvoices']);
 
+            Route::get('/get-merchant-total-transactions', [InvoiceController::class, 'getMerchantTransaction']);
+            Route::get('/get-merchant-wallet', [WalletController::class, 'getMerchantWallet']);
+            Route::get('/get-merchant-users-count', [MerchantController::class, 'getMerchantUsers']);
+            
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
                 Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
@@ -216,6 +221,9 @@ Route::prefix('v1')->group( function(){
             Route::post('fund-wallet', [AdminController::class,'fundWallet']);
 
             Route::post('total-delete', [AdminController::class,'totalDelete']);
+            
+            Route::get('merchants-with-wallet-greater-than-zero', [AdminController::class,'getMerchantListForRemittance']);
+            Route::post('submit-payment', [AdminController::class,'submitPayment']); 
         });
     });
 

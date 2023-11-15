@@ -23,7 +23,8 @@ class SmsService
         return $response;
     }
 
-    public static function sendMail($message,$html, $subject, $to,){
+    public static function sendMail($message,$html, $subject, $to,)
+    {
         $response = Http::withBasicAuth(env('MAILJET_API_KEY'), env('MAILJET_SECRET_KEY'))->withHeaders([
             'accept'=>'application/json',
             'content-type'=>'application/json'

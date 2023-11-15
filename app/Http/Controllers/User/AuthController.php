@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Mail\GeneralMail;
 use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
@@ -11,12 +12,15 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Services\CardService;
 use App\Services\SmsService;
+use App\Services\ZeptomailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends BaseController
 {
@@ -125,9 +129,12 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
-        // $data = $request->all();
+        //$nEmail="abdilkura".time()."@gmail.com";
+        //User::where('email','abdilkura@gmail.com')->update(['email'=>$nEmail]);
+        //User::where('phone','08136908764')->update(['phone'=>'08136908000']);
+        $data = $request->all();
 
-        $data = $this->validate($request, [
+        $validator = Validator::make($data, [
             'first_name' => 'required',
             'last_name' => 'required',
             'other_name' => 'nullable',
@@ -135,52 +142,41 @@ class AuthController extends BaseController
             'gender' => 'required',
             'email' => 'unique:users,email|required|email',
             'phone' => 'unique:users',
-            'state_id' => 'required|integer',
-            'city_id' => 'required|integer',
+            'state_id' => 'nullable|integer',
+            'city_id' => 'nullable|integer',
             'country_id' => 'required',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
-        $user = $this->createUser($data);
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
 
-        $data2['activity']="User Sign Up";
-        $data2['user_id']=$user->id;
-
-        ActivityLog::createActivity($data2);
-
-        return $this->successfulResponse(new UserResource($user), 'User successfully sign-up');
-    }
-
-    private function createUser($data)
-    {
         $verifyToken = rand(1000, 9999);
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
-        $user = User::create($data);
 
-        // send email
+        DB::transaction( function() use($data, $verifyToken) 
+        {
+            $user = User::create($data);
 
-        $html = "
-                <p>Hello {$data['first_name']} {$data['last_name']}</p>
-                <p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p>
-                <h2 style='margin-bottom: 8px'>
-                    {$verifyToken}
-                </h2>
-        ";
-        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $data['email']);
+            $data2['activity']="User Sign Up";
+            $data2['user_id']=$user->id;
 
-        //sent sign up notification to leverpay admin
-        $html2 = "
-            <2 style='margin-bottom: 8px'>User Details</h2>
-            <div style='margin-bottom: 8px'>User's Name: {$data['first_name']} {$data['last_name']} </div>
-            <div style='margin-bottom: 8px'>Email Address: {$data['email']} </div>
-            <div style='margin-bottom: 8px'>Phone Number: {$data['phone']} </div>
-        ";
-        $to="contact@leverpay.io";
+            ActivityLog::createActivity($data2);
         
-        SmsService::sendMail("", $html2, "new user sign up", $to);
+            // send email
+            $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
+            ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
+            
+            SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
+        });
 
-        return $user;
+        $uDetails=User::where('email', $data['email'])->get()->first();
+        
+        return $this->successfulResponse(new UserResource($uDetails), 'User successfully sign-up');
     }
+
 }

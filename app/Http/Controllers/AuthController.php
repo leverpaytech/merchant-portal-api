@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\GeneralMail;
 use App\Models\Account;
 use App\Models\Wallet;
 use App\Services\CardService;
@@ -19,6 +20,9 @@ use App\Mail\ForgotPasswordMail;
 use App\Services\ProvidusService;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use App\Services\ZeptomailService;
+
 class AuthController extends BaseController
 {
     protected $userModel;
@@ -34,6 +38,15 @@ class AuthController extends BaseController
     public function __construct(User $user) {
         $this->userModel = $user;
     }
+
+    /*public function testZeptoMail()
+    {
+        $message ="<p>Hello Abdul Kura,</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>8976</h4>";
+        $ubject="LeverPay Test Email";
+        $email="oludarepatrick@gmail.com";
+        $response=ZeptomailService::sendMailZeptoMail($ubject ,$message, $email); 
+        return $response;
+    }*/
 
     public function testProvidus(Request $request){
         // return env('TERMII_API_KEY').'/PiPCreateDynamicAccountNumber';
@@ -191,12 +204,16 @@ class AuthController extends BaseController
             'email'=>'required|email'
         ]);
         $user = User::where('email', $request['email'])->first();
+        
         if(!$user)
         {
            return $this->sendError('Email address not found',[],404);
+           exit();
         }
+
         if($user->verify_email_status){
             return $this->sendError('Email is already verified',[],400);
+            exit();
         }
 
         $verifyToken = rand(1000, 9999);
@@ -204,17 +221,9 @@ class AuthController extends BaseController
         $user->verify_email_token = $verifyToken;
         $user->save();
 
-        $html = "
-        <p>Hello {$user['first_name']},</p>
-        <p style='margin-bottom: 8px'>
-            We are excited to have you here. Below is your verification token
-            </p>
-            <h4 style='margin-bottom: 8px'>
-                {$verifyToken}
-            </h4>
-        ";
-        // Mail::to($request['email'])->send(new SendEmailVerificationCode($user['first_name'], $verifyToken));
-        $sms = SmsService::sendMail("",$html, "LeveryPay Verification Code", $request['email']);
+        $message = "<p>Hello {$user['first_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
+        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $request['email']); 
+        SmsService::sendSms("Hi {$user['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $user['phone']);
 
         return response()->json('Email sent sucessfully', 200);
     }
@@ -269,16 +278,18 @@ class AuthController extends BaseController
         ]);
 
         $user = User::where('email',$request['email'])
-                        ->where('verify_email_token', $request['token'])
-                        ->first();
+            ->where('verify_email_token', $request['token'])
+            ->first();
         if(!$user){
             return $this->sendError("invalid token, please try again",[], 401);
         }
 
         if($user->role_id == 1){
             MerchantKeyService::createKeys($user->id);
+            $subject="Merchant User Sign Up";
         }else{
             CardService::createCard($user['id']);
+            $subject="New User Sign Up";
         }
 
         $user->verify_email_token = bin2hex(random_bytes(15));
@@ -290,6 +301,13 @@ class AuthController extends BaseController
         $data2['activity']="VerifyEmail";
         $data2['user_id']=$user->id;
         ActivityLog::createActivity($data2);
+
+        //sent sign up notification to leverpay admin
+        $message="<h2 style='margin-bottom: 8px'>{$subject}</h2><div style='margin-bottom: 8px'>User's Name: {$user->first_name} {$user->last_name} </div><div style='margin-bottom: 8px'>Email Address: {$user->email} </div><div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>";
+        $to="contact@leverpay.io";
+        //$to="abdilkura@gmail.com";
+        ZeptomailService::sendMailZeptoMail($subject ,$message, $to); 
+        
 
         return $this->successfulResponse([], 'Email verified successfully');
     }
@@ -348,18 +366,10 @@ class AuthController extends BaseController
         $user->forgot_password_token = $verifyToken;
         $user->save();
 
-        $html = "
-        <p>Hello {$user['first_name']},</p>
-        <p style='margin-bottom: 8px'>
-        Below is your reset password token
-            </p>
-            <h4 style='margin-bottom: 8px'>
-                {$verifyToken}
-            </h4>
-        ";
+        $html="<p>Hello {$user['first_name']},</p><p style='margin-bottom: 8px'>Below is your reset password token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
 
-        // Mail::to($request['email'])->send(new ForgotPasswordMail($user['first_name'], $verifyToken));
-        $sms = SmsService::sendMail("",$html, "LeveryPay Forgot Password Code", $request['email']);
+        ZeptomailService::sendMailZeptoMail("LeveryPay Forgot Password Code", $html, $request['email']);
+        SmsService::sendSms("Your LeveryPay Forgot Password Token is {$verifyToken}. Please do not share, For enquiry: contact@leverpay.io", '234'.$user['phone']);
 
         return response()->json('Email sent sucessfully', 200);
     }

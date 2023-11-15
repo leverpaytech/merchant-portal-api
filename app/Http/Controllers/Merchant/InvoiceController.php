@@ -8,6 +8,7 @@ use App\Mail\SendEmailVerificationCode;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\SmsService;
+use App\Services\ZeptomailService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -20,6 +21,7 @@ use App\Models\ExchangeRate;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
+use Carbon\Carbon;
 
 class InvoiceController extends BaseController
 {
@@ -42,7 +44,6 @@ class InvoiceController extends BaseController
      *              @OA\Property( property="product_name", type="string"),
      *              @OA\Property( property="product_description", type="string"),
      *              @OA\Property( property="price", type="string"),
-     *              @OA\Property( property="quantity", type="string"),
      *              @OA\Property( property="vat", type="string"), 
      *              @OA\Property( property="currency", type="string"),
      *              @OA\Property( property="email", type="string")
@@ -84,13 +85,17 @@ class InvoiceController extends BaseController
             'product_description'=>'nullable|string',
             'price'=>'required|numeric',
             // 'product_image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
-            'quantity'=>'required|numeric|min:1',
+            //'quantity'=>'required|numeric|min:1',
             'email'=>'required|email',
             'vat'=>'required|numeric|min:0',
             'currency'=>'required|string'
         ]);
         
         $user = User::where('email', $data['email'])->first();
+        if(!$user)
+        {
+            return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
+        }
         if($user){
             $data['user_id'] = $user->id;
             $data['type'] = 1;
@@ -118,6 +123,9 @@ class InvoiceController extends BaseController
         $data['total'] = $cal + $fee;
         $data['fee'] = $fee;
 
+        $getMarchant=User::where('id', $merchantId)->with('merchant')->get()->first();
+        $merchant_business_name=$getMarchant->merchant->business_name;
+
         DB::transaction( function() use($data, $merchantId) {
 
             Invoice::create($data);
@@ -129,19 +137,15 @@ class InvoiceController extends BaseController
         });
 
         $invoice = Invoice::where('uuid', $data['uuid'])->first();
+        $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        // $html = "
-        //     <2 style='margin-bottom: 8px'>Invoice Details</h2>
-        //     <div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div>
-        //     <div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div>
-        //     <div style='margin-bottom: 8px'>Quantity: {$data['quantity']} </div>
-        //     <div style='margin-bottom: 8px'>Price: {$data['price']} </div>
-        //     <div style='margin-bottom: 8px'>vat: {$data['vat']} </div>
-        //     <div style='margin-bottom: 8px'>Total: {$data['total']} </div>
-        // ";
-        // SmsService::sendMail("", $html, "invoice notification", $data['email']);
-
+        $message="<h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$data['price']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>"; 
+        //"<div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>";
+        ZeptomailService::sendMailZeptoMail("invoice notification" ,$message, $data['email']); 
+        
+        
+    
         return $this->successfulResponse($invoice,"Invoice successfully created");
 
     }
@@ -176,7 +180,7 @@ class InvoiceController extends BaseController
     public function getInvoice($uuid)
     {
         $invoice = Invoice::query()->where('uuid',$uuid)->with(['merchant' => function ($query) {
-            $query->select('id','uuid', 'first_name','last_name','phone','email');
+            $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
         }])->with(['user' => function ($query) {
             $query->select('id','uuid', 'first_name','last_name','phone','email');
         }])->first();
@@ -223,7 +227,7 @@ class InvoiceController extends BaseController
         if($filter == 'pending'){
             $invoices = $invoices->where('status', 0)
                 ->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
@@ -231,20 +235,20 @@ class InvoiceController extends BaseController
         }else if($filter == 'paid'){
             $invoices = $invoices->where('status', 1)
                 ->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
         }else if($filter == 'cancelled'){
             $invoices = $invoices->where('status', 2)
                 ->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
         }else{
             $invoices = $invoices->with(['merchant' => function ($query) {
-                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->get();
@@ -252,7 +256,51 @@ class InvoiceController extends BaseController
 
         return $this->successfulResponse($invoices, '');
     }
-
+    
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/pay-invoice",
+     *   tags={"User"},
+     *   summary="Pay invoice",
+     *   operationId="Pay new invoice",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
     public function payInvoice(Request $request){
         $this->validate($request, [
             'uuid'=>'required|string'
@@ -300,18 +348,60 @@ class InvoiceController extends BaseController
         $invoice->save();
 
         $curr = $invoice['currency'] == 'dollar'?'$':'₦';
-        $content = "A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
+        $content="A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
-        // Mail::to($invoice->email)->send(new GeneralMail($content, 'OTP'));
-
+        ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email); 
 
         SmsService::sendSms("Dear {$invoice->user->first_name},A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$invoice->user->phone);
-
-        SmsService::sendMail("Dear {$invoice->user->first_name},", $content, "LeverPay Invoice OTP", $invoice->email);
-
+        
         return $this->successfulResponse([], 'OTP sent');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/verify-invoices-otp",
+     *   tags={"User"},
+     *   summary="Verify invoice otp",
+     *   operationId="Verify invoice otp",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid","otp"},
+     *              @OA\Property( property="uuid", type="string"),
+     *              @OA\Property( property="otp", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
     public function verifyInvoiceOTP(Request $request){
         $this->validate($request, [
             'uuid'=>'required|string',
@@ -411,25 +501,15 @@ class InvoiceController extends BaseController
 
             $invoice->status = 1;
             $invoice->save();
-            $html = "<p style='margin-bottom: 8px'>
-                    Dear {$invoice->user->first_name},
-                </p>
-                <p style='margin-bottom: 10px'>You have successfully paid an invoice of $total to {$invoice->merchant->first_name} {$invoice->merchant->last_name}</p>
+            $html="<p style='margin-bottom: 8px'>Dear {$invoice->user->first_name},</p><p style='margin-bottom: 10px'>You have successfully paid an invoice of $total to {$invoice->merchant->first_name} {$invoice->merchant->last_name}</p><p> Best regards, </p><p> Leverpay </p>";
 
-                <p> Best regards, </p>
-                <p> Leverpay </p>
-            ";
-
-            $html2 = "<p style='margin-bottom: 8px'>
-                    Dear {$invoice->merchant->first_name},
-                </p>
-                <p style='margin-bottom: 10px'>An invoice of $total sent to {$invoice->user->first_name} {$invoice->merchant->last_name} has been paid</p>
-
-                <p> Best regards, </p>
-                <p> Leverpay </p>
-            ";
-            SmsService::sendMail('', $html, 'Invoice Completed', $invoice->user->email);
-            SmsService::sendMail('', $html2, 'Invoice Completed', $invoice->merchant->email);
+            $html2="<p style='margin-bottom: 8px'>Dear {$invoice->merchant->first_name},</p><p style='margin-bottom: 10px'>An invoice of $total sent to {$invoice->user->first_name} {$invoice->merchant->last_name} has been paid</p><p> Best regards, </p><p> Leverpay </p>";
+            //mail to user
+            ZeptomailService::sendMailZeptoMail("Invoice Completed" ,$html, $invoice->user->email);
+            //mail to merchant
+            ZeptomailService::sendMailZeptoMail("Invoice Completed" ,$html2, $invoice->merchant->email);
+            //SmsService::sendMail('', $html, 'Invoice Completed', $invoice->user->email);
+            //SmsService::sendMail('', $html2, 'Invoice Completed', $invoice->merchant->email);
         });
 
         return $this->successfulResponse([], 'Invoice paid successfully');
@@ -468,5 +548,114 @@ class InvoiceController extends BaseController
         }
 
         return $this->successfulResponse($invoices, '');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-total-transactions",
+     *   tags={"Merchant"},
+     *   summary="Get merchant total transactions (monthly, weekly and daily)",
+     *   operationId="Get merchant total transactions (monthly, weekly and daily)",
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantTransaction()
+    {
+        $user_id=Auth::user()->id;
+        
+        $monthlyDollar=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'dollar')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total');
+
+        $weeklyDollar=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'dollar')
+            ->whereBetween('created_at', 
+                [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
+            )
+            ->sum('total');
+
+        $dailyDollar=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'dollar')
+            ->whereDate('created_at', Carbon::now()->format('Y-m-d'))
+            ->sum('total');
+
+        $monthlyNaira=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'naira')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->sum('total');
+
+        $weeklyNaira=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'naira')
+            ->whereBetween('created_at', 
+                [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
+            )->sum('total');
+
+        $dailyNaira=Invoice::where('merchant_id', $user_id)
+            ->where('currency', 'naira')
+            ->whereDate('created_at', Carbon::now()->format('Y-m-d'))
+            ->sum('total');
+
+        $totalTransaction=[
+            'dollar'=>[
+                'monthly'=>$monthlyDollar,
+                'weekly'=>$weeklyDollar,
+                'daily'=>$dailyDollar
+            ],
+            'naira'=>[
+                'monthly'=>$monthlyNaira,
+                'weekly'=>$weeklyNaira,
+                'daily'=>$dailyNaira
+            ]
+        ];
+
+        return $this->successfulResponse($totalTransaction, "merchant total transactions successfully retrieved");
+
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/merchant-total-successfull-failed-transactions",
+     *   tags={"Merchant"},
+     *   summary="Get merchant total successfull and failed transactions",
+     *   operationId="Get merchant total successfull and failed transactions",
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getTotalTransactions()
+    {
+        $user_id=Auth::user()->id;
+        
+        $success=Invoice::where('merchant_id', $user_id)
+            ->where('status', 1)
+            ->count();
+    
+        $failed=Invoice::where('merchant_id', $user_id)
+            ->where('status', 2)
+            ->count();
+
+        $totalTransaction=[
+            'total_successful_transactions'=>$success,
+            'total_failed_transactions'=>$failed
+        ];
+
+        return $this->successfulResponse($totalTransaction, "merchant total transactions successfully retrieved");
+
     }
 }

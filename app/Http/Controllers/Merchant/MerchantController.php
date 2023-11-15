@@ -352,12 +352,12 @@ class MerchantController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"document_type_id","country_id","business_address","id_card_front"},
-     *              @OA\Property( property="document_type_id", enum="[1]"),
+     *              required={"document_type_id","country_id","id_card_front"},
+     *              @OA\Property( property="document_type_id", enum="1"),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
-     *              @OA\Property( property="country_id", enum="[1]"),
-     *              @OA\Property( property="state_id", enum="[1]"),
+     *              @OA\Property( property="country_id", enum="1"),
+     *              @OA\Property( property="state_id", enum="1"),
      *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="nin", type="string"),
      *              @OA\Property( property="business_address", type="string"),
@@ -431,7 +431,7 @@ class MerchantController extends BaseController
         $data['id_card_front']=$idFront;
 
 
-        if($request->has('id_card_back'))
+        if($request->hasFile('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -439,7 +439,7 @@ class MerchantController extends BaseController
             $data['id_card_back']=$idBack;
         }
 
-        if($request->has('business_certificate'))
+        if($request->hasFile('business_certificate'))
         {
             $bsCert = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -487,6 +487,8 @@ class MerchantController extends BaseController
         $kycs=Kyc::join('countries','countries.id','=','kycs.country_id')
             ->join('document_types','document_types.id','=','kycs.document_type_id')
             ->where('user_id', $user_id)
+            ->orderByDesc('kycs.created_at')
+            ->limit(1)
             ->get([
                 'document_types.name',
                 'kycs.id_card_front',
@@ -503,4 +505,48 @@ class MerchantController extends BaseController
         return $this->successfulResponse($kycs, 'merchant kyc details successfully retrieved');
 
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-users-count",
+     *   tags={"Merchant"},
+     *   summary="Get merchant total active and inactive users",
+     *   operationId="Get merchant total active and inactive users",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    
+    public function getMerchantUsers()
+    {
+        $user_id=Auth::user()->id;
+
+        $activeUsers=User::join('invoices', 'invoices.merchant_id', '=', 'users.id')
+            ->where('invoices.merchant_id', $user_id)
+            ->where('users.status', 1)
+            ->count();
+        
+        $inActiveUsers=User::join('invoices', 'invoices.merchant_id', '=', 'users.id')
+            ->where('invoices.merchant_id', $user_id)
+            ->where('users.status', 0)
+            ->count();
+        $users=[
+            'total_active_users'=>$activeUsers,
+            'total_inactive_users'=>$inActiveUsers
+        ];
+
+        return $this->successfulResponse($users, 'merchant total users successfully retrieved');
+
+    }
+
+
+
+    
 }

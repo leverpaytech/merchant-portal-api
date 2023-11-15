@@ -385,6 +385,7 @@ class WalletController extends BaseController
                 'merchant',
                 'tnx_reference_no',
                 'amount',
+                'currency',
                 'transaction_details',
                 'balance',
                 'status',
@@ -604,5 +605,30 @@ class WalletController extends BaseController
         $account->save();
 
         return $this->successfulResponse($account,'Account generated successfully');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/get-merchant-wallet",
+     *   tags={"Merchant"},
+     *   summary="Get merchant wallet balance",
+     *   operationId="get merchant  wallet balance",
+     *
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"api_key": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantWallet()
+    {
+        // $user = User::find(1);
+        // return(Auth::user());
+        return $this->successfulResponse(Auth::user()->wallet, '');
     }
 }

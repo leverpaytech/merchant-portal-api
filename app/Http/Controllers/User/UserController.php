@@ -744,7 +744,7 @@ class UserController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        if($request->has('id_card_back'))
+        if($request->hasFile('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -892,7 +892,7 @@ class UserController extends BaseController
         )->getSecurePath();
         $data['id_card_front']=$idFront;
 
-        if($request->has('id_card_back'))
+        if($request->hasFile('id_card_back'))
         {
             $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
             ['folder'=>'leverpay/kyc']
@@ -939,6 +939,8 @@ class UserController extends BaseController
         $kycs=Kyc::join('document_types','document_types.id','=','kycs.document_type_id')
             ->where('user_id', $user_id)
             ->where('card_type', 2)
+            ->orderByDesc('kycs.created_at')
+            ->limit(1)
             ->get([
                 'kycs.utility_bill',
                 'document_types.name',
