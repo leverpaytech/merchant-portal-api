@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\CheckoutController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\AuthController;
@@ -25,6 +26,8 @@ use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\WebhookController;
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 use App\Http\Controllers\ContactUsController;
+use App\Http\Controllers\Merchant\ExternalApiController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -60,6 +63,9 @@ Route::prefix('v1')->group( function(){
     //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
     //Route::get('/on-boarding', [UserController::class, 'onBoarding']);
 
+    Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
+    Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
+
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
     Route::post('/resend-verification-email', [AuthController::class, 'resendVerificationEmail'])->name('verify-verification-email');
@@ -91,7 +97,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-total-transactions', [InvoiceController::class, 'getMerchantTransaction']);
             Route::get('/get-merchant-wallet', [WalletController::class, 'getMerchantWallet']);
             Route::get('/get-merchant-users-count', [MerchantController::class, 'getMerchantUsers']);
-            
+
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
                 Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
@@ -208,16 +214,16 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-details/{uuid}', [AdminController::class, 'getMerchantDetails']);
             Route::post('/activate-account', [AdminController::class, 'activate']);
             Route::post('/deactivate-account', [AdminController::class, 'deActivate']);
-            
+
             //send-mail-to-user
             Route::post('/send-mail-to-user', [AdminController::class, 'sendMailToUser']);
 
             Route::post('fund-wallet', [AdminController::class,'fundWallet']);
 
             Route::post('total-delete', [AdminController::class,'totalDelete']);
-            
+
             Route::get('merchants-with-wallet-greater-than-zero', [AdminController::class,'getMerchantListForRemittance']);
-            Route::post('submit-payment', [AdminController::class,'submitPayment']); 
+            Route::post('submit-payment', [AdminController::class,'submitPayment']);
         });
     });
 
@@ -226,8 +232,16 @@ Route::prefix('v1')->group( function(){
             Route::get('/logs', [ActivityLogController::class, 'index'])->name('activity.logs');
         });
     });
-
 });
 
+
+ // MERCHANT EXTERNAL API
+Route::prefix('v1/leverchain')->middleware('authorizationValidator')->group(function() {
+    Route::post('transaction/initialize', [ExternalApiController::class, 'initialize']);
+    Route::get('transaction/verify-request/{access_code}', [ExternalApiController::class, 'verifyRequest']);
+    Route::post('transaction/save-details', [ExternalApiController::class, 'saveDetails']);
+    Route::post('transaction/pay-with-transfer', [ExternalApiController::class, 'payWithTransfer']);
+    Route::post('transaction/pay-with-card', [ExternalApiController::class, 'payWithCard']);
+});
 
 

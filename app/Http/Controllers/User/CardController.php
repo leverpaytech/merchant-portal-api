@@ -115,11 +115,4 @@ class CardController extends BaseController
         )->getSecurePath();
 
     }
-
-    public function createCard(Request $request) {
-        $cardNumber = null;
-        $cvv = null;
-        $pin = null;
-    }
-
 }

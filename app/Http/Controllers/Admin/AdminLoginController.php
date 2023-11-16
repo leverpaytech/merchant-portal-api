@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\{ActivityLog,AdminLogin};
+use App\Models\AdminActivity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -74,27 +75,25 @@ class AdminLoginController extends BaseController
         {
             return $this->sendError('Error',$validator->errors(),422);
         }
-        
+
         if(!Auth::guard('admin')->attempt($data))
         {
             return $this->sendError("invalid login credentials",[], 401);
-            exit();
         }
-        
+
         config(['auth.guards.api.provider' => 'admins']);
-        
-        
+
+
         $admin = AdminLogin::find(auth()->guard('admin')->user()->id);
         $admin->last_seen_at = Carbon::now()->format('Y-m-d H:i:s');
         $admin->save();
 
         $data2['activity']="Admin Login";
-        $data2['user_id']=$admin->id;
-
-        ActivityLog::createActivity($data2);
+        $data2['admin_id']=$admin->id;
+        AdminActivity::createActivity($data2);
 
         $token = auth()->guard('admin')->user()->createToken('access_token');
-        
+
         return $this->successfulResponse([
             "admin" => $admin,
             "token" => $token->accessToken,
@@ -102,9 +101,9 @@ class AdminLoginController extends BaseController
         ], 'Logged in successfully');
 
 
-        
+
     }
-    
+
     /**
      * @OA\Post(
      ** path="/api/v1/admin/admin-forgot-password",
@@ -214,10 +213,10 @@ class AdminLoginController extends BaseController
 
         if ($validator->fails())
             return $this->sendError('Error',$validator->errors(),422);
-        
+
         $dminLogin = AdminLogin::where('email', 'development@leverpay.io')->get()->first();
 
-        if(!Hash::check($request->old_password, $dminLogin->password)) 
+        if(!Hash::check($request->old_password, $dminLogin->password))
         {
             return $this->sendError('Old password does not exist',[],400);
         }
@@ -227,11 +226,11 @@ class AdminLoginController extends BaseController
             return $this->sendError('Passwords does not match',[],400);
         }
 
-        if(Hash::check($request->new_password, $dminLogin->password)) 
+        if(Hash::check($request->new_password, $dminLogin->password))
         {
             return $this->sendError('New password can not be thesame with old password',[],400);
         }
-        
+
         $dminLogin->forgot_password_token=bin2hex(random_bytes(15));
         $dminLogin->password = bcrypt($request['new_password']);
         $dminLogin->save();
@@ -383,14 +382,14 @@ class AdminLoginController extends BaseController
     public function adminProfile()
     {
         config(['auth.guards.api.provider' => 'admins']);
-        
+
         //$admin = AdminLogin::find(auth()->guard('admin')->user()->id);
         $admin = AdminLogin::find(Auth::user()->id);
         if(!$admin)
         {
             return $this->sendError("Authourized user",[], 401);
         }
-        
+
         return response()->json([$admin,'admin profile successfully retrieved'], 200);
     }
 

@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
 
         'checkMerchantStatus' => \App\Http\Middleware\CheckMerchantStatus::class,
+        'authorizationValidator' => \App\Http\Middleware\AuthorizationValidator::class,
     ];
 }

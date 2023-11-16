@@ -15,6 +15,7 @@ use App\Models\UserBank;
 use App\Models\Wallet;
 use App\Services\ProvidusService;
 use App\Services\WalletService;
+use App\Services\ZeptomailService;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use Illuminate\Support\Facades\Mail;
@@ -1211,7 +1212,7 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"amount","email"}, 
+     *              required={"amount","email"},
      *              @OA\Property( property="amount", type="string"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="reference", type="string"),
@@ -1297,8 +1298,9 @@ class AdminController extends BaseController
         });
         $sym = $currency == 'naira' ? '₦': '$';
         $content = "You have received {$sym}{$request['amount']} ";
-        SmsService::sendMail("Dear {$user->first_name},", $content, "Wallet Credit", $user->email);
-
+        // SmsService::sendMail("Dear {$user->first_name},", $content, "Wallet Credit", $user->email);
+        ZeptomailService::sendMailZeptoMail("Wallet Credit" ,$content, $user->email);
+        $sms = SmsService::sendSms("Wallet Credit, $content", '234'.$user->phoneNumber);
         return $this->successfulResponse([], 'Wallet funded successfully');
     }
 
@@ -1456,7 +1458,7 @@ class AdminController extends BaseController
      *   tags={"Admin"},
      *   summary="Get merchant list with wallet balance > 0",
      *   operationId="Get merchant list with wallet balance > 0",
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -1544,9 +1546,9 @@ class AdminController extends BaseController
             'currency'=>'nullable|string',
             'remarks'=>'nullable|string'
         ]);
-        
+
         $user = User::where('email', $data['email'])->with('merchant')->first();
-        
+
         if(!$user)
         {
             return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
@@ -1574,12 +1576,12 @@ class AdminController extends BaseController
         }
 
         DB::transaction( function() use($data, $merchant_id,$new_balance,$column) {
-            
+
             submitPayment::create($data);
             Wallet::where('user_id',$merchant_id)
                 ->update(['".$column."'=>$new_balance]
             );
-            
+
         });
 
         //sent create invoice notification to user

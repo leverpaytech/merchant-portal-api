@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\Checkout;
 use App\Models\Investment;
 use App\Models\Transaction;
 use App\Models\User;
@@ -108,6 +109,33 @@ class WebhookController extends Controller
 
             SmsService::sendMail('', $html, 'Investment Successful', $user['email']);
 
+        }else if($account->type == 'checkout'){
+            $checkout = Checkout::where('uuid', $account->model_id)->first();
+            $checkout->status = 1;
+            $checkout->save();
+            $html = "
+            <p>Hello {$checkout['first_name']} {$checkout['last_name']},</p>
+            <p style='margin-bottom: 8px'>
+                You have successfully paid {$checkout['amount']} to {$checkout->merchant->merchant->business_name}
+                </p>
+            ";
+
+            $html2 = "
+            <p>Hello {$checkout->merchant->merchant->business_name},</p>
+            <p style='margin-bottom: 8px'>
+            {$checkout['first_name']} {$checkout['last_name']} has paid {$checkout['amount']} to you. Below is the payment details.
+                </p>
+                <p> Currency: {$checkout['currency']}</p>
+                <p> Amount: {$checkout['amount']}</p>
+                <p> Product: {$checkout['product']}</p>
+                <p> Merchant Reference: {$checkout['merchant_reference']}</p>
+                <p> Customer Name: {$checkout['first_name']} {$checkout['last_name']}</p>
+                <p> Email: {$checkout['email']}</p>
+                <p> Phone: {$checkout['phone']}</p>
+                <p> Payment Url: {$checkout['authorization_url']}</p>
+            ";
+            SmsService::sendMail('', $html, 'Payment Receipt', $checkout['email']);
+            SmsService::sendMail('', $html2, 'Payment Confirmation', $checkout->merchant->email);
         }else{
             // #100 is the bank VAT fee
             $t_amt = floatval($request['transactionAmount']) - 100;
@@ -134,7 +162,7 @@ class WebhookController extends Controller
             $account->status = 0;
 
         }else{
-            if($account->type == 'top'){
+            if($account->type == 'top' || $account->type == 'checkout'){
                 $account->accountNumber = rand(1,9999999999).'_'.$request['accountNumber'];
                 $account->status = 0;
             }

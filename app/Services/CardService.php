@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Card;
 use Illuminate\Support\Facades\Hash;
@@ -18,14 +19,20 @@ class CardService
         return $card;
     }
 
-    public function validateCredentials($card_no, $cvv, $pin){
-        $check = Card::where('user_id',Auth::id())->where('card_number',$card_no)->where('cvv', $cvv)->first();
+    public function validateCredentials($card_no, $cvv, $pin, $expiry): bool
+    {
+        $check = Card::where('user_id',Auth::id())
+            ->where('card_number',$card_no)
+            ->where('cvv', $cvv)
+            ->where('expiry', $expiry)
+            ->where('expiry', '>', Carbon::now())
+            ->first();
+
         if(!$check || !Hash::check($pin, $check->pin)){
-            return ['status'=>false, 'message'=>'Invalid card details'];
+            return false;
         }
 
         //code to check wallet balance goes here
-
-        return ['status'=>true];
+        return true;
     }
 }
