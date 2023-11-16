@@ -49,7 +49,7 @@ Route::prefix('v1')->group( function(){
     });
 
     Route::post('/test-providus', [AuthController::class, 'testProvidus']);
-    Route::post('/test-zeptomail', [AuthController::class, 'testZeptoMail']);
+    
     //get countries
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
@@ -78,6 +78,8 @@ Route::prefix('v1')->group( function(){
     Route::get('/invoice/{uuid}', [InvoiceController::class, 'getInvoice']);
 
     Route::prefix('/merchant')->group( function(){
+        //merchant external doc
+        Route::get('/swagger-json', [AuthController::class, 'getMerchantDocumentation']);
 
         Route::post('/signup', [MerchantAuthController::class, 'create'])->name('merchant.sign-up');
 

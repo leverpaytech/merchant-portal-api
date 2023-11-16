@@ -26,6 +26,54 @@ class ExternalApiController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/leverchain/transaction/initialize",
+     *   tags={"Lever Chain"},
+     *   summary="Initialize Transaction",
+     *   operationId="Initialize Transaction",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"amount"},
+     *              @OA\Property( property="amount", type="string"),
+     *              @OA\Property( property="merchant_reference", type="string"),
+     *              @OA\Property( property="currency", type="string"),
+     *              @OA\Property( property="product", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   },
+     *  
+     *)
+     **/
     public function initialize(Request $request){
         $this->validate($request, [
             'amount'=> 'required|numeric|min:1',
