@@ -378,7 +378,8 @@ class WalletController extends BaseController
     public function getUserTransaction()
     {
         $userId=Auth::user()->id;
-        $transaction=Transaction::where('user_id', $userId)
+        //$transaction=Transaction::where('user_id', $userId)
+        $transaction=Transaction::with('user')
             ->orderBy('created_at', 'DESC')
             ->get([
                 'reference_no',

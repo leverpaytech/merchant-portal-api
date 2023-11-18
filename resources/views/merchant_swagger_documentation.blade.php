@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Swagger Documentation</title>
+    <title>LeverChain Swagger Documentation</title>
 </head>
 <body>
     <!-- You can include any additional HTML structure or styling here -->
