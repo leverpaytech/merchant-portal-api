@@ -2370,6 +2370,35 @@
                 ]
             }
         },
+        "/api/v1/user/invoice-detatails/{uuid}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user invoice details by product uuid",
+                "operationId": "get user invoice details by product uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/get-merchant-profile": {
             "get": {
                 "tags": [
