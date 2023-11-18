@@ -378,7 +378,7 @@ class WalletController extends BaseController
     public function getUserTransaction()
     {
         $userId=Auth::user()->id;
-        $transaction=Transaction::join('users', 'users.id', '=', 'transactions.user_id')
+        $transactions=Transaction::join('users', 'users.id', '=', 'transactions.user_id')
             ->where('transactions.user_id', $userId)
             ->orderBy('transactions.created_at', 'DESC')
             ->get([
@@ -395,8 +395,12 @@ class WalletController extends BaseController
                 'transactions.created_at',
                 'users.email as email'
             ]);
-
-        return $this->successfulResponse($transaction, 'User transactions successfully retrieved');
+        $transactions->transform(function ($transaction)
+        {
+            return $transaction;
+        });
+        
+        return $this->successfulResponse($transactions, 'User transactions successfully retrieved');
     }
 
 

@@ -166,6 +166,8 @@ Route::prefix('v1')->group( function(){
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('transfer', [WalletController::class, 'transfer']);
             });
+
+            Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
         });
     });
 
