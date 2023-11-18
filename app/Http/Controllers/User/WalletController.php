@@ -378,21 +378,22 @@ class WalletController extends BaseController
     public function getUserTransaction()
     {
         $userId=Auth::user()->id;
-        //$transaction=Transaction::where('user_id', $userId)
-        $transaction=Transaction::with('user')
-            ->orderBy('created_at', 'DESC')
+        $transaction=Transaction::join('users', 'users.id', '=', 'transactions.user_id')
+            ->where('transactions.user_id', $userId)
+            ->orderBy('transactions.created_at', 'DESC')
             ->get([
-                'reference_no',
-                'merchant',
-                'tnx_reference_no',
-                'amount',
-                'currency',
-                'transaction_details',
-                'balance',
-                'status',
-                'type',
-                'extra AS other_details',
-                'created_at'
+                'transactions.reference_no',
+                'transactions.merchant',
+                'transactions.tnx_reference_no',
+                'transactions.amount',
+                'transactions.currency',
+                'transactions.transaction_details',
+                'transactions.balance',
+                'transactions.status',
+                'transactions.type',
+                'transactions.extra AS other_details',
+                'transactions.created_at',
+                'users.email as email'
             ]);
 
         return $this->successfulResponse($transaction, 'User transactions successfully retrieved');
