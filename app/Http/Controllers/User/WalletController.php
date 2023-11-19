@@ -395,10 +395,12 @@ class WalletController extends BaseController
                 'transactions.created_at',
                 'users.email'
             ]);
-        /*$transactions->transform(function ($transaction)
+        $transactions->transform(function ($transaction)
         {
+            $details=json_decode($transaction->transaction_details);
+            $transaction->transaction_details=$details;
             return $transaction;
-        });*/
+        });
         
         return $this->successfulResponse($transactions, 'User transactions successfully retrieved');
     }
