@@ -698,4 +698,35 @@ class InvoiceController extends BaseController
         }
         return $this->successfulResponse($invoice, 'Invoice successfully retrieved');
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/merchant-revenue-generated",
+     *   tags={"Merchant"},
+     *   summary="Get merchant revenue generated details",
+     *   operationId="get merchant revenue generated details",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantRevenue()
+    {
+        $user_id=Auth::user()->id;
+
+        $totalRevenue=Invoice::where('merchant_id', $user_id)
+            ->where('status', 1)
+            ->sum('total')
+            ->groupBy('currency');
+        $remitted=0;
+        $uremetted=0;
+        
+        return $this->successfulResponse($totalRevenue, 'Total revenue generated');
+    }
 }

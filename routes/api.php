@@ -100,6 +100,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-wallet', [WalletController::class, 'getMerchantWallet']);
             Route::get('/get-merchant-users-count', [MerchantController::class, 'getMerchantUsers']);
             Route::get('/merchant-total-successfull-failed-transactions', [InvoiceController::class, 'getTotalTransactions']);
+            Route::get('/merchant-revenue-generated', [InvoiceController::class, 'getMerchantRevenue']);
             
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
