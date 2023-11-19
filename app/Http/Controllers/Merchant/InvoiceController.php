@@ -722,8 +722,8 @@ class InvoiceController extends BaseController
 
         $totalRevenue=Invoice::where('merchant_id', $user_id)
             ->where('status', 1)
-            ->sum('total')
-            ->groupBy('currency');
+            ->groupBy('currency')
+            ->sum('total');
         $remitted=0;
         $uremetted=0;
         
