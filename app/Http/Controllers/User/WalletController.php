@@ -399,9 +399,9 @@ class WalletController extends BaseController
         {
             $details=json_decode($transaction->transaction_details);
 
-            if(!empty($details['invoice_uuid']))
+            if(!empty($details->invoice_uuid))
             {
-                $invoice_uuid=$details['invoice_uuid'];
+                $invoice_uuid=$details->invoice_uuid;
             
                 $transaction->transaction_details = Invoice::query()->where('uuid',$invoice_uuid)->with(['merchant' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
