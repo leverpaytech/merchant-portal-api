@@ -658,4 +658,76 @@ class InvoiceController extends BaseController
         return $this->successfulResponse($totalTransaction, "merchant total transactions successfully retrieved");
 
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/invoice-detatails/{uuid}",
+     *   tags={"User"},
+     *   summary="Get user invoice details by product uuid",
+     *   operationId="get user invoice details by product uuid",
+     *
+     * * @OA\Parameter(
+     *      name="uuid",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getUserInvoiceByUuid($uuid)
+    {
+        $invoice = Invoice::query()->where('uuid',$uuid)->with(['merchant' => function ($query) {
+            $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
+        }])->with(['user' => function ($query) {
+            $query->select('id','uuid', 'first_name','last_name','phone','email');
+        }])->first();
+
+        if(!$invoice){
+            return $this->sendError('Invoice not found',[],400);
+        }
+        return $this->successfulResponse($invoice, 'Invoice successfully retrieved');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/merchant/merchant-revenue-generated",
+     *   tags={"Merchant"},
+     *   summary="Get merchant revenue generated details",
+     *   operationId="get merchant revenue generated details",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantRevenue()
+    {
+        $user_id=Auth::user()->id;
+
+        $totalRevenue=Invoice::where('merchant_id', $user_id)
+            ->where('status', 1)
+            ->groupBy('currency')
+            ->sum('total');
+
+        $remitted=0;
+        $uremetted=0;
+        
+        return $this->successfulResponse($totalRevenue, 'Total revenue generated');
+    }
 }

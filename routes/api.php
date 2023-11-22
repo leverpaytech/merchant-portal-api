@@ -49,7 +49,7 @@ Route::prefix('v1')->group( function(){
     });
 
     Route::post('/test-providus', [AuthController::class, 'testProvidus']);
-    Route::post('/test-zeptomail', [AuthController::class, 'testZeptoMail']);
+    
     //get countries
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
@@ -79,6 +79,8 @@ Route::prefix('v1')->group( function(){
     Route::get('/invoice/{uuid}', [InvoiceController::class, 'getInvoice']);
 
     Route::prefix('/merchant')->group( function(){
+        //merchant external doc
+        Route::get('/swagger-json', [AuthController::class, 'getMerchantDocumentation']);
 
         Route::post('/signup', [MerchantAuthController::class, 'create'])->name('merchant.sign-up');
 
@@ -98,7 +100,9 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-total-transactions', [InvoiceController::class, 'getMerchantTransaction']);
             Route::get('/get-merchant-wallet', [WalletController::class, 'getMerchantWallet']);
             Route::get('/get-merchant-users-count', [MerchantController::class, 'getMerchantUsers']);
-
+            Route::get('/merchant-total-successfull-failed-transactions', [InvoiceController::class, 'getTotalTransactions']);
+            Route::get('/merchant-revenue-generated', [InvoiceController::class, 'getMerchantRevenue']);
+            
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
                 Route::get('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
@@ -165,6 +169,8 @@ Route::prefix('v1')->group( function(){
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('transfer', [WalletController::class, 'transfer']);
             });
+
+            Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
         });
     });
 

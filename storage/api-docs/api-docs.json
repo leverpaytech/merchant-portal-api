@@ -1944,9 +1944,7 @@
                                     "address",
                                     "business_name",
                                     "phone",
-                                    "country_id",
-                                    "state_id",
-                                    "city_id"
+                                    "country_id"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -1985,6 +1983,66 @@
                                     },
                                     "city_id": {
                                         "enum": "[1]"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/leverchain/transaction/initialize": {
+            "post": {
+                "tags": [
+                    "Lever Chain"
+                ],
+                "summary": "Initialize Transaction",
+                "operationId": "Initialize Transaction",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "type": "string"
+                                    },
+                                    "merchant_reference": {
+                                        "type": "string"
+                                    },
+                                    "currency": {
+                                        "type": "string"
+                                    },
+                                    "product": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -2298,6 +2356,54 @@
                 ],
                 "summary": "Get merchant total successfull and failed transactions",
                 "operationId": "Get merchant total successfull and failed transactions",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/invoice-detatails/{uuid}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user invoice details by product uuid",
+                "operationId": "get user invoice details by product uuid",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/merchant-revenue-generated": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant revenue generated details",
+                "operationId": "get merchant revenue generated details",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -2929,6 +3035,57 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/checkout/create-payment": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create Card Payment",
+                "operationId": "Create Card Payment",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "pin"
+                                ],
+                                "properties": {
+                                    "pin": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [

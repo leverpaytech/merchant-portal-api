@@ -455,5 +455,9 @@ class AuthController extends BaseController
         return response()->json('Password reset successfully', 200);
     }
 
-
+    public function getMerchantDocumentation()
+    {
+        // Return the Swagger documentation view
+        return view('merchant_swagger_documentation');
+    }
 }

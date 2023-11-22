@@ -9,7 +9,7 @@ use App\Models\Account;
 use App\Models\ActivityLog;
 use App\Models\TopupRequest;
 use App\Models\User;
-use App\Models\Wallet;
+use App\Models\{Wallet,Invoice};
 use App\Models\Transaction;
 use App\Models\Transfer;
 use App\Services\ProvidusService;
@@ -378,23 +378,42 @@ class WalletController extends BaseController
     public function getUserTransaction()
     {
         $userId=Auth::user()->id;
-        $transaction=Transaction::where('user_id', $userId)
-            ->orderBy('created_at', 'DESC')
+        $transactions=Transaction::join('users', 'users.id', '=', 'transactions.user_id')
+            ->where('transactions.user_id', $userId)
+            ->orderBy('transactions.created_at', 'DESC')
             ->get([
-                'reference_no',
-                'merchant',
-                'tnx_reference_no',
-                'amount',
-                'currency',
-                'transaction_details',
-                'balance',
-                'status',
-                'type',
-                'extra AS other_details',
-                'created_at'
+                'transactions.reference_no',
+                'transactions.merchant',
+                'transactions.tnx_reference_no',
+                'transactions.amount',
+                'transactions.currency',
+                'transactions.transaction_details',
+                'transactions.balance',
+                'transactions.status',
+                'transactions.type',
+                'transactions.extra AS other_details',
+                'transactions.created_at',
+                'users.email'
             ]);
+        $transactions->transform(function ($transaction)
+        {
+            $details=json_decode($transaction->transaction_details);
 
-        return $this->successfulResponse($transaction, 'User transactions successfully retrieved');
+            if(!empty($details->invoice_uuid))
+            {
+                $invoice_uuid=$details->invoice_uuid;
+            
+                $transaction->transaction_details = Invoice::query()->where('uuid',$invoice_uuid)->with(['merchant' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
+                }])->with(['user' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->first();
+            }
+
+            return $transaction;
+        });
+        
+        return $this->successfulResponse($transactions, 'User transactions successfully retrieved');
     }
 
 
