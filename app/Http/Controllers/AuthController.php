@@ -44,7 +44,7 @@ class AuthController extends BaseController
         $message ="<p>Hello Abdul Kura,</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>8976</h4>";
         $ubject="LeverPay Test Email";
         $email="oludarepatrick@gmail.com";
-        $response=ZeptomailService::sendMailZeptoMail($ubject ,$message, $email); 
+        $response=ZeptomailService::sendMailZeptoMail($ubject ,$message, $email);
         return $response;
     }*/
 
@@ -64,6 +64,27 @@ class AuthController extends BaseController
         $sms = SmsService::sendSms("Dear User, Your Leverpay One-time Confirmation code is 4567 and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$request['phoneNumber']);
         // $sms = SmsService::sendMail("Hello Lekan, Welcome to LeverPay", "Testing LeverPay Mail", 'ilelaboyealekan@gmail.com');
         return $sms;
+    }
+
+    public function verifyTransferTransaction(Request $request){
+        $this->validate($request, [
+            'uuid'=>'required',
+            'amount'=>'required',
+        ]);
+        $account = Account::where('uuid', $request['uuid'])->first();
+        if(!$account){
+            return $this->sendError("Account not found",[], 400);
+        }
+
+        if($account->status != 0){
+            return $this->sendError("Payment has not been received",[], 400);
+        }
+
+        if($request["amount"] < $account->amount){
+            return $this->sendError("Amount transfered is less than amount required, Please contact support",[], 400);
+        }
+
+        return $this->successfulResponse($account,"Payment received");
     }
 
     /**
@@ -116,7 +137,7 @@ class AuthController extends BaseController
 
         if(!Auth::attempt($user))
         {
-            return $this->sendError("invalid login credentials",[], 401);
+            return $this->sendError("Invalid login credentials",[], 401);
         }
 
         if(!Auth::user()->verify_email_status){
@@ -204,7 +225,7 @@ class AuthController extends BaseController
             'email'=>'required|email'
         ]);
         $user = User::where('email', $request['email'])->first();
-        
+
         if(!$user)
         {
            return $this->sendError('Email address not found',[],404);
@@ -222,7 +243,7 @@ class AuthController extends BaseController
         $user->save();
 
         $message = "<p>Hello {$user['first_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
-        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $request['email']); 
+        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $request['email']);
         SmsService::sendSms("Hi {$user['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $user['phone']);
 
         return response()->json('Email sent sucessfully', 200);
@@ -286,7 +307,7 @@ class AuthController extends BaseController
 
         if($user->role_id == 1){
             MerchantKeyService::createKeys($user->id);
-            $subject="Merchant User Sign Up";
+            $subject="Merchant Sign Up";
         }else{
             CardService::createCard($user['id']);
             $subject="New User Sign Up";
@@ -306,8 +327,8 @@ class AuthController extends BaseController
         $message="<h2 style='margin-bottom: 8px'>{$subject}</h2><div style='margin-bottom: 8px'>User's Name: {$user->first_name} {$user->last_name} </div><div style='margin-bottom: 8px'>Email Address: {$user->email} </div><div style='margin-bottom: 8px'>Phone Number: {$user->phone} </div>";
         $to="contact@leverpay.io";
         //$to="abdilkura@gmail.com";
-        ZeptomailService::sendMailZeptoMail($subject ,$message, $to); 
-        
+        ZeptomailService::sendMailZeptoMail($subject ,$message, $to);
+
 
         return $this->successfulResponse([], 'Email verified successfully');
     }

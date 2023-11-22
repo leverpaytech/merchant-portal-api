@@ -26,8 +26,8 @@ use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\WebhookController;
 use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 use App\Http\Controllers\ContactUsController;
-use App\Http\Controllers\Merchant\ExternalApiController;
-
+use App\Http\Controllers\External\CheckoutController as ExternalCheckout;
+use App\Http\Controllers\External\MerchantController as ExternalMerchant;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -75,6 +75,7 @@ Route::prefix('v1')->group( function(){
     Route::get('/currencies', [CurrencyController::class, 'getCurrencies']);
 
     Route::get('verify-transaction', [WalletController::class, 'verifyTransaction']);
+    Route::post('verify-transfer-transaction', [AuthController::class, 'verifyTransferTransaction']);
     Route::get('/invoice/{uuid}', [InvoiceController::class, 'getInvoice']);
 
     Route::prefix('/merchant')->group( function(){
@@ -100,7 +101,7 @@ Route::prefix('v1')->group( function(){
 
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
-                Route::post('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
+                Route::get('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
                 Route::post('/change-mode', [MerchantController::class, 'changeMode']);
                 Route::post('/create-invoice', [InvoiceController::class, 'createInvoice']);
                 Route::get('/get-merchant-account', [MerchantController::class, 'getMerchantAccount']);
@@ -236,12 +237,16 @@ Route::prefix('v1')->group( function(){
 
 
  // MERCHANT EXTERNAL API
-Route::prefix('v1/leverchain')->middleware('authorizationValidator')->group(function() {
-    Route::post('transaction/initialize', [ExternalApiController::class, 'initialize']);
-    Route::get('transaction/verify-request/{access_code}', [ExternalApiController::class, 'verifyRequest']);
-    Route::post('transaction/save-details', [ExternalApiController::class, 'saveDetails']);
-    Route::post('transaction/pay-with-transfer', [ExternalApiController::class, 'payWithTransfer']);
-    Route::post('transaction/pay-with-card', [ExternalApiController::class, 'payWithCard']);
+Route::prefix('v1/leverchain')->group(function() {
+
+    Route::middleware('authorizationValidator')->group(function () {
+        Route::post('transaction/initialize', [ExternalMerchant::class, 'initialize']);
+    });
+    Route::get('transaction/verify-request/{access_code}', [ExternalCheckout::class, 'verifyRequest']);
+    Route::post('transaction/save-details', [ExternalCheckout::class, 'saveDetails']);
+    Route::post('transaction/pay-with-transmerfer', [ExternalCheckout::class, 'payWithTransfer']);
+    Route::post('transaction/pay-with-card', [ExternalCheckout::class, 'payWithCard']);
+    Route::post('transaction/verify-card-otp', [ExternalCheckout::class, 'verifyCardOTP']);
 });
 
 

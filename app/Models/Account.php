@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\Uid\Ulid;
 
 class Account extends Model
 {
@@ -18,4 +19,12 @@ class Account extends Model
         "status",
         "model_id",
     ];
+
+    public static function boot(): void
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            $model->uuid = Ulid::generate();
+        });
+    }
 }
