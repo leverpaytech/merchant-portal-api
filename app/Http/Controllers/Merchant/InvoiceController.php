@@ -724,6 +724,7 @@ class InvoiceController extends BaseController
             ->where('status', 1)
             ->groupBy('currency')
             ->sum('total');
+
         $remitted=0;
         $uremetted=0;
         

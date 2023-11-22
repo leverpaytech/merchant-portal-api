@@ -1944,9 +1944,7 @@
                                     "address",
                                     "business_name",
                                     "phone",
-                                    "country_id",
-                                    "state_id",
-                                    "city_id"
+                                    "country_id"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -2387,6 +2385,25 @@
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/merchant/merchant-revenue-generated": {
+            "get": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get merchant revenue generated details",
+                "operationId": "get merchant revenue generated details",
                 "responses": {
                     "200": {
                         "description": "Success"

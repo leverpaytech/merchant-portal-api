@@ -83,7 +83,7 @@ class AuthController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "country_id", "state_id", "city_id"},
+     *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "country_id"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="other_name", type="string"),
@@ -141,8 +141,8 @@ class AuthController extends BaseController
             'email' => 'unique:users,email|required|email',
             'phone' => 'unique:users,phone',
             'business_name'=>'required|string|unique:merchants,business_name',
-            'state_id' => 'required|integer',
-            'city_id' => 'required|integer',
+            'state_id' => 'nullable|integer',
+            'city_id' => 'nullable|integer',
             'country_id' => 'required',
             'role_id' => 'nullable',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
