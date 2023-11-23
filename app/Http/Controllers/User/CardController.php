@@ -97,9 +97,9 @@ class CardController extends BaseController
      **/
     public function getCard()
     {
-        if(!Auth::user()->card){
-            return $this->sendError('No Available card',[],404);
-        }
+        // if(!Auth::user()->card){
+        //     return $this->sendError('No Available card',[],404);
+        // }
         return new CardResource(Auth::user()->card);
     }
 

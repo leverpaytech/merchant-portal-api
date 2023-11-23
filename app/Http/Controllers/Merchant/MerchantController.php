@@ -250,8 +250,7 @@ class MerchantController extends BaseController
      **/
     public function getMerchantKeys()
     {
-        $userId=Auth::user()->id;
-        $testKeys=MerchantKeys::where('user_id', $userId)
+        $testKeys=MerchantKeys::where('user_id', Auth::user()->id)
             ->get()
             ->first();
         return $this->successfulResponse($testKeys, '');
@@ -523,7 +522,7 @@ class MerchantController extends BaseController
      *
      *)
      **/
-    
+
     public function getMerchantUsers()
     {
         $user_id=Auth::user()->id;
@@ -532,7 +531,7 @@ class MerchantController extends BaseController
             ->where('invoices.merchant_id', $user_id)
             ->where('users.status', 1)
             ->count();
-        
+
         $inActiveUsers=User::join('invoices', 'invoices.merchant_id', '=', 'users.id')
             ->where('invoices.merchant_id', $user_id)
             ->where('users.status', 0)
@@ -548,5 +547,5 @@ class MerchantController extends BaseController
 
 
 
-    
+
 }

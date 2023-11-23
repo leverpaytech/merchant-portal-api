@@ -7,17 +7,30 @@ use Illuminate\Support\Facades\Request;
 use App\Models\User;
 #use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KycController;
-use App\Models\Transaction;
+use App\Models\CardPayment;
 use App\Services\SmsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Symfony\Component\Uid\Ulid;
+use Webpatser\Uuid\Uuid;
+use Carbon\Carbon;
 
 Route::get('/', function (){
 
+    $a = '22994004095959';
+    $a[0] = 3;
+    $a[1] = 4;
+    dd($a);
     // php artisan optimize:clear
-
-    dd(DB::table('exchange_rates')->get());
+    // dd(\Doctrine\DBAL\Types\Type::getTypesMap());
+    $cd = CardPayment::find('5a5a3906-a8ae-44d7-aced-9f42334580d0');
+    dd($cd->card_paymentable->merchant);
+    // dd(Carbon::now() < Carbon::parse('2023-11-21 11:36:47')->addMinutes(10));
+    // dd(Carbon::now());
+    // dd(Carbon::now()->addYears(3)->month .'/'.Carbon::now()->addYears(3)->year);
+    dd(Ulid::generate());
+    // dd(DB::table('exchange_rates')->get());/
 
 
     // DB::table('admin_logins')->insert([

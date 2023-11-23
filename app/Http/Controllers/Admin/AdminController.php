@@ -13,6 +13,7 @@ use App\Models\TopupRequest;
 use App\Models\Transfer;
 use App\Models\UserBank;
 use App\Models\Wallet;
+use App\Services\CardService;
 use App\Services\ProvidusService;
 use App\Services\WalletService;
 use App\Services\ZeptomailService;
@@ -478,6 +479,7 @@ class AdminController extends BaseController
 
         if($kyc->user->role_id == 0){
             Card::where('user_id', $kyc->user_id)->update(['type'=>$kyc->card_type]);
+            CardService::upgradeCardNumber($kyc->user_id, $kyc->card_type);
         }
         return $this->successfulResponse($kyc, 'Kyc approved successfully');
     }

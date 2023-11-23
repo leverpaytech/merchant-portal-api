@@ -7,7 +7,7 @@ namespace App\Services;
  */
 class ZeptomailService
 {
-    public static function sendMailZeptoMail($ubject ,$message, $email)
+    public static function sendMailZeptoMail($subject ,$message, $email)
     {
         $curl = curl_init();
 
@@ -23,7 +23,7 @@ class ZeptomailService
             CURLOPT_POSTFIELDS => '{
                 "from": { "address": "noreply@leverpay.io"},
                 "to": [{"email_address": {"address": '.$email.', "name": "LeverPay"}}],
-                "subject":'.$ubject.',
+                "subject":'.$subject.',
                 "htmlbody":"'.$message.'",
             }',
             CURLOPT_HTTPHEADER => array(

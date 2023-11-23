@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('access_code')->unique();
             $table->string('authorization_url');
             $table->string('merchant_reference')->nullable();
-            $table->integer('status')->default(0);
+            $table->enum('status',['PENDING','CANCELLED','SUCCESSFUL','UNKNOWN'])->default('PENDING');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('phone')->nullable();

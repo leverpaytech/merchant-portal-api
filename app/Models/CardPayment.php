@@ -10,10 +10,19 @@ class CardPayment extends Model
 {
     use HasFactory;
 
+    protected $hidden = ['id', 'card_paymentable_type', 'card_paymentable_id','card_id','otp'];
+
     protected $primaryKey = 'uuid';
 
     public function card(): BelongsTo
     {
         return $this->belongsTo(Card::class);
     }
+
+    // this morph class is for incase we have another use case for paying with card ( currently we use it only for checkout)
+    public function card_paymentable()
+    {
+        return $this->morphTo();
+    }
+
 }
