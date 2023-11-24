@@ -250,7 +250,7 @@ Route::prefix('v1/leverchain')->group(function() {
     });
     Route::get('transaction/verify-request/{access_code}', [ExternalCheckout::class, 'verifyRequest']);
     Route::post('transaction/save-details', [ExternalCheckout::class, 'saveDetails']);
-    Route::post('transaction/pay-with-transmerfer', [ExternalCheckout::class, 'payWithTransfer']);
+    Route::post('transaction/pay-with-transfer', [ExternalCheckout::class, 'payWithTransfer']);
     Route::post('transaction/pay-with-card', [ExternalCheckout::class, 'payWithCard']);
     Route::post('transaction/verify-card-otp', [ExternalCheckout::class, 'verifyCardOTP']);
 });

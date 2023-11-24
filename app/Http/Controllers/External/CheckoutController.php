@@ -22,6 +22,32 @@ use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends BaseController
 {
+    /**
+     * @OA\Get(
+     ** path="/api/v1/leverchain/transaction/verify-request/{access_code}",
+     *   tags={"ExternalApi"},
+     *   summary="Verify Request",
+     *   operationId="Verify request by access_code",
+     *
+     * * @OA\Parameter(
+     *      name="access_code",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
     public function verifyRequest($access_code){
         $checkout = Checkout::where('access_code', strval($access_code))->first();
         if(!$checkout) {
@@ -30,6 +56,55 @@ class CheckoutController extends BaseController
         return $this->successfulResponse([...$checkout->toArray(), 'merchant'=>$checkout->merchant->merchant->toArray()]);
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/leverchain/transaction/save-details",
+     *   tags={"ExternalApi"},
+     *   summary="Save Details",
+     *   operationId="Save Details",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"first_name","last_name","phone","email","access_code"},
+     *              @OA\Property( property="first_name", type="string"),
+     *              @OA\Property( property="last_name", type="string"),
+     *              @OA\Property( property="phone", type="string"),
+     *              @OA\Property( property="email", type="string"),
+     *              @OA\Property( property="access_code", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   },
+     *  
+     *)
+     **/
     public function saveDetails(Request $request){
         $this->validate($request, [
             'first_name'=> "required|string",
@@ -57,6 +132,51 @@ class CheckoutController extends BaseController
         return $this->successfulResponse($checkout, 'Details saved successfully');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/leverchain/transaction/pay-with-transfer",
+     *   tags={"ExternalApi"},
+     *   summary="Pay with transfer",
+     *   operationId="Pay with transfer",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"access_code"},
+     *              @OA\Property( property="access_code", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   },
+     *  
+     *)
+     **/
     public function payWithTransfer(Request $request){
         $this->validate($request, [
             'access_code' => 'required|string',
@@ -84,6 +204,54 @@ class CheckoutController extends BaseController
         return $this->successfulResponse($account,'Account generated successfully');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/leverchain/transaction/pay-with-card",
+     *   tags={"ExternalApi"},
+     *   summary="Pay with card",
+     *   operationId="Pay with card",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"card_number","cvv","access_code","expiry"},
+     *              @OA\Property( property="card_number", type="string"),
+     *              @OA\Property( property="cvv", type="string"),
+     *              @OA\Property( property="access_code", type="string"),
+     *              @OA\Property( property="expiry", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   },
+     *  
+     *)
+     **/
     public function payWithCard(Request $request){
         $this->validate($request, [
             'card_number' => 'required|numeric',
@@ -169,6 +337,52 @@ class CheckoutController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/leverchain/transaction/verify-card-otp",
+     *   tags={"ExternalApi"},
+     *   summary="Verify card otp",
+     *   operationId="Verify card otp",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"payment_id","otp"},
+     *              @OA\Property( property="payment_id", type="string"),
+     *              @OA\Property( property="otp", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   },
+     *  
+     *)
+     **/
     public function verifyCardOTP(Request $request){
         $this->validate($request, [
             'payment_id' => 'required|string',
