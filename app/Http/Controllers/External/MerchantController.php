@@ -69,7 +69,7 @@ class MerchantController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
     public function initialize(Request $request){

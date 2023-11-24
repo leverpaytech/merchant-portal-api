@@ -25,7 +25,11 @@ class CheckoutController extends BaseController
     /**
      * @OA\Get(
      ** path="/api/v1/leverchain/transaction/verify-request/{access_code}",
+<<<<<<< HEAD
      *   tags={"ExternalApi"},
+=======
+     *   tags={"Lever Chain"},
+>>>>>>> 84f2286035b3c9a3d029e83d733e850e3aa091b1
      *   summary="Verify Request",
      *   operationId="Verify request by access_code",
      *
@@ -56,10 +60,10 @@ class CheckoutController extends BaseController
         return $this->successfulResponse([...$checkout->toArray(), 'merchant'=>$checkout->merchant->merchant->toArray()]);
     }
 
-    /**
+     /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/save-details",
-     *   tags={"ExternalApi"},
+     *   tags={"Lever Chain"},
      *   summary="Save Details",
      *   operationId="Save Details",
      *
@@ -102,9 +106,10 @@ class CheckoutController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
+
     public function saveDetails(Request $request){
         $this->validate($request, [
             'first_name'=> "required|string",
@@ -132,10 +137,11 @@ class CheckoutController extends BaseController
         return $this->successfulResponse($checkout, 'Details saved successfully');
     }
 
+
     /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/pay-with-transfer",
-     *   tags={"ExternalApi"},
+     *   tags={"Lever Chain"},
      *   summary="Pay with transfer",
      *   operationId="Pay with transfer",
      *
@@ -174,9 +180,10 @@ class CheckoutController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
+
     public function payWithTransfer(Request $request){
         $this->validate($request, [
             'access_code' => 'required|string',
