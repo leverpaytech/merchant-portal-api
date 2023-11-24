@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserBank extends Model
+class UserReferral extends Model
 {
+    use HasFactory;
     use HasFactory;
     protected $fillable = [
         'id',
         'user_id',
-        'bank_id',
-        'account_no',
+        'referral_id',
         'status',
         'created_at',
         'updated_at'
@@ -21,8 +21,17 @@ class UserBank extends Model
     protected $hidden = [
         'id',
         'user_id',
-        'bank_id',
+        'referral_id',
         'created_at',
         'updated_at'
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function referer()
+    {
+        return $this->belongsTo(User::class, 'referral_id', 'id');
+    }
 }

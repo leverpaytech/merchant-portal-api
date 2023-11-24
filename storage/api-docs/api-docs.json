@@ -2308,6 +2308,9 @@
                                     },
                                     "city_id": {
                                         "enum": "[1]"
+                                    },
+                                    "referral_code": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -3205,6 +3208,9 @@
                                     },
                                     "city_id": {
                                         "enum": "[1]"
+                                    },
+                                    "referral_code": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -3901,6 +3907,44 @@
                 ],
                 "summary": "Get user enterprise card kyc details",
                 "operationId": "Get user enterprise card kyc details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-exchange-rates": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get exchange rate",
+                "operationId": "Get exchange rate",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-referral-code": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get referral code",
+                "operationId": "Get referral code",
                 "responses": {
                     "200": {
                         "description": "Success"

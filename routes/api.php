@@ -165,7 +165,9 @@ Route::prefix('v1')->group( function(){
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
 
             Route::post('generate-account', [WalletController::class, 'generateAccount']);
-
+            
+            Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
+            
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('transfer', [WalletController::class, 'transfer']);
             });

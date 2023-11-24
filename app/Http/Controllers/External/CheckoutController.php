@@ -25,11 +25,7 @@ class CheckoutController extends BaseController
     /**
      * @OA\Get(
      ** path="/api/v1/leverchain/transaction/verify-request/{access_code}",
-<<<<<<< HEAD
      *   tags={"ExternalApi"},
-=======
-     *   tags={"Lever Chain"},
->>>>>>> 84f2286035b3c9a3d029e83d733e850e3aa091b1
      *   summary="Verify Request",
      *   operationId="Verify request by access_code",
      *
@@ -63,7 +59,7 @@ class CheckoutController extends BaseController
      /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/save-details",
-     *   tags={"Lever Chain"},
+     *   tags={"ExternalApi"},
      *   summary="Save Details",
      *   operationId="Save Details",
      *
@@ -141,7 +137,7 @@ class CheckoutController extends BaseController
     /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/pay-with-transfer",
-     *   tags={"Lever Chain"},
+     *   tags={"ExternalApi"},
      *   summary="Pay with transfer",
      *   operationId="Pay with transfer",
      *

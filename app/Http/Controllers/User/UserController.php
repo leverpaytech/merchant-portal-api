@@ -1074,10 +1074,55 @@ class UserController extends BaseController
 
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-exchange-rates",
+     *   tags={"User"},
+     *   summary="Get exchange rate",
+     *   operationId="Get exchange rate",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
     public function getExchangeRates()
     {
         $rates = ExchangeRate::latest()->first();
         return $this->successfulResponse($rates, '');
+    }
+
+        /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-referral-code",
+     *   tags={"User"},
+     *   summary="Get referral code",
+     *   operationId="Get referral code",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getReferralCode()
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $user=User::where('id', $userId)->get(['referral_code'])->first();
+        
+        return response()->json($user, 200);
     }
 
 
