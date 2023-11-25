@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys, SubmitPayment};
+use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys, SubmitPayment,Remittance};
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Card;
@@ -1624,16 +1624,60 @@ class AdminController extends BaseController
      **/
     public function getMerchantAccount()
     {
+        
         $merchants=User::where('role_id', 1)->get(['id','first_name','last_name','phone','email']);
         
-        $merchants-transform(function ($merchant)
-        {
-            $sum=Invoice::where('id', $merchant->id)->where('status', 1)->groupBy->sum();
+        // $merchants->transform(function ($merchant)
+        // {
+        //     // $invioce=Invoice::where('merchant_id', $merchant->id)
+        //     //     ->groupBy('currency')
+        //     //     ->selectRaw('*, sum(total) as sum')
+        //     //     ->get();
+        //     // $merchant->invoice=$invioce;
+        //     $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->groupBy('currency')->sum('total');
             
-            $merchant->unpaid_amount=$sum;
+        //     $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
 
-            return $merchant;
-        });
+        //     if(($total_invoice-$amount_paid)>0)
+        //     {
+        //         $merchant['total_revenue']=$total_invoice;
+        //         $merchant['total_amount_paid']=$amount_paid;
+        //         $merchant['total_amount_unpaid']=($total_invoice-$amount_paid);
+
+
+        //         return $merchant;
+        //     }
+        //     else{
+        //         return "";
+        //     }
+            
+        // });
+
+        $merchants = $merchants->filter(function($merchant)
+        {
+            $getMerchantCurrency=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->get(['currency'])->first();
+            $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
+            $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
+
+            if(($total_invoice-$amount_paid)==0)
+            {
+                if(!empty($getMerchantCurrency))
+                {
+                    $merchant['currency']=$getMerchantCurrency->currency;
+                }
+                
+                $merchant['total_revenue']=$total_invoice;
+                $merchant['total_amount_paid']=$amount_paid;
+                
+                $merchant['total_amount_unpaid']=($total_invoice-$amount_paid);
+
+                return true; // Include
+            }
+            else{
+                return false; // Exclude
+            }
+            
+         });
 
         return $this->successfulResponse($merchants, 'Payment successfully sent');
     }
