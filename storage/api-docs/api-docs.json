@@ -3976,6 +3976,35 @@
                 ]
             }
         },
+        "/api/v1/user/get-referrals-by-code": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get referrals by referral code",
+                "operationId": "Get referrals by referral code",
+                "parameters": [
+                    {
+                        "name": "referral_code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/get-all-topup-requests": {
             "get": {
                 "tags": [
