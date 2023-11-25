@@ -1070,6 +1070,25 @@
                 ]
             }
         },
+        "/api/v1/admin/get-merchants-for-remittance": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get merchants for remittance",
+                "operationId": "Get merchants for remittance",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [

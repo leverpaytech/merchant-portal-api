@@ -236,6 +236,8 @@ Route::prefix('v1')->group( function(){
 
             Route::get('merchants-with-wallet-greater-than-zero', [AdminController::class,'getMerchantListForRemittance']);
             Route::post('submit-payment', [AdminController::class,'submitPayment']);
+            Route::get('get-merchants-for-remittance', [AdminController::class,'getMerchantAccount']);
+            
         });
     });
 

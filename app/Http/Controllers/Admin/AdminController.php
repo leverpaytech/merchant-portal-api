@@ -1604,4 +1604,37 @@ class AdminController extends BaseController
 
 
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-merchants-for-remittance",
+     *   tags={"Admin"},
+     *   summary="Get merchants for remittance",
+     *   operationId="Get merchants for remittance",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getMerchantAccount()
+    {
+        $merchants=User::where('role_id', 1)->get(['id','first_name','last_name','phone','email']);
+        
+        $merchants-transform(function ($merchant)
+        {
+            $sum=Invoice::where('id', $merchant->id)->where('status', 1)->groupBy->sum();
+            
+            $merchant->unpaid_amount=$sum;
+
+            return $merchant;
+        });
+
+        return $this->successfulResponse($merchants, 'Payment successfully sent');
+    }
 }
