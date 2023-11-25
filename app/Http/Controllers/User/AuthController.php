@@ -142,7 +142,7 @@ class AuthController extends BaseController
             'dob' => 'required',
             'gender' => 'required',
             'email' => 'unique:users,email|required|email',
-            'phone' => 'unique:users',
+            'phone' => 'required|unique:users',
             'state_id' => 'nullable|integer',
             'city_id' => 'nullable|integer',
             'country_id' => 'required',
@@ -184,9 +184,9 @@ class AuthController extends BaseController
         
             // send email
             $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
-            ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
+            //ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
             
-            SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
+            //SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         });
 
         $uDetails=User::where('email', $data['email'])->get()->first();

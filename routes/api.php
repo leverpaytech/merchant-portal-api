@@ -168,6 +168,8 @@ Route::prefix('v1')->group( function(){
             
             Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
             Route::get('get-referrals', [UserController::class, 'getReferrals']);
+            Route::get('get-referrals-by-code', [UserController::class, 'getReferralsByCode']);
+            
             
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('transfer', [WalletController::class, 'transfer']);
