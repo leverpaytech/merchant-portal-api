@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc};
+use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral};
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1097,7 +1097,7 @@ class UserController extends BaseController
         return $this->successfulResponse($rates, '');
     }
 
-        /**
+    /**
      * @OA\Get(
      ** path="/api/v1/user/get-referral-code",
      *   tags={"User"},
@@ -1123,6 +1123,34 @@ class UserController extends BaseController
         $user=User::where('id', $userId)->get(['referral_code'])->first();
         
         return response()->json($user, 200);
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-referrals",
+     *   tags={"User"},
+     *   summary="Get referrals",
+     *   operationId="Get referrals",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getReferrals()
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $user=UserReferral::where('referral_id', $userId)->with('user')->get();
+        
+        return $this->successfulResponse($user, 'referrals successfully retrieved');
     }
 
 

@@ -3957,6 +3957,25 @@
                 ]
             }
         },
+        "/api/v1/user/get-referrals": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get referrals",
+                "operationId": "Get referrals",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/get-all-topup-requests": {
             "get": {
                 "tags": [
