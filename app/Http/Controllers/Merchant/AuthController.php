@@ -140,7 +140,7 @@ class AuthController extends BaseController
             'dob' => 'nullable',
             'address' => 'required',
             'email' => 'unique:users,email|required|email',
-            'phone' => 'unique:users,phone',
+            'phone' => 'required|unique:users,phone',
             'business_name'=>'required|string|unique:merchants,business_name',
             'state_id' => 'nullable|integer',
             'city_id' => 'nullable|integer',
