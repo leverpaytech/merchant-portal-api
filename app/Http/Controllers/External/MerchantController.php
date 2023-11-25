@@ -27,7 +27,7 @@ class MerchantController extends BaseController
     /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/initialize",
-     *   tags={"ExternalApi"},
+     *   tags={"Merchant"},
      *   summary="Initialize Transaction",
      *   operationId="Initialize Transaction",
      *

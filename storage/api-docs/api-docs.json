@@ -1801,7 +1801,7 @@
         "/api/v1/leverchain/transaction/verify-request/{access_code}": {
             "get": {
                 "tags": [
-                    "ExternalApi"
+                    "CheckOut"
                 ],
                 "summary": "Verify Request",
                 "operationId": "Verify request by access_code",
@@ -1830,7 +1830,7 @@
         "/api/v1/leverchain/transaction/save-details": {
             "post": {
                 "tags": [
-                    "ExternalApi"
+                    "CheckOut"
                 ],
                 "summary": "Save Details",
                 "operationId": "Save Details",
@@ -1897,7 +1897,7 @@
         "/api/v1/leverchain/transaction/pay-with-transfer": {
             "post": {
                 "tags": [
-                    "ExternalApi"
+                    "CheckOut"
                 ],
                 "summary": "Pay with transfer",
                 "operationId": "Pay with transfer",
@@ -1948,7 +1948,7 @@
         "/api/v1/leverchain/transaction/pay-with-card": {
             "post": {
                 "tags": [
-                    "ExternalApi"
+                    "CheckOut"
                 ],
                 "summary": "Pay with card",
                 "operationId": "Pay with card",
@@ -2011,7 +2011,7 @@
         "/api/v1/leverchain/transaction/verify-card-otp": {
             "post": {
                 "tags": [
-                    "ExternalApi"
+                    "CheckOut"
                 ],
                 "summary": "Verify card otp",
                 "operationId": "Verify card otp",
@@ -2066,7 +2066,7 @@
         "/api/v1/leverchain/transaction/initialize": {
             "post": {
                 "tags": [
-                    "ExternalApi"
+                    "Merchant"
                 ],
                 "summary": "Initialize Transaction",
                 "operationId": "Initialize Transaction",
