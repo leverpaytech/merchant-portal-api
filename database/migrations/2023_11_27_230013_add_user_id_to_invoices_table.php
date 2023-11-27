@@ -14,8 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->dropUnique('invoices_user_id_foreign');
-            $table->dropColumn('user_id');
+            $table->bigInteger('user_id')->nullable();
         });
     }
 
