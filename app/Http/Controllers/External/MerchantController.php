@@ -10,6 +10,7 @@ use App\Models\MerchantKeys;
 use Illuminate\Support\Str;
 use DB;
 use App\Http\Controllers\BaseController;
+use Symfony\Component\Uid\Ulid;
 
 class MerchantController extends BaseController
 {
@@ -106,7 +107,7 @@ class MerchantController extends BaseController
         $fee_percent = $currency == 'naira' ? $rates->local_transaction_rate : $rates->international_transaction_rate;
         $fee = floatval($request->amount) * ($fee_percent / 100);
 
-        $code = Str::random(12);
+        $code = Ulid::generate();
         $check = DB::table('checkouts')->where('access_code', $code)->first();
         if($check){
             $code = Str::random(24);
