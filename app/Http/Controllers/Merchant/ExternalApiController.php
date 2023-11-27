@@ -71,7 +71,7 @@ class ExternalApiController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
     public function initialize(Request $request){
@@ -208,7 +208,7 @@ class ExternalApiController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
     public function saveDetails(Request $request){
@@ -276,7 +276,7 @@ class ExternalApiController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
     public function payWithTransfer(Request $request){
@@ -288,7 +288,7 @@ class ExternalApiController extends BaseController
             abort(400, 'Invalid access code');
         }
 
-        $providus = ProvidusService::generateDynamicAccount('LeverPay-'.$checkout->first_name.' '. $checkout->last_name);
+        $providus = ProvidusService::generateDynamicAccount($checkout->first_name.' '. $checkout->last_name);
         $account = new Account();
         $account->user_id = $checkout->merchant_id;
         $account->bank = 'providus';
