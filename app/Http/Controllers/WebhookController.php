@@ -111,7 +111,7 @@ class WebhookController extends Controller
 
         }else if($account->type == 'checkout'){
             $checkout = Checkout::where('uuid', $account->model_id)->first();
-            $checkout->status = 1;
+            $checkout->status = 'SUCCESSFUL';
             $checkout->save();
             $html = "
             <p>Hello {$checkout['first_name']} {$checkout['last_name']},</p>
@@ -162,7 +162,7 @@ class WebhookController extends Controller
             $account->status = 0;
 
         }else{
-            if($account->type == 'top' || $account->type == 'checkout'){
+            if($account->type == 'topup' || $account->type == 'checkout'){
                 $account->accountNumber = rand(1,9999999999).'_'.$request['accountNumber'];
                 $account->status = 0;
             }
