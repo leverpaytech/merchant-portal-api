@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc};
+use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral};
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1074,11 +1074,107 @@ class UserController extends BaseController
 
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-exchange-rates",
+     *   tags={"User"},
+     *   summary="Get exchange rate",
+     *   operationId="Get exchange rate",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
     public function getExchangeRates()
     {
         $rates = ExchangeRate::latest()->first();
         return $this->successfulResponse($rates, '');
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-referral-code",
+     *   tags={"User"},
+     *   summary="Get referral code",
+     *   operationId="Get referral code",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getReferralCode()
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $user=User::where('id', $userId)->get(['referral_code'])->first();
+        $countRef=UserReferral::where('referral_id', $userId)->count();
+
+        $result=[
+            'referral_code'=>$user->referral_code,
+            'total_point'=>($countRef*5)
+        ];
+
+        return response()->json($result, 200);
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/get-referrals",
+     *   tags={"User"},
+     *   summary="Get referrals",
+     *   operationId="Get referrals",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getReferrals()
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+        
+        $referrals=UserReferral::join('users', 'users.id', '=', 'user_referrals.user_id')
+            ->where('user_referrals.referral_id', $userId)
+            ->orderBy('user_referrals.updated_at', 'DESC')
+            ->get([
+                'user_referrals.created_at',
+                'users.first_name',
+                'users.last_name',
+                'users.phone',
+                'users.email',
+                'users.role_id as role'
+            ]);
+
+        $referrals->transform(function ($referral)
+        {
+            $referral->role=($referral->role==1?'Merchant':'User');
+            return $referral;
+        });
+
+        return $this->successfulResponse($referrals, 'referrals successfully retrieved');
+    }
+
+    
 
 }

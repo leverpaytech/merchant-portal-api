@@ -125,32 +125,7 @@ class ExternalApiController extends BaseController
 
     }
 
-    /**
-     * @OA\Get(
-     ** path="/api/v1/leverchain/transaction/verify-request/{access_code}",
-     *   tags={"Lever Chain"},
-     *   summary="Verify Request",
-     *   operationId="Verify request by access_code",
-     *
-     * * @OA\Parameter(
-     *      name="access_code",
-     *      in="path",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string",
-     *      )
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *     ),
-     *     security={
-     *       {"bearer_token": {}}
-     *     }
-     *
-     *)
-     **/
+
     public function verifyRequest($access_code)
     {
         $checkout = Checkout::where('access_code', strval($access_code))->first();

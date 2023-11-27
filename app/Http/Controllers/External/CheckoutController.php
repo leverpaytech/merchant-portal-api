@@ -25,7 +25,7 @@ class CheckoutController extends BaseController
     /**
      * @OA\Get(
      ** path="/api/v1/leverchain/transaction/verify-request/{access_code}",
-     *   tags={"Lever Chain"},
+     *   tags={"CheckOut"},
      *   summary="Verify Request",
      *   operationId="Verify request by access_code",
      *
@@ -59,7 +59,7 @@ class CheckoutController extends BaseController
      /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/save-details",
-     *   tags={"Lever Chain"},
+     *   tags={"CheckOut"},
      *   summary="Save Details",
      *   operationId="Save Details",
      *
@@ -137,7 +137,7 @@ class CheckoutController extends BaseController
     /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/pay-with-transfer",
-     *   tags={"Lever Chain"},
+     *   tags={"CheckOut"},
      *   summary="Pay with transfer",
      *   operationId="Pay with transfer",
      *
@@ -207,6 +207,54 @@ class CheckoutController extends BaseController
         return $this->successfulResponse($account,'Account generated successfully');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/leverchain/transaction/pay-with-card",
+     *   tags={"CheckOut"},
+     *   summary="Pay with card",
+     *   operationId="Pay with card",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"card_number","cvv","access_code","expiry"},
+     *              @OA\Property( property="card_number", type="string"),
+     *              @OA\Property( property="cvv", type="string"),
+     *              @OA\Property( property="access_code", type="string"),
+     *              @OA\Property( property="expiry", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   },
+     *  
+     *)
+     **/
     public function payWithCard(Request $request){
         $this->validate($request, [
             'card_number' => 'required|numeric',
@@ -292,6 +340,52 @@ class CheckoutController extends BaseController
         }
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/leverchain/transaction/verify-card-otp",
+     *   tags={"CheckOut"},
+     *   summary="Verify card otp",
+     *   operationId="Verify card otp",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"payment_id","otp"},
+     *              @OA\Property( property="payment_id", type="string"),
+     *              @OA\Property( property="otp", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   },
+     *  
+     *)
+     **/
     public function verifyCardOTP(Request $request){
         $this->validate($request, [
             'payment_id' => 'required|string',

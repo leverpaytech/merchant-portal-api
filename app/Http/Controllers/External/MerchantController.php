@@ -27,7 +27,7 @@ class MerchantController extends BaseController
     /**
      * @OA\Post(
      ** path="/api/v1/leverchain/transaction/initialize",
-     *   tags={"Lever Chain"},
+     *   tags={"Merchant"},
      *   summary="Initialize Transaction",
      *   operationId="Initialize Transaction",
      *
@@ -128,5 +128,4 @@ class MerchantController extends BaseController
         return $this->successfulResponse($checkout);
 
     }
-
 }

@@ -9,7 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
 use App\Models\User;
-use App\Models\Wallet;
+use App\Models\{Wallet,UserReferral};
 use App\Services\CardService;
 use App\Services\SmsService;
 use App\Services\ZeptomailService;
@@ -94,7 +94,8 @@ class AuthController extends BaseController
      *              @OA\Property( property="password", type="string"),
      *              @OA\Property( property="country_id", enum="[1]"),
      *              @OA\Property( property="state_id", enum="[1]"),
-     *              @OA\Property( property="city_id", enum="[1]")
+     *              @OA\Property( property="city_id", enum="[1]"),
+     *              @OA\Property( property="referral_code", type="string"),
      *          ),
      *      ),
      *   ),
@@ -141,10 +142,11 @@ class AuthController extends BaseController
             'dob' => 'required',
             'gender' => 'required',
             'email' => 'unique:users,email|required|email',
-            'phone' => 'unique:users',
+            'phone' => 'required|unique:users',
             'state_id' => 'nullable|integer',
             'city_id' => 'nullable|integer',
             'country_id' => 'required',
+            'referral_code'=> 'nullable',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
@@ -162,6 +164,19 @@ class AuthController extends BaseController
         {
             $user = User::create($data);
 
+            ////add referrals
+            if(!empty($data['referral_code']))
+            {
+                $referer=User::where('referral_code', $data['referral_code'])->get(['id'])->first();
+                if($referer)
+                {
+                    UserReferral::create([
+                        'user_id'=>$user->id,
+                        'referral_id'=>$referer->id
+                    ]);
+                }
+            }
+
             $data2['activity']="User Sign Up";
             $data2['user_id']=$user->id;
 
@@ -169,9 +184,9 @@ class AuthController extends BaseController
         
             // send email
             $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
-            ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
+            //ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
             
-            SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
+            //SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         });
 
         $uDetails=User::where('email', $data['email'])->get()->first();

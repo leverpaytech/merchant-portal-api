@@ -982,13 +982,13 @@
                 ]
             }
         },
-        "/api/v1/admin/merchants_with_wallet_greater_than_zero": {
+        "/api/v1/admin/get-merchants-for-remittance": {
             "get": {
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Get merchant list with wallet balance > 0",
-                "operationId": "Get merchant list with wallet balance > 0",
+                "summary": "Get merchants for remittance",
+                "operationId": "Get merchants for remittance",
                 "responses": {
                     "200": {
                         "description": "Success"
@@ -1001,40 +1001,216 @@
                 ]
             }
         },
-        "/api/v1/admin/submit-payment": {
+        "/api/v1/admin/create-new-voucher": {
             "post": {
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Submit payment to merchant",
-                "operationId": "Submit payment to merchant",
+                "summary": "Create new voucher",
+                "operationId": "Create new voucher",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "email",
-                                    "amount",
-                                    "date",
-                                    "time"
+                                    "code_no"
                                 ],
                                 "properties": {
-                                    "email": {
+                                    "code_no": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-all-vouchers": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all vouchers",
+                "operationId": "Get all voucher list",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-active-voucher": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get active voucher",
+                "operationId": "Get active voucher",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/schedule-merchant-for-payment": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add merchant to payment schedule list",
+                "operationId": "Add merchant to payment schedule list",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "voucher_id",
+                                    "user_id",
+                                    "amount",
+                                    "account_no",
+                                    "currency"
+                                ],
+                                "properties": {
+                                    "voucher_id": {
+                                        "type": "string"
+                                    },
+                                    "user_id": {
                                         "type": "string"
                                     },
                                     "amount": {
                                         "type": "string"
                                     },
+                                    "account_no": {
+                                        "type": "string"
+                                    },
                                     "currency": {
                                         "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-payment-schedule-list/{codeno}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get payment schedule list by voucher code no",
+                "operationId": "Get payment schedule list by voucher code no",
+                "parameters": [
+                    {
+                        "name": "code_no",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/complete-remittance": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Confirm and complete payment schedule list",
+                "operationId": "Confirm and complete payment schedule list",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "voucher_id"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "number",
+                                        "enum": [
+                                            "2",
+                                            "3",
+                                            "6"
+                                        ]
                                     },
-                                    "date": {
-                                        "type": "string"
-                                    },
-                                    "time": {
-                                        "type": "string"
-                                    },
-                                    "remarks": {
+                                    "voucher_id": {
                                         "type": "string"
                                     }
                                 },
@@ -1798,6 +1974,331 @@
                 ]
             }
         },
+        "/api/v1/leverchain/transaction/verify-request/{access_code}": {
+            "get": {
+                "tags": [
+                    "CheckOut"
+                ],
+                "summary": "Verify Request",
+                "operationId": "Verify request by access_code",
+                "parameters": [
+                    {
+                        "name": "access_code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/leverchain/transaction/save-details": {
+            "post": {
+                "tags": [
+                    "CheckOut"
+                ],
+                "summary": "Save Details",
+                "operationId": "Save Details",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "phone",
+                                    "email",
+                                    "access_code"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "access_code": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/leverchain/transaction/pay-with-transfer": {
+            "post": {
+                "tags": [
+                    "CheckOut"
+                ],
+                "summary": "Pay with transfer",
+                "operationId": "Pay with transfer",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "access_code"
+                                ],
+                                "properties": {
+                                    "access_code": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/leverchain/transaction/pay-with-card": {
+            "post": {
+                "tags": [
+                    "CheckOut"
+                ],
+                "summary": "Pay with card",
+                "operationId": "Pay with card",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "card_number",
+                                    "cvv",
+                                    "access_code",
+                                    "expiry"
+                                ],
+                                "properties": {
+                                    "card_number": {
+                                        "type": "string"
+                                    },
+                                    "cvv": {
+                                        "type": "string"
+                                    },
+                                    "access_code": {
+                                        "type": "string"
+                                    },
+                                    "expiry": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/leverchain/transaction/verify-card-otp": {
+            "post": {
+                "tags": [
+                    "CheckOut"
+                ],
+                "summary": "Verify card otp",
+                "operationId": "Verify card otp",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "payment_id",
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "payment_id": {
+                                        "type": "string"
+                                    },
+                                    "otp": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/leverchain/transaction/initialize": {
+            "post": {
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Initialize Transaction",
+                "operationId": "Initialize Transaction",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "amount": {
+                                        "type": "string"
+                                    },
+                                    "merchant_reference": {
+                                        "type": "string"
+                                    },
+                                    "currency": {
+                                        "type": "string"
+                                    },
+                                    "product": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/investment": {
             "post": {
                 "tags": [
@@ -1983,212 +2484,8 @@
                                     },
                                     "city_id": {
                                         "enum": "[1]"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/leverchain/transaction/initialize": {
-            "post": {
-                "tags": [
-                    "Lever Chain"
-                ],
-                "summary": "Initialize Transaction",
-                "operationId": "Initialize Transaction",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "amount"
-                                ],
-                                "properties": {
-                                    "amount": {
-                                        "type": "string"
                                     },
-                                    "merchant_reference": {
-                                        "type": "string"
-                                    },
-                                    "currency": {
-                                        "type": "string"
-                                    },
-                                    "product": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/leverchain/transaction/verify-request/{access_code}": {
-            "get": {
-                "tags": [
-                    "Lever Chain"
-                ],
-                "summary": "Verify Request",
-                "operationId": "Verify request by access_code",
-                "parameters": [
-                    {
-                        "name": "access_code",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/leverchain/transaction/save-details": {
-            "post": {
-                "tags": [
-                    "Lever Chain"
-                ],
-                "summary": "Save Details",
-                "operationId": "Save Details",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "first_name",
-                                    "last_name",
-                                    "phone",
-                                    "email",
-                                    "access_code"
-                                ],
-                                "properties": {
-                                    "first_name": {
-                                        "type": "string"
-                                    },
-                                    "last_name": {
-                                        "type": "string"
-                                    },
-                                    "phone": {
-                                        "type": "string"
-                                    },
-                                    "email": {
-                                        "type": "string"
-                                    },
-                                    "access_code": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/leverchain/transaction/pay-with-transfer": {
-            "post": {
-                "tags": [
-                    "Lever Chain"
-                ],
-                "summary": "Pay with transfer",
-                "operationId": "Pay with transfer",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "access_code"
-                                ],
-                                "properties": {
-                                    "access_code": {
+                                    "referral_code": {
                                         "type": "string"
                                     }
                                 },
@@ -3087,6 +3384,9 @@
                                     },
                                     "city_id": {
                                         "enum": "[1]"
+                                    },
+                                    "referral_code": {
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -3783,6 +4083,63 @@
                 ],
                 "summary": "Get user enterprise card kyc details",
                 "operationId": "Get user enterprise card kyc details",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-exchange-rates": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get exchange rate",
+                "operationId": "Get exchange rate",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-referral-code": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get referral code",
+                "operationId": "Get referral code",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/get-referrals": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get referrals",
+                "operationId": "Get referrals",
                 "responses": {
                     "200": {
                         "description": "Success"
