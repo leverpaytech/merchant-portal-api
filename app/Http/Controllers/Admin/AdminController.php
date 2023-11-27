@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys, SubmitPayment,Remittance};
+use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys, SubmitPayment,Remittance,Voucher};
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Card;
@@ -1374,7 +1374,8 @@ class AdminController extends BaseController
             </h4>
         ";
 
-        SmsService::sendMail($data['subject'], $html, "Message from LeverPay", $data['email']);
+        //SmsService::sendMail($data['subject'], $html, "Message from LeverPay", $data['email']);
+        ZeptomailService::sendMailZeptoMail("Message from LeverPay, ".$data['subject'], $html, $data['email']);
 
         return $this->successfulResponse($contact, 'Message successfully sent');
     }
@@ -1454,12 +1455,13 @@ class AdminController extends BaseController
         return $this->successfulResponse([], 'User deleted');
     }
 
+    
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/merchants_with_wallet_greater_than_zero",
+     ** path="/api/v1/admin/get-merchants-for-remittance",
      *   tags={"Admin"},
-     *   summary="Get merchant list with wallet balance > 0",
-     *   operationId="Get merchant list with wallet balance > 0",
+     *   summary="Get merchants for remittance",
+     *   operationId="Get merchants for remittance",
      *
      *   @OA\Response(
      *      response=200,
@@ -1471,41 +1473,62 @@ class AdminController extends BaseController
      *
      *)
      **/
-    public function getMerchantListForRemittance()
+    public function getMerchantAccount()
     {
-        User::join('merchants', 'merchants.user_id','=','users.id')
+        $merchants=User::join('merchants', 'merchants.user_id','=','users.id')
             ->join('wallets', 'wallets.user_id', '=', 'users.id')
-            ->where('wallets.withdrawal_amount', '>', 0)
+            ->where('wallets.withdrawable_amount', '>', 0)
             ->get([
+                'users.id',
                 'users.uuid',
                 'users.email',
-                'merchants.	business_name',
-                'merchants.	business_address',
-                'merchants.	business_phone',
-                'users.	first_name as contact_person',
-                'users.	phone as contact_person_phone',
-                'wallets.withdrawal_amount as naira_balance',
-                'wallets.dollar as dollar_balance'
+                'merchants.business_name',
+                'merchants.business_address',
+                'merchants.business_phone',
+                'users.first_name as contact_person',
+                'users.phone as contact_person_phone',
+                'wallets.withdrawable_amount'
             ]);
+    
+        $merchants = $merchants->filter(function($merchant)
+        {
+            $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
+            $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
+
+            $getCurrency=Wallet::where('user_id', $merchant->id)->get(['amount','dollar'])->first();
+        
+            if(($total_invoice-$amount_paid) > 0)
+            {
+                $merchant['currency']=($getCurrency->amount > 0)?"naira":"dollar";
+                
+                $merchant['total_revenue']=$total_invoice;
+                $merchant['tota_remitted']=$amount_paid;
+                
+                $merchant['total_unremitted']=floatval($total_invoice-$amount_paid);
+
+                return true; // Include
+            }
+            else{
+                return false; // Exclude
+            }
+            
+        });
+        
+        return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
     }
 
     /**
      * @OA\Post(
-     ** path="/api/v1/admin/submit-payment",
+     ** path="/api/v1/admin/create-new-voucher",
      *   tags={"Admin"},
-     *   summary="Submit payment to merchant",
-     *   operationId="Submit payment to merchant",
+     *   summary="Create new voucher",
+     *   operationId="Create new voucher",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","amount","date","time"},
-     *              @OA\Property( property="email", type="string"),
-     *              @OA\Property( property="amount", type="string"),
-     *              @OA\Property( property="currency", type="string"),
-     *              @OA\Property( property="date", type="string"),
-     *              @OA\Property( property="time", type="string"),
-     *              @OA\Property( property="remarks", type="string")
+     *              required={"code_no"},
+     *              @OA\Property( property="code_no", type="string")
      *          ),
      *      ),
      *   ),
@@ -1538,79 +1561,30 @@ class AdminController extends BaseController
      *   }
      *)
      **/
-    public function submitPayment(Request $request)
+    public function createNewVocher(Request $request)
     {
-        $data = $this->validate($request, [
-            'email'=>'required|email|min:1',
-            'date'=>'required|date',
-            'amount'=>'required|numeric',
-            'time'=>'nullable|time',
-            'currency'=>'nullable|string',
-            'remarks'=>'nullable|string'
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'code_no' => 'required|unique:vouchers,code_no'
         ]);
 
-        $user = User::where('email', $data['email'])->with('merchant')->first();
-
-        if(!$user)
+        if($validator->fails())
         {
-            return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
+            return $this->sendError('Error',$validator->errors(),422);
         }
+        
+        $newVoucher=Voucher::create(['code_no'=>$data['code_no']]);
 
-        $merchant_id = $user->id;
-        $wallet=Wallet::where('user_id', $merchant_id)->get()->first();
-
-        if($data['currency']=="naira")
-        {
-            if($data['amount'] >= $wallet->withdrawable_amount)
-            {
-                return $this->sendError("Insufficient amount",[],400);
-            }
-            $column="withdrawable_amount";
-            $new_balance= ($wallet->withdrawable_amount-$data['amount']);
-        }
-        else{
-            if($data['amount'] >= $wallet->dollar )
-            {
-                return $this->sendError("Insufficient amount",[],400);
-            }
-            $column="dollar";
-            $new_balance= ($wallet->dollar-$data['amount']);
-        }
-
-        DB::transaction( function() use($data, $merchant_id,$new_balance,$column) {
-
-            submitPayment::create($data);
-            Wallet::where('user_id',$merchant_id)
-                ->update(['".$column."'=>$new_balance]
-            );
-
-        });
-
-        //sent create invoice notification to user
-        $html = "
-            <h2 style='margin-bottom: 8px'>Merchant Remittance Details</h2>
-            <div style='margin-bottom: 8px'>Amount: {$data['amount']} </div>
-            <div style='margin-bottom: 8px'>Currency: {$data['currency']} </div>
-            <div style='margin-bottom: 8px'>Date: {$data['date']} </div>
-            <div style='margin-bottom: 8px'>time: {$date['time']} </div>
-            <div style='margin-bottom: 8px'>Remarks: {$data['remarks']} </div>
-        ";
-
-        SmsService::sendSms("Dear {$user->merchant->business_name}, A Payment of  {$data['amount']}-{$data['currency']} has been made to your wallet", '234'.$user->merchant->busines_phone);
-
-        SmsService::sendMail("Dear {$user->merchant->business_name},", $html, "LeverPay Remittance", $data['email']);
-
-        return $this->successfulResponse([], 'Payment successfully sent');
-
-
+        return $this->successfulResponse($newVoucher, 'new voucher successfully created');
     }
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-merchants-for-remittance",
+     ** path="/api/v1/admin/get-all-vouchers",
      *   tags={"Admin"},
-     *   summary="Get merchants for remittance",
-     *   operationId="Get merchants for remittance",
+     *   summary="Get all vouchers",
+     *   operationId="Get all voucher list",
      *
      *   @OA\Response(
      *      response=200,
@@ -1622,63 +1596,272 @@ class AdminController extends BaseController
      *
      *)
      **/
-    public function getMerchantAccount()
+    public function getAllVouchers()
     {
-        
-        $merchants=User::where('role_id', 1)->get(['id','first_name','last_name','phone','email']);
-        
-        // $merchants->transform(function ($merchant)
+        $all=Voucher::all();
+        return $this->successfulResponse($all, 'Voucher list successfully retrieved');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-active-voucher",
+     *   tags={"Admin"},
+     *   summary="Get active voucher",
+     *   operationId="Get active voucher",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getActiveVoucher()
+    {
+        $active=Voucher::where('status', 1)->get(['id','code_no']);
+        return $this->successfulResponse($active, 'Voucher list successfully retrieved');
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/schedule-merchant-for-payment",
+     *   tags={"Admin"},
+     *   summary="Add merchant to payment schedule list",
+     *   operationId="Add merchant to payment schedule list",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"voucher_id","user_id","amount","account_no"},
+     *              @OA\Property( property="voucher_id", type="string"),
+     *              @OA\Property( property="user_id", type="string"),
+     *              @OA\Property( property="amount", type="string"),
+     *              @OA\Property( property="account_no", type="string"),
+     *              @OA\Property( property="currency", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function addToRemittance(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'voucher_id' => 'required',
+            'user_id' => 'required',
+            'amount' => 'required|numeric',
+            'account_no' => 'required|numeric',
+            'currency' => 'nullable|string',
+        ]);
+
+        if($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        $remittance=Remittance::create($data);
+        WalletService::subtractFromWallet($data['user_id'], $data['amount'], $data['currency']);
+
+        return $this->successfulResponse($remittance, 'Merchant successfully added to payment schedule list');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-payment-schedule-list/{codeno}",
+     *   tags={"Admin"},
+     *   summary="Get payment schedule list by voucher code no",
+     *   operationId="Get payment schedule list by voucher code no",
+     *
+     * * * @OA\Parameter(
+     *      name="code_no",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getRemittanceByVoucherCode($code_no)
+    {
+        $checkpoint=Voucher::where('code_no',$code_no)->first();
+        if(!$checkpoint)
+            return $this->sendError("Invalid voucher codeno ".$code_no, [],400);
+
+        $results=Remittance::join('vouchers', 'vouchers.id', '=', 'remittances.voucher_id')
+            ->join('users', 'users.id', '=', 'remittances.user_id')
+            ->join('merchants', 'merchants.user_id', '=', 'users.id')
+            ->where('code_no', $code_no)
+            ->get([
+                'remittances.created_at',
+                'users.id',
+                'users.uuid',
+                'users.email',
+                'merchants.business_name',
+                'merchants.business_address',
+                'merchants.business_phone',
+                'users.first_name as contact_person',
+                'users.phone as contact_person_phone',
+                'remittances.amount',
+                'remittances.currency',
+                'remittances.account_no',
+                'remittances.status'
+            ]);
+
+        $results->transform(function ($result)
+        {
+            $result->status=($result->status==0)?"pending":(($result->status==1)?"completed":"cancel");
+            return $result;
+        });  
+
+        return $this->successfulResponse($results, $code_no." payment schedule list successfully retrieved");
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/complete-remittance",
+     *   tags={"Admin"},
+     *   summary="Confirm and complete payment schedule list",
+     *   operationId="Confirm and complete payment schedule list",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"user_id","voucher_id"},
+     *              @OA\Property(property="user_id", type="array"),
+     *              @OA\Property(property="voucher_id", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function completeRemittance(Request $request)
+    {
+        $data = $this->validate($request, [
+            'user_id'=>'required|array',
+            'voucher_id'=>'required'
+        ]);
+
+        //$user = User::where('email', $data['email'])->with('merchant')->first();
+        // if(!$user)
         // {
-        //     // $invioce=Invoice::where('merchant_id', $merchant->id)
-        //     //     ->groupBy('currency')
-        //     //     ->selectRaw('*, sum(total) as sum')
-        //     //     ->get();
-        //     // $merchant->invoice=$invioce;
-        //     $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->groupBy('currency')->sum('total');
-            
-        //     $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
+        //     return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
+        // }
 
-        //     if(($total_invoice-$amount_paid)>0)
+        // $merchant_id = $user->id;
+        // $wallet=Wallet::where('user_id', $merchant_id)->get()->first();
+
+        // if($data['currency']=="naira")
+        // {
+        //     if($data['amount'] >= $wallet->withdrawable_amount)
         //     {
-        //         $merchant['total_revenue']=$total_invoice;
-        //         $merchant['total_amount_paid']=$amount_paid;
-        //         $merchant['total_amount_unpaid']=($total_invoice-$amount_paid);
-
-
-        //         return $merchant;
+        //         return $this->sendError("Insufficient amount",[],400);
         //     }
-        //     else{
-        //         return "";
+        //     $column="withdrawable_amount";
+        //     $new_balance= ($wallet->withdrawable_amount-$data['amount']);
+        // }
+        // else{
+        //     if($data['amount'] >= $wallet->dollar )
+        //     {
+        //         return $this->sendError("Insufficient amount",[],400);
         //     }
-            
+        //     $column="dollar";
+        //     $new_balance= ($wallet->dollar-$data['amount']);
+        // }
+
+        // DB::transaction( function() use($data, $merchant_id,$new_balance,$column) {
+
+        //     submitPayment::create($data);
+        //     Wallet::where('user_id',$merchant_id)
+        //         ->update(['".$column."'=>$new_balance]
+        //     );
+
         // });
 
-        $merchants = $merchants->filter(function($merchant)
-        {
-            $getMerchantCurrency=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->get(['currency'])->first();
-            $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
-            $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
+        //sent create invoice notification to user
+        // $html = "
+        //     <h2 style='margin-bottom: 8px'>Merchant Remittance Details</h2>
+        //     <div style='margin-bottom: 8px'>Amount: {$data['amount']} </div>
+        //     <div style='margin-bottom: 8px'>Currency: {$data['currency']} </div>
+        //     <div style='margin-bottom: 8px'>Date: {$data['date']} </div>
+        //     <div style='margin-bottom: 8px'>time: {$date['time']} </div>
+        //     <div style='margin-bottom: 8px'>Remarks: {$data['remarks']} </div>
+        // ";
 
-            if(($total_invoice-$amount_paid)==0)
-            {
-                if(!empty($getMerchantCurrency))
-                {
-                    $merchant['currency']=$getMerchantCurrency->currency;
-                }
-                
-                $merchant['total_revenue']=$total_invoice;
-                $merchant['total_amount_paid']=$amount_paid;
-                
-                $merchant['total_amount_unpaid']=($total_invoice-$amount_paid);
+        // SmsService::sendSms("Dear {$user->merchant->business_name}, A Payment of  {$data['amount']}-{$data['currency']} has been made to your wallet", '234'.$user->merchant->busines_phone);
 
-                return true; // Include
-            }
-            else{
-                return false; // Exclude
-            }
-            
-         });
+        // SmsService::sendMail("Dear {$user->merchant->business_name},", $html, "LeverPay Remittance", $data['email']);
 
-        return $this->successfulResponse($merchants, 'Payment successfully sent');
+        return $this->successfulResponse($data['user_id'], 'Payment successfully completed');
+
+
     }
+
 }

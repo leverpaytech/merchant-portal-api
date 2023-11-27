@@ -167,9 +167,7 @@ Route::prefix('v1')->group( function(){
             Route::post('generate-account', [WalletController::class, 'generateAccount']);
             
             Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
-            Route::get('get-referrals', [UserController::class, 'getReferrals']);
-            Route::get('get-referrals-by-code', [UserController::class, 'getReferralsByCode']);
-            
+            Route::get('get-referrals', [UserController::class, 'getReferrals']);            
             
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('transfer', [WalletController::class, 'transfer']);
@@ -234,10 +232,14 @@ Route::prefix('v1')->group( function(){
 
             Route::post('total-delete', [AdminController::class,'totalDelete']);
 
-            Route::get('merchants-with-wallet-greater-than-zero', [AdminController::class,'getMerchantListForRemittance']);
-            Route::post('submit-payment', [AdminController::class,'submitPayment']);
+            //remittance endpoints
+            Route::post('complete-remittance', [AdminController::class,'completeRemittance']);
             Route::get('get-merchants-for-remittance', [AdminController::class,'getMerchantAccount']);
-            
+            Route::post('create-new-voucher', [AdminController::class,'createNewVocher']);
+            Route::get('get-all-vouchers', [AdminController::class,'getAllVouchers']);
+            Route::get('get-active-voucher', [AdminController::class,'getActiveVoucher']);
+            Route::post('schedule-merchant-for-payment', [AdminController::class,'addToRemittance']);
+            Route::get('get-payment-schedule-list/{codeno}', [AdminController::class,'getRemittanceByVoucherCode']);
         });
     });
 

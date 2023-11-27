@@ -982,25 +982,6 @@
                 ]
             }
         },
-        "/api/v1/admin/merchants_with_wallet_greater_than_zero": {
-            "get": {
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Get merchant list with wallet balance > 0",
-                "operationId": "Get merchant list with wallet balance > 0",
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
         "/api/v1/admin/submit-payment": {
             "post": {
                 "tags": [
@@ -1077,6 +1058,190 @@
                 ],
                 "summary": "Get merchants for remittance",
                 "operationId": "Get merchants for remittance",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/create-new-voucher": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create new voucher",
+                "operationId": "Create new voucher",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "code_no"
+                                ],
+                                "properties": {
+                                    "code_no": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-all-vouchers": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get all vouchers",
+                "operationId": "Get all voucher list",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-active-voucher": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get active voucher",
+                "operationId": "Get active voucher",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/schedule-merchant-for-payment": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Add merchant to payment schedule list",
+                "operationId": "Add merchant to payment schedule list",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "voucher_id",
+                                    "user_id",
+                                    "amount",
+                                    "account_no"
+                                ],
+                                "properties": {
+                                    "voucher_id": {
+                                        "type": "string"
+                                    },
+                                    "user_id": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "string"
+                                    },
+                                    "account_no": {
+                                        "type": "string"
+                                    },
+                                    "currency": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/get-payment-schedule-list/{codeno}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get payment schedule list by voucher code no",
+                "operationId": "Get payment schedule list by voucher code no",
+                "parameters": [
+                    {
+                        "name": "code_no",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"

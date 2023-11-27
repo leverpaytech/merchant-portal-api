@@ -1121,8 +1121,14 @@ class UserController extends BaseController
         $userId = Auth::user()->id;
 
         $user=User::where('id', $userId)->get(['referral_code'])->first();
-        
-        return response()->json($user, 200);
+        $countRef=UserReferral::where('referral_id', $userId)->count();
+
+        $result=[
+            'referral_code'=>$user->referral_code,
+            'total_point'=>($countRef*5)
+        ];
+
+        return response()->json($result, 200);
     }
 
     /**
@@ -1169,53 +1175,6 @@ class UserController extends BaseController
         return $this->successfulResponse($referrals, 'referrals successfully retrieved');
     }
 
-    /**
-     * @OA\Get(
-     ** path="/api/v1/user/get-referrals-by-code",
-     *   tags={"User"},
-     *   summary="Get referrals by referral code",
-     *   operationId="Get referrals by referral code",
-     *
-     * * * @OA\Parameter(
-     *      name="referral_code",
-     *      in="path",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string",
-     *      )
-     *   ),
-     * 
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *     ),
-     *     security={
-     *       {"bearer_token": {}}
-     *     }
-     *
-     *)
-     **/
-    public function getReferralsByCode($referralCode)
-    {
-        $referrals=UserReferral::join('users', 'users.id', '=', 'user_referrals.user_id')
-            ->where('users.referral_code', $referralCode)
-            ->orderBy('user_referrals.updated_at', 'DESC')
-            ->get([
-                'user_referrals.created_at',
-                'users.first_name',
-                'users.last_name',
-                'users.phone',
-                'users.email',
-                'users.role_id as role'
-            ]);
-
-        $referrals->transform(function ($referral)
-        {
-            $referral->role=($referral->role==1?'Merchant':'User');
-            return $referral;
-        });
-        
-        return $this->successfulResponse($referrals, 'referrals successfully retrieved');
-    }
+    
 
 }
