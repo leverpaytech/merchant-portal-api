@@ -54,9 +54,12 @@ class WebhookController extends Controller
             ];
         }
 
+        $account->amount_paid = $request['transactionAmount'];
+
         // DB::beginTransaction();
 
         // try {
+
         $web = new Webhook;
         $web->raw = json_encode($request->all());
         $web->sessionId = $request['sessionId'];
