@@ -982,75 +982,6 @@
                 ]
             }
         },
-        "/api/v1/admin/submit-payment": {
-            "post": {
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Submit payment to merchant",
-                "operationId": "Submit payment to merchant",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "amount",
-                                    "date",
-                                    "time"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string"
-                                    },
-                                    "amount": {
-                                        "type": "string"
-                                    },
-                                    "currency": {
-                                        "type": "string"
-                                    },
-                                    "date": {
-                                        "type": "string"
-                                    },
-                                    "time": {
-                                        "type": "string"
-                                    },
-                                    "remarks": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
         "/api/v1/admin/get-merchants-for-remittance": {
             "get": {
                 "tags": [
@@ -1174,7 +1105,8 @@
                                     "voucher_id",
                                     "user_id",
                                     "amount",
-                                    "account_no"
+                                    "account_no",
+                                    "currency"
                                 ],
                                 "properties": {
                                     "voucher_id": {
@@ -1245,6 +1177,66 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/complete-remittance": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Confirm and complete payment schedule list",
+                "operationId": "Confirm and complete payment schedule list",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "voucher_id"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "number",
+                                        "enum": [
+                                            "2",
+                                            "3",
+                                            "6"
+                                        ]
+                                    },
+                                    "voucher_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [
@@ -4148,35 +4140,6 @@
                 ],
                 "summary": "Get referrals",
                 "operationId": "Get referrals",
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/user/get-referrals-by-code": {
-            "get": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get referrals by referral code",
-                "operationId": "Get referrals by referral code",
-                "parameters": [
-                    {
-                        "name": "referral_code",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Success"

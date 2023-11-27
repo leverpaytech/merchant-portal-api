@@ -1635,7 +1635,7 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"voucher_id","user_id","amount","account_no"},
+     *              required={"voucher_id","user_id","amount","account_no","currency"},
      *              @OA\Property( property="voucher_id", type="string"),
      *              @OA\Property( property="user_id", type="string"),
      *              @OA\Property( property="amount", type="string"),
@@ -1682,7 +1682,7 @@ class AdminController extends BaseController
             'user_id' => 'required',
             'amount' => 'required|numeric',
             'account_no' => 'required|numeric',
-            'currency' => 'nullable|string',
+            'currency' => 'required|string',
         ]);
 
         if($validator->fails())
@@ -1691,7 +1691,7 @@ class AdminController extends BaseController
         }
 
         $remittance=Remittance::create($data);
-        WalletService::subtractFromWallet($data['user_id'], $data['amount'], $data['currency']);
+        
 
         return $this->successfulResponse($remittance, 'Merchant successfully added to payment schedule list');
     }
@@ -1768,7 +1768,7 @@ class AdminController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"user_id","voucher_id"},
-     *              @OA\Property(property="user_id", type="array"),
+     *              @OA\Property(property="user_id", type="number", enum={"2","3","6"}),
      *              @OA\Property(property="voucher_id", type="string"),
      *          ),
      *      ),
@@ -1804,62 +1804,48 @@ class AdminController extends BaseController
      **/
     public function completeRemittance(Request $request)
     {
-        $data = $this->validate($request, [
-            'user_id'=>'required|array',
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'user_id'=>'required',
             'voucher_id'=>'required'
         ]);
 
-        //$user = User::where('email', $data['email'])->with('merchant')->first();
-        // if(!$user)
-        // {
-        //     return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
-        // }
+        if($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+        //$data['user_id']=[3,3];
+        foreach($data['user_id'] as $userId)
+        {
+            $user = User::join('merchants','merchants.user_id','=','users.id')
+                ->where('users.id', $userId)
+                ->get(['users.email','users.phone','merchants.business_name'])
+                ->first();
 
-        // $merchant_id = $user->id;
-        // $wallet=Wallet::where('user_id', $merchant_id)->get()->first();
+            $findRmtnce=Remittance::where('user_id', $userId)->where('voucher_id', $data['voucher_id'])->get()->first();
+            $amount=$findRmtnce->amount;
+            $currency=$findRmtnce->currency;
 
-        // if($data['currency']=="naira")
-        // {
-        //     if($data['amount'] >= $wallet->withdrawable_amount)
-        //     {
-        //         return $this->sendError("Insufficient amount",[],400);
-        //     }
-        //     $column="withdrawable_amount";
-        //     $new_balance= ($wallet->withdrawable_amount-$data['amount']);
-        // }
-        // else{
-        //     if($data['amount'] >= $wallet->dollar )
-        //     {
-        //         return $this->sendError("Insufficient amount",[],400);
-        //     }
-        //     $column="dollar";
-        //     $new_balance= ($wallet->dollar-$data['amount']);
-        // }
+            $email=$user->email;
+            $phoneNumber=$user->phone;
+            $name=$user->business_name;
+            
 
-        // DB::transaction( function() use($data, $merchant_id,$new_balance,$column) {
+            WalletService::subtractFromWallet($userId, $amount, $currency);
 
-        //     submitPayment::create($data);
-        //     Wallet::where('user_id',$merchant_id)
-        //         ->update(['".$column."'=>$new_balance]
-        //     );
-
-        // });
-
-        //sent create invoice notification to user
-        // $html = "
-        //     <h2 style='margin-bottom: 8px'>Merchant Remittance Details</h2>
-        //     <div style='margin-bottom: 8px'>Amount: {$data['amount']} </div>
-        //     <div style='margin-bottom: 8px'>Currency: {$data['currency']} </div>
-        //     <div style='margin-bottom: 8px'>Date: {$data['date']} </div>
-        //     <div style='margin-bottom: 8px'>time: {$date['time']} </div>
-        //     <div style='margin-bottom: 8px'>Remarks: {$data['remarks']} </div>
-        // ";
-
-        // SmsService::sendSms("Dear {$user->merchant->business_name}, A Payment of  {$data['amount']}-{$data['currency']} has been made to your wallet", '234'.$user->merchant->busines_phone);
-
-        // SmsService::sendMail("Dear {$user->merchant->business_name},", $html, "LeverPay Remittance", $data['email']);
-
-        return $this->successfulResponse($data['user_id'], 'Payment successfully completed');
+            $findRmtnce->payment_date=date('Y-m-d h:i:s');
+            $findRmtnce->status=1;
+            $findRmtnce->save();
+        
+            //send mail and sms
+            $sym = $currency == 'naira' ? '₦': '$';
+            $content = "Dear {$name}, {$sym}{$amount} was paid to your account by leverpay.io";
+            ZeptomailService::sendMailZeptoMail("Levrepay Payment Notification" ,$content, $email);
+            SmsService::sendSms("Levrepay Payment Notification, $content", '234'.$phoneNumber);
+        }
+        
+        return $this->successfulResponse([], 'Payment successfully completed');
 
 
     }
