@@ -109,7 +109,9 @@ class InvoiceController extends BaseController
 
         $data['currency']=strtolower($data['currency']);
 
+        $sym = '₦';
         if($data['currency'] == 'dollar'){
+            $sym = '$';
             $fee = $request['price'] * ($currency->international_transaction_rate / 100);
         }else if($data['currency'] == 'naira'){
             $fee = $request['price'] * ($currency->local_transaction_rate / 100);
@@ -140,7 +142,7 @@ class InvoiceController extends BaseController
         $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        $message="<h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$data['price']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>";
+        $message="<h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$sym}{$data['price']} </div><div style='margin-bottom: 8px'>Payment Url: {$data['url']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>";
         //"<div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>";
         ZeptomailService::sendMailZeptoMail("invoice notification" ,$message, $data['email']);
 
