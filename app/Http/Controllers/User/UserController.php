@@ -754,6 +754,11 @@ class UserController extends BaseController
 
         $user=Kyc::create($data);
 
+        if (!$user)
+        {
+            return $this->sendError('Error',$user,422);
+        }
+
         $data2['activity']="User kyc for gold card upgrade";
         $data2['user_id']=$user_id;
 
