@@ -304,6 +304,9 @@ class AdminController extends BaseController
         $topup->status = 1;
         $topup->save();
 
+        $content="Dear {$uer->first_name}, The topup request for {$topup->amount} has been approved";
+        ZeptomailService::sendMailZeptoMail("Topup Request Approval" ,$content, $user->email);
+
         return $this->successfulResponse([], 'Request approved');
     }
 
@@ -367,8 +370,16 @@ class AdminController extends BaseController
             return $this->sendError("Topup request is already processed",[], 400);
         }
 
+        $user = User::find($topup->user_id);
+        if(!$user){
+            //abort(400, 'User not found');
+            return $this->sendError("User not found",[], 400);
+        }
         $topup->status = 2;
         $topup->save();
+
+        $content="Dear {$uer->first_name}, the topup request for {$topup->amount} has been declined, contact our support with further evidence for help";
+        ZeptomailService::sendMailZeptoMail("Topup Request Declined" ,$content, $user->email);
 
         return $this->successfulResponse([], 'Request cancelled');
     }
