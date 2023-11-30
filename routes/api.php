@@ -169,9 +169,9 @@ Route::prefix('v1')->group( function(){
             Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
             Route::get('get-referrals', [UserController::class, 'getReferrals']);            
             
-            Route::middleware('checkMerchantStatus')->group(function () {
-                Route::post('transfer', [WalletController::class, 'transfer']);
-            });
+            //Route::middleware('checkMerchantStatus')->group(function () {
+                Route::post('transfer', [WalletController::class, 'transfer']); 
+            //});
 
             Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
         });
