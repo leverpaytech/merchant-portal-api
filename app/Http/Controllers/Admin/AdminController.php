@@ -306,7 +306,7 @@ class AdminController extends BaseController
 
     /**
      * @OA\Post(
-     ** path="/api/v1/admin/cacel-topup-request",
+     ** path="/api/v1/admin/cancel-topup-request",
      *   tags={"Admin"},
      *   summary="cacel topup request",
      *   operationId="cancel topup request",

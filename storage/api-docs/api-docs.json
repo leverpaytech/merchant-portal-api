@@ -197,7 +197,7 @@
                 ]
             }
         },
-        "/api/v1/admin/cacel-topup-request": {
+        "/api/v1/admin/cancel-topup-request": {
             "post": {
                 "tags": [
                     "Admin"

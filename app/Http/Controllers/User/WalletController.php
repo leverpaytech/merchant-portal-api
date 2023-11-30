@@ -14,6 +14,7 @@ use App\Models\Transaction;
 use App\Models\Transfer;
 use App\Services\ProvidusService;
 use App\Services\SmsService;
+use App\Services\ZeptomailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -173,7 +174,8 @@ class WalletController extends BaseController
         ";
         $to="contact@leverpay.io";
 
-        SmsService::sendMail("", $html2, "user funding request notification", $to);
+        //SmsService::sendMail("", $html2, "user funding request notification", $to);
+        ZeptomailService::sendMailZeptoMail("user funding request notification", $html2, $to);
 
         return $this->successfulResponse([], 'Topup request submitted successfulss');
     }
@@ -498,9 +500,9 @@ class WalletController extends BaseController
         $content = "A request to transfer {$request['amount']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
         // Mail::to($user->email)->send(new GeneralMail($content, 'OTP'));
-        SmsService::sendSms("Dear {$user->first_name},A request to transfer {$request['amount']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$user->phone);
+        SmsService::sendSms("Dear {$user->first_name}, A request to transfer {$request['amount']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$user->phone);
 
-        SmsService::sendMail("Dear {$user->first_name},", $content, "LeverPay Transfer OTP", $user->email);
+        ZeptomailService::sendMailZeptoMail("LeverPay Transfer OTP " ,"Dear {$user->first_name}, ".$content, $user->email);
 
         $data2['activity']="You submitted a request to transfer {$request['amount']}";
         $data2['user_id']=$user->id;
@@ -591,7 +593,8 @@ class WalletController extends BaseController
         SmsService::sendMail("Dear {$user->first_name},", $content, "Transfer Successful", $user->email);
 
         $content = "You have received {$request['amount']} from {$user->first_name} {$user->last_name}";
-        SmsService::sendMail("Dear {$trans->recipient->first_name},", $content, "Wallet Credit", $trans->receiver_id);
+        //SmsService::sendMail("Dear {$trans->recipient->first_name},", $content, "Wallet Credit", $trans->receiver_id);
+        ZeptomailService::sendMailZeptoMail("Wallet Credit", "Dear {$trans->recipient->first_name}, ".$content, $trans->receiver_id);
 
         return $this->successfulResponse([], 'Transfer successful');
     }
