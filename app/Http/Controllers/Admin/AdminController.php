@@ -1489,7 +1489,7 @@ class AdminController extends BaseController
                 'users.phone as contact_person_phone',
                 'wallets.withdrawable_amount'
             ]);
-        $date=date('d/m/y');
+        
         $merchants = $merchants->filter(function($merchant)
         {
             $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
@@ -1507,7 +1507,7 @@ class AdminController extends BaseController
                 $merchant['last_remitted']=isset($last_remmited->amount)?$last_remmited->amount:0;
                 
                 $merchant['total_unremitted']=floatval($total_invoice-$amount_paid);
-                $merchant['date']=$date;
+                $merchant['date']=date('d/m/y');
 
                 return true; // Include
             }
