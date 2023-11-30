@@ -153,7 +153,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
             Route::get('get-all-topup-requests', [WalletController::class, 'getAllTopupRequests']);
-            Route::post('cancel-topup-request', [WalletController::class, 'cancelTopupRequest']);
+            
 
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
@@ -214,7 +214,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-topup-request/{uuid}', [AdminController::class, 'getTopupRequest']);
             Route::get('/get-topup-requests', [AdminController::class, 'getAllTopupRequests']);
             Route::post('/approve-topup-request', [AdminController::class, 'approveTopupRequest']);
-
+            Route::post('cancel-topup-request', [WalletController::class, 'cancelTopupRequest']);
+            
             //contact us
             Route::get('/get-contact-us-messages', [AdminController::class, 'getContactUsForms']);
             Route::post('/reply-message', [AdminController::class, 'replyMessage']);
@@ -241,6 +242,8 @@ Route::prefix('v1')->group( function(){
             Route::get('get-active-voucher', [AdminController::class,'getActiveVoucher']);
             Route::post('schedule-merchant-for-payment', [AdminController::class,'addToRemittance']);
             Route::get('get-payment-schedule-list/{codeno}', [AdminController::class,'getRemittanceByVoucherCode']);
+            
+
         });
     });
 
