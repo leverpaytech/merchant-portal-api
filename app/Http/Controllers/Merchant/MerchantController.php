@@ -424,26 +424,30 @@ class MerchantController extends BaseController
 
         $data['user_id']=$user_id;
 
-        $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-        $data['id_card_front']=$idFront;
-
-
-        if($request->hasFile('id_card_back'))
-        {
-            $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
+        try{
+            $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
             )->getSecurePath();
-            $data['id_card_back']=$idBack;
-        }
+            $data['id_card_front']=$idFront;
 
-        if($request->hasFile('business_certificate'))
-        {
-            $bsCert = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-            )->getSecurePath();
-            $data['business_certificate']=$bsCert;
+
+            if($request->hasFile('id_card_back'))
+            {
+                $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
+                )->getSecurePath();
+                $data['id_card_back']=$idBack;
+            }
+
+            if($request->hasFile('business_certificate'))
+            {
+                $bsCert = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
+                )->getSecurePath();
+                $data['business_certificate']=$bsCert;
+            }
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage());
         }
         $data['card_type'] = 100;
 

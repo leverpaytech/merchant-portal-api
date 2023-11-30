@@ -733,23 +733,27 @@ class UserController extends BaseController
         $data['user_id']=$user_id;
         $data['card_type']=2; //gold
 
-        $passport = cloudinary()->upload($request->file('passport')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-        $data['passport']=$passport;
-
-
-        $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-        $data['id_card_front']=$idFront;
-
-        if($request->hasFile('id_card_back'))
-        {
-            $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
+        try{
+            $passport = cloudinary()->upload($request->file('passport')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
             )->getSecurePath();
-            $data['id_card_back']=$idBack;
+            $data['passport']=$passport;
+
+
+            $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
+            )->getSecurePath();
+            $data['id_card_front']=$idFront;
+
+            if($request->hasFile('id_card_back'))
+            {
+                $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
+                )->getSecurePath();
+                $data['id_card_back']=$idBack;
+            }
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage());
         }
 
         $user=Kyc::create($data);
@@ -886,23 +890,27 @@ class UserController extends BaseController
         $data['user_id']=$user_id;
         $data['card_type']=3; //diamond
 
-        $utility_bill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-        $data['utility_bill']=$utility_bill;
-
-
-        $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-        $data['id_card_front']=$idFront;
-
-        if($request->hasFile('id_card_back'))
-        {
-            $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
+        try{
+            $utility_bill = cloudinary()->upload($request->file('utility_bill')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
             )->getSecurePath();
-            $data['id_card_back']=$idBack;
+            $data['utility_bill']=$utility_bill;
+
+
+            $idFront = cloudinary()->upload($request->file('id_card_front')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
+            )->getSecurePath();
+            $data['id_card_front']=$idFront;
+
+            if($request->hasFile('id_card_back'))
+            {
+                $idBack = cloudinary()->upload($request->file('id_card_back')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
+                )->getSecurePath();
+                $data['id_card_back']=$idBack;
+            }
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage());
         }
 
         $user=Kyc::create($data);
@@ -1024,11 +1032,14 @@ class UserController extends BaseController
         $data['user_id']=$user_id;
         $data['card_type']=5; //Enterprice
 
-        $business_certificate = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
-            ['folder'=>'leverpay/kyc']
-        )->getSecurePath();
-        $data['business_certificate']=$business_certificate;
-
+        try{
+            $business_certificate = cloudinary()->upload($request->file('business_certificate')->getRealPath(),
+                ['folder'=>'leverpay/kyc']
+            )->getSecurePath();
+            $data['business_certificate']=$business_certificate;
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage());
+        }
 
         $user=Kyc::create($data);
 

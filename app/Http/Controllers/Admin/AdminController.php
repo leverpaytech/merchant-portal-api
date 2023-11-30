@@ -215,7 +215,7 @@ class AdminController extends BaseController
     }
 
 
-      /**
+    /**
      * @OA\Post(
      ** path="/api/v1/admin/approve-topup-request",
      *   tags={"Admin"},
@@ -304,6 +304,50 @@ class AdminController extends BaseController
         return $this->successfulResponse([], 'Request approved');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/admin/cacel-topup-request",
+     *   tags={"Admin"},
+     *   summary="cacel topup request",
+     *   operationId="cancel topup request",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid"},
+     *              @OA\Property( property="uuid", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
     public function cancelTopupRequest(Request $request){
         $this->validate($request, [
             'uuid'=>'required|string'

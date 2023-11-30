@@ -26,54 +26,7 @@ class ExternalApiController extends BaseController
         }
     }
 
-    /**
-     * @OA\Post(
-     ** path="/api/v1/leverchain/transaction/initialize",
-     *   tags={"Lever Chain"},
-     *   summary="Initialize Transaction",
-     *   operationId="Initialize Transaction",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"amount"},
-     *              @OA\Property( property="amount", type="string"),
-     *              @OA\Property( property="merchant_reference", type="string"),
-     *              @OA\Property( property="currency", type="string"),
-     *              @OA\Property( property="product", type="string")
-     *          ),
-     *      ),
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   },
-     *
-     *)
-     **/
+
     public function initialize(Request $request){
         $this->validate($request, [
             'amount'=> 'required|numeric|min:1',
@@ -137,55 +90,7 @@ class ExternalApiController extends BaseController
         return $this->successfulResponse($checkout);
     }
 
-    /**
-     * @OA\Post(
-     ** path="/api/v1/leverchain/transaction/save-details",
-     *   tags={"Lever Chain"},
-     *   summary="Save Details",
-     *   operationId="Save Details",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"first_name","last_name","phone","email","access_code"},
-     *              @OA\Property( property="first_name", type="string"),
-     *              @OA\Property( property="last_name", type="string"),
-     *              @OA\Property( property="phone", type="string"),
-     *              @OA\Property( property="email", type="string"),
-     *              @OA\Property( property="access_code", type="string")
-     *          ),
-     *      ),
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   },
-     *
-     *)
-     **/
+    
     public function saveDetails(Request $request){
         $this->validate($request, [
             'first_name'=> "required|string",
@@ -209,51 +114,7 @@ class ExternalApiController extends BaseController
         return $this->successfulResponse($checkout, 'Details saved successfully');
     }
 
-    /**
-     * @OA\Post(
-     ** path="/api/v1/leverchain/transaction/pay-with-transfer",
-     *   tags={"Lever Chain"},
-     *   summary="Pay with transfer",
-     *   operationId="Pay with transfer",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"access_code"},
-     *              @OA\Property( property="access_code", type="string")
-     *          ),
-     *      ),
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   },
-     *
-     *)
-     **/
+    
     public function payWithTransfer(Request $request){
         $this->validate($request, [
             'access_code' => 'required|string',
