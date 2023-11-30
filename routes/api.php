@@ -214,8 +214,8 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-topup-request/{uuid}', [AdminController::class, 'getTopupRequest']);
             Route::get('/get-topup-requests', [AdminController::class, 'getAllTopupRequests']);
             Route::post('/approve-topup-request', [AdminController::class, 'approveTopupRequest']);
-            Route::post('cancel-topup-request', [WalletController::class, 'cancelTopupRequest']);
-            
+            Route::post('cancel-topup-request', [AdminController::class, 'cancelTopupRequest']);
+
             //contact us
             Route::get('/get-contact-us-messages', [AdminController::class, 'getContactUsForms']);
             Route::post('/reply-message', [AdminController::class, 'replyMessage']);

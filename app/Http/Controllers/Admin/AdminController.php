@@ -267,16 +267,19 @@ class AdminController extends BaseController
 
         $topup = TopupRequest::where('uuid', $request['uuid'])->first();
         if(!$topup){
-            abort(400, 'Topup request not found');
+            //abort(400, 'Topup request not found');
+            return $this->sendError("Topup request not found",[], 400);
         }
 
         if($topup->status != 0){
-            abort(400, 'Topup request is already processed');
+            //abort(400, 'Topup request is already processed');
+            return $this->sendError("Topup request is already processed",[], 400);
         }
 
         $user = User::find($topup->user_id);
         if(!$user){
-            abort(400, 'User not found');
+            //abort(400, 'User not found');
+            return $this->sendError("User not found",[], 400);
         }
 
         $ext = 'LP_'.Uuid::generate()->string;
@@ -308,7 +311,7 @@ class AdminController extends BaseController
      * @OA\Post(
      ** path="/api/v1/admin/cancel-topup-request",
      *   tags={"Admin"},
-     *   summary="cacel topup request",
+     *   summary="cancel topup request",
      *   operationId="cancel topup request",
      *
      *    @OA\RequestBody(
@@ -355,11 +358,13 @@ class AdminController extends BaseController
 
         $topup = TopupRequest::where('uuid', $request['uuid'])->first();
         if(!$topup){
-            abort(400, 'Topup request not found');
+            //abort(400, 'Topup request not found');
+            return $this->sendError("Topup request not found",[], 400);
         }
 
-        if($topup->status != 2){
-            abort(400, 'Topup request is already processed');
+        if($topup->status != 0){
+            //abort(400, 'Topup request is already processed');
+            return $this->sendError("Topup request is already processed",[], 400);
         }
 
         $topup->status = 2;

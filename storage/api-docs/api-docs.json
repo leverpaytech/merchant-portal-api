@@ -202,7 +202,7 @@
                 "tags": [
                     "Admin"
                 ],
-                "summary": "cacel topup request",
+                "summary": "cancel topup request",
                 "operationId": "cancel topup request",
                 "requestBody": {
                     "content": {
