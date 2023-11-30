@@ -402,7 +402,7 @@ class WalletController extends BaseController
             if(!empty($details->invoice_uuid))
             {
                 $invoice_uuid=$details->invoice_uuid;
-            
+
                 $transaction->transaction_details = Invoice::query()->where('uuid',$invoice_uuid)->with(['merchant' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email')->with('merchant');
                 }])->with(['user' => function ($query) {
@@ -412,7 +412,7 @@ class WalletController extends BaseController
 
             return $transaction;
         });
-        
+
         return $this->successfulResponse($transactions, 'User transactions successfully retrieved');
     }
 

@@ -193,7 +193,7 @@ class CheckoutController extends BaseController
             return $this->sendError('Dollar transaction can only be paid with card',[],400);
         }
 
-        $providus = ProvidusService::generateDynamicAccount('LeverPay-'.$checkout->first_name.' '. $checkout->last_name);
+        $providus = ProvidusService::generateDynamicAccount($checkout->first_name.' '. $checkout->last_name);
         $account = new Account();
         $account->user_id = $checkout->merchant_id;
         $account->bank = 'providus';

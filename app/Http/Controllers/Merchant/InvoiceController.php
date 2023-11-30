@@ -44,7 +44,7 @@ class InvoiceController extends BaseController
      *              @OA\Property( property="product_name", type="string"),
      *              @OA\Property( property="product_description", type="string"),
      *              @OA\Property( property="price", type="string"),
-     *              @OA\Property( property="vat", type="string"), 
+     *              @OA\Property( property="vat", type="string"),
      *              @OA\Property( property="currency", type="string"),
      *              @OA\Property( property="email", type="string")
      *          ),
@@ -90,12 +90,12 @@ class InvoiceController extends BaseController
             'vat'=>'required|numeric|min:0',
             'currency'=>'required|string'
         ]);
-        
+
         $user = User::where('email', $data['email'])->first();
-        if(!$user)
-        {
-            return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
-        }
+        // if(!$user)
+        // {
+        //     return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
+        // }
         if($user){
             $data['user_id'] = $user->id;
             $data['type'] = 1;
@@ -109,7 +109,9 @@ class InvoiceController extends BaseController
 
         $data['currency']=strtolower($data['currency']);
 
+        $sym = '₦';
         if($data['currency'] == 'dollar'){
+            $sym = '$';
             $fee = $request['price'] * ($currency->international_transaction_rate / 100);
         }else if($data['currency'] == 'naira'){
             $fee = $request['price'] * ($currency->local_transaction_rate / 100);
@@ -119,7 +121,7 @@ class InvoiceController extends BaseController
         $data['uuid'] = $uuid;
         $merchantId=Auth::user()->id;
         $data['merchant_id']=$merchantId;
-        $data['url'] = env('FRONTEND_BASE_URL').'/invoice/'.$uuid;
+        $data['url'] = env('CHECKOUT_BASE_URL').'/invoice/'.$uuid;
         $data['total'] = $cal + $fee;
         $data['fee'] = $fee;
 
@@ -140,12 +142,12 @@ class InvoiceController extends BaseController
         $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        $message="<h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$data['price']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>"; 
+        $message="<h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$sym}{$data['price']} </div><div style='margin-bottom: 8px'>Payment Url: {$data['url']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>";
         //"<div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>";
-        ZeptomailService::sendMailZeptoMail("invoice notification" ,$message, $data['email']); 
-        
-        
-    
+        ZeptomailService::sendMailZeptoMail("invoice notification" ,$message, $data['email']);
+
+
+
         return $this->successfulResponse($invoice,"Invoice successfully created");
 
     }
@@ -206,7 +208,7 @@ class InvoiceController extends BaseController
      *           type="string",
      *      )
      *   ),
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -256,7 +258,7 @@ class InvoiceController extends BaseController
 
         return $this->successfulResponse($invoices, '');
     }
-    
+
     /**
      * @OA\Post(
      ** path="/api/v1/user/pay-invoice",
@@ -350,10 +352,10 @@ class InvoiceController extends BaseController
         $curr = $invoice['currency'] == 'dollar'?'$':'₦';
         $content="A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
-        ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email); 
+        ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email);
 
         SmsService::sendSms("Dear {$invoice->user->first_name},A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$invoice->user->phone);
-        
+
         return $this->successfulResponse([], 'OTP sent');
     }
 
@@ -556,7 +558,7 @@ class InvoiceController extends BaseController
      *   tags={"Merchant"},
      *   summary="Get merchant total transactions (monthly, weekly and daily)",
      *   operationId="Get merchant total transactions (monthly, weekly and daily)",
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -570,7 +572,7 @@ class InvoiceController extends BaseController
     public function getMerchantTransaction()
     {
         $user_id=Auth::user()->id;
-        
+
         $monthlyDollar=Invoice::where('merchant_id', $user_id)
             ->where('currency', 'dollar')
             ->whereMonth('created_at', Carbon::now()->month)
@@ -578,7 +580,7 @@ class InvoiceController extends BaseController
 
         $weeklyDollar=Invoice::where('merchant_id', $user_id)
             ->where('currency', 'dollar')
-            ->whereBetween('created_at', 
+            ->whereBetween('created_at',
                 [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
             )
             ->sum('total');
@@ -595,7 +597,7 @@ class InvoiceController extends BaseController
 
         $weeklyNaira=Invoice::where('merchant_id', $user_id)
             ->where('currency', 'naira')
-            ->whereBetween('created_at', 
+            ->whereBetween('created_at',
                 [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
             )->sum('total');
 
@@ -627,7 +629,7 @@ class InvoiceController extends BaseController
      *   tags={"Merchant"},
      *   summary="Get merchant total successfull and failed transactions",
      *   operationId="Get merchant total successfull and failed transactions",
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -641,11 +643,11 @@ class InvoiceController extends BaseController
     public function getTotalTransactions()
     {
         $user_id=Auth::user()->id;
-        
+
         $success=Invoice::where('merchant_id', $user_id)
             ->where('status', 1)
             ->count();
-    
+
         $failed=Invoice::where('merchant_id', $user_id)
             ->where('status', 2)
             ->count();
@@ -727,7 +729,7 @@ class InvoiceController extends BaseController
 
         $remitted=0;
         $uremetted=0;
-        
+
         return $this->successfulResponse($totalRevenue, 'Total revenue generated');
     }
 }
