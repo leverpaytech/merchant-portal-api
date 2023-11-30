@@ -471,14 +471,16 @@ class WalletController extends BaseController
         ]);
         $user= Auth::user();
 
-        if($user->wallet->withdrawable_amount < $request['amount']){
-            return $this->sendError("Insufficient balance",[],400);
-        }
-
         $trans = User::where('email', $request['email'])->first();
         if(!$trans){
             return $this->sendError('Recipient account not found',[],404);
         }
+
+        if($user->wallet->withdrawable_amount < $request['amount']){
+            return $this->sendError("Insufficient balance",[],400);
+        }
+
+        
 
         if($request['email'] == $user->email){
             return $this->sendError("Invalid transfer, you can't transfer to yourself",[],400);
