@@ -1554,7 +1554,7 @@ class AdminController extends BaseController
         {
             $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
             $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
-            $last_remmited=Remittance::where('user_id', $merchant->id)->latest()->get();
+            $last_remmited=Remittance::where('user_id', $merchant->id)->latest()->get()->first();
 
             $getCurrency=Wallet::where('user_id', $merchant->id)->get(['amount','dollar'])->first();
         
@@ -1913,4 +1913,44 @@ class AdminController extends BaseController
 
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/admin/get-total-revenue-n-remittance",
+     *   tags={"Admin"},
+     *   summary="Get total revenue,remitted amount and uremitted",
+     *   operationId="Get total revenue,remitted amount and uremitted",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getTotalRevenue()
+    {
+        $total_revenue_naira=Invoice::where('status', 1)->where('currency', 'naira')->sum('total');
+        $total_revenue_dollar=Invoice::where('status', 1)->where('currency', 'dollar')->sum('total');
+        
+        $total_remittance_naira=Remittance::where('status', 1)->where('currency', 'naira')->sum('amount');
+        $total_remittance_dollar=Remittance::where('status', 1)->where('currency', 'dollar')->sum('amount');
+        
+        $response=[
+            'naira'=>[
+                'total_revenue'=>$total_revenue_naira,
+                'total_remitted'=>$total_remittance_naira,
+                'total_unremitted'=>($total_revenue_naira-$total_remittance_naira),
+            ],
+            'dollar'=>[
+                'total_revenue'=>$total_revenue_dollar,
+                'total_remitted'=>$total_remittance_dollar,
+                'total_unremitted'=>($total_revenue_dollar-$total_remittance_dollar),
+            ]
+        ];
+
+        return $this->successfulResponse($response, 'Process successfully completed');
+    }
 }

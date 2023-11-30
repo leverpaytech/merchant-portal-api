@@ -1297,6 +1297,25 @@
                 ]
             }
         },
+        "/api/v1/admin/get-total-revenue-n-remittance": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get total revenue,remitted amount and uremitted",
+                "operationId": "Get total revenue,remitted amount and uremitted",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/admin/admin-login": {
             "post": {
                 "tags": [
