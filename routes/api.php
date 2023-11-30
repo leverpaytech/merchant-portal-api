@@ -153,7 +153,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
             Route::get('get-all-topup-requests', [WalletController::class, 'getAllTopupRequests']);
-            Route::post('cancel-topup-requests', [WalletController::class, 'cancelTopupRequest']);
+            Route::post('cancel-topup-request', [WalletController::class, 'cancelTopupRequest']);
 
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
