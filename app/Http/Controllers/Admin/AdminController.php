@@ -1504,7 +1504,7 @@ class AdminController extends BaseController
                 
                 $merchant['total_revenue']=$total_invoice;
                 $merchant['tota_remitted']=$amount_paid;
-                $merchant['last_remitted']=isse($last_remmited->amount)?$last_remmited->amount:0;
+                $merchant['last_remitted']=isset($last_remmited->amount)?$last_remmited->amount:0;
                 
                 $merchant['total_unremitted']=floatval($total_invoice-$amount_paid);
                 $merchant['date']=$date;
