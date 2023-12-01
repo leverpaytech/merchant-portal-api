@@ -304,7 +304,7 @@ class AdminController extends BaseController
         $topup->status = 1;
         $topup->save();
 
-        $content="Dear {$uer->first_name}, The topup request for {$topup->amount} has been approved";
+        $content="Dear {$user->first_name}, The topup request for {$topup->amount} has been approved";
         ZeptomailService::sendMailZeptoMail("Topup Request Approval" ,$content, $user->email);
 
         return $this->successfulResponse([], 'Request approved');
@@ -378,7 +378,7 @@ class AdminController extends BaseController
         $topup->status = 2;
         $topup->save();
 
-        $content="Dear {$uer->first_name}, the topup request for {$topup->amount} has been declined, contact our support with further evidence for help";
+        $content="Dear {$user->first_name}, the topup request for {$topup->amount} has been declined, contact our support with further evidence for help";
         ZeptomailService::sendMailZeptoMail("Topup Request Declined" ,$content, $user->email);
 
         return $this->successfulResponse([], 'Request cancelled');
