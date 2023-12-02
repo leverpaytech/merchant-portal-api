@@ -1097,6 +1097,14 @@ class AdminController extends BaseController
         //kyc details
         $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->get();
 
+        $user->bank_account=UserBank::join('banks','banks.id', '=', 'user_banks.bank_id')
+            ->where('user_banks.user_id', $user->id)
+            ->get([
+                'banks.name as bank_name',
+                'user_banks.account_no'
+            ]);
+
+
         return $this->successfulResponse($user, '');
 
     }
