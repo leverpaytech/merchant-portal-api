@@ -411,8 +411,16 @@ class WalletController extends BaseController
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->first();
             }
-            else{
-                $transaction->transaction_details = $details;
+            else if(!empty($details->transfer_uuid))
+            {
+                $transfer_uuid=$details->transfer_uuid;
+                
+                $transaction->transaction_details = Transfer::query()->where('uuid',$transfer_uuid)->with(['sender' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->with(['recipient' => function ($query) {
+                    $query->select('id','uuid', 'first_name','last_name','phone','email');
+                }])->first();
+                
             }
 
             return $transaction;
