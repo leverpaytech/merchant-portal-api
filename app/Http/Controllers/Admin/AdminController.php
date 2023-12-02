@@ -1095,7 +1095,7 @@ class AdminController extends BaseController
         //transactions history
         $user->transaction_history=Transaction::where('user_id',$user->id)->get();
         //kyc details
-        $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->get();
+        $user->kyc_details=Kyc::where('user_id', $user->id)->with('country')->with('documentType')->latest()->get()->first();
 
         $account=UserBank::join('banks','banks.id', '=', 'user_banks.bank_id')
             ->where('user_banks.user_id', $user->id)
