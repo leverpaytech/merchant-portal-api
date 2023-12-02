@@ -411,6 +411,9 @@ class WalletController extends BaseController
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->first();
             }
+            else{
+                $transaction->transaction_details = $details;
+            }
 
             return $transaction;
         });

@@ -107,6 +107,8 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
+        
+
         //active exchange rate
         $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
         $rate=$getExchageRate->rate;
@@ -133,10 +135,10 @@ class UserController extends BaseController
             'usdt'=>round($user->wallet->withdrawable_amount/$rate,6)
         ];
 
-
-
-
-        //return response()->json(Auth::user());
+        $invoices = $invoices->where('user_id', $userId)
+            ->with(['merchant' => function ($query) {
+            $query->select('id','uuid', 'first_name','last_name','phone','email');
+        }])->get();
 
         if(!$user)
             return $this->sendError('User not found',[],404);
