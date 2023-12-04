@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral};
+use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice};
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -107,7 +107,7 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
-        
+
 
         //active exchange rate
         $getExchageRate=ExchangeRate::where('status',1)->latest()->first();
@@ -135,7 +135,7 @@ class UserController extends BaseController
             'usdt'=>round($user->wallet->withdrawable_amount/$rate,6)
         ];
 
-        $invoices = $invoices->where('user_id', $userId)
+        $invoices = Invoice::where('user_id', $userId)
             ->with(['merchant' => function ($query) {
             $query->select('id','uuid', 'first_name','last_name','phone','email');
         }])->get();
@@ -1171,7 +1171,7 @@ class UserController extends BaseController
         if(!Auth::user()->id)
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
-        
+
         $referrals=UserReferral::join('users', 'users.id', '=', 'user_referrals.user_id')
             ->where('user_referrals.referral_id', $userId)
             ->orderBy('user_referrals.updated_at', 'DESC')
@@ -1193,6 +1193,6 @@ class UserController extends BaseController
         return $this->successfulResponse($referrals, 'referrals successfully retrieved');
     }
 
-    
+
 
 }
