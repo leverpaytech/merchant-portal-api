@@ -422,6 +422,9 @@ class WalletController extends BaseController
                 }])->first();
                 
             }
+            else{
+                $transaction->transaction_details = $details;
+            }
 
             return $transaction;
         });
