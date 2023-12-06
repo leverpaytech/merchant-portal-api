@@ -722,13 +722,19 @@ class InvoiceController extends BaseController
     {
         $user_id=Auth::user()->id;
 
-        $totalRevenue=Invoice::where('merchant_id', $user_id)
-            ->where('status', 1)
-            ->groupBy('currency')
-            ->sum('total');
+        $total_invoice=Invoice::where('merchant_id', $user_id)->where('status', 1)->sum('total');
+        $amount_paid=Remittance::where('user_id', $user_id)->sum('amount');
+        $last_remmited=Remittance::where('user_id', $user_id)->latest()->get()->first();
 
-        $remitted=0;
-        $uremetted=0;
+        $getCurrency=Wallet::where('user_id', $user_id)->get(['amount','dollar'])->first();
+
+        $totalRevenue['currency']=($getCurrency->amount > 0)?"naira":"dollar";    
+        $totalRevenue['total_revenue']=$total_invoice;
+        $totalRevenue['tota_remitted']=$amount_paid;
+        $totalRevenue['last_remitted']=isset($last_remmited->amount)?$last_remmited->amount:0;
+
+        $totalRevenue['total_unremitted']=($total_invoice-$amount_paid)>0?floatval($total_invoice-$amount_paid):0;
+            
 
         return $this->successfulResponse($totalRevenue, 'Total revenue generated');
     }
