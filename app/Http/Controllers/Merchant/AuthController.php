@@ -190,6 +190,9 @@ class AuthController extends BaseController
         $user = new User();
         $user->first_name = $data['first_name'];
         $user->last_name = $data['last_name'];
+        $user->other_name = $data['other_name'];
+        $user->dob = $data['dob'];
+        $user->gender = $data['gender'];
         $user->address = $data['address'];
         $user->email = $data['email'];
         $user->phone = $data['phone'];
@@ -211,9 +214,9 @@ class AuthController extends BaseController
 
         $message = "<p>Hello {$data['first_name']} {$data['last_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
 
-        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
+        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']);
         SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
-        
+
         return $user;
     }
 }

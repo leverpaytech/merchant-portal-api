@@ -1187,14 +1187,14 @@ class AdminController extends BaseController
             //         return $this->sendError("KYC does not contain NIN",[],400);
             //     }
             // }
-            $providus = ProvidusService::generateReservedAccount($user->kyc->bvn, $user->merchant->business_name);
-            $account = new Account();
-            $account->user_id = $user->id;
-            $account->bank = 'providus';
-            $account->accountNumber = $providus->account_number;
-            $account->accountName = $providus->account_name;
-            $account->type = 'reserved';
-            $account->save();
+            // $providus = ProvidusService::generateReservedAccount($user->kyc->bvn, $user->merchant->business_name);
+            // $account = new Account();
+            // $account->user_id = $user->id;
+            // $account->bank = 'providus';
+            // $account->accountNumber = $providus->account_number;
+            // $account->accountName = $providus->account_name;
+            // $account->type = 'reserved';
+            // $account->save();
         }else{
             return $this->sendError("Account is not a merchant profile",[],400);
         }
