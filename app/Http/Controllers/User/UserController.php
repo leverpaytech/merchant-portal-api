@@ -1143,7 +1143,7 @@ class UserController extends BaseController
 
         $result=[
             'referral_code'=>$user->referral_code,
-            'total_point'=>($countRef*5)
+            'total_point'=>($countRef*5)+5  //5point is added for newly signup user
         ];
 
         return response()->json($result, 200);
