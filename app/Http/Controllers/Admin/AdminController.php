@@ -1177,16 +1177,16 @@ class AdminController extends BaseController
         }
 
         if($user->role_id == 1){
-            if(!$user->kyc){
-                return $this->sendError("KYC details has not been uploaded",[],400);
-            }else{
-                if(!$user->kyc->bvn){
-                    return $this->sendError("KYC does not contain bvn",[],400);
-                }
-                if(!$user->kyc->nin){
-                    return $this->sendError("KYC does not contain NIN",[],400);
-                }
-            }
+            // if(!$user->kyc){
+            //     return $this->sendError("KYC details has not been uploaded",[],400);
+            // }else{
+            //     if(!$user->kyc->bvn){
+            //         return $this->sendError("KYC does not contain bvn",[],400);
+            //     }
+            //     if(!$user->kyc->nin){
+            //         return $this->sendError("KYC does not contain NIN",[],400);
+            //     }
+            // }
             $providus = ProvidusService::generateReservedAccount($user->kyc->bvn, $user->merchant->business_name);
             $account = new Account();
             $account->user_id = $user->id;
@@ -1528,7 +1528,7 @@ class AdminController extends BaseController
         return $this->successfulResponse([], 'User deleted');
     }
 
-    
+
     /**
      * @OA\Get(
      ** path="/api/v1/admin/get-merchants-for-remittance",
@@ -1562,7 +1562,7 @@ class AdminController extends BaseController
                 'users.phone as contact_person_phone',
                 'wallets.withdrawable_amount'
             ]);
-        
+
         $merchants = $merchants->filter(function($merchant)
         {
             $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
@@ -1570,15 +1570,15 @@ class AdminController extends BaseController
             $last_remmited=Remittance::where('user_id', $merchant->id)->latest()->get()->first();
 
             $getCurrency=Wallet::where('user_id', $merchant->id)->get(['amount','dollar'])->first();
-        
+
             if(($total_invoice-$amount_paid) > 0)
             {
                 $merchant['currency']=($getCurrency->amount > 0)?"naira":"dollar";
-                
+
                 $merchant['total_revenue']=$total_invoice;
                 $merchant['tota_remitted']=$amount_paid;
                 $merchant['last_remitted']=isset($last_remmited->amount)?$last_remmited->amount:0;
-                
+
                 $merchant['total_unremitted']=floatval($total_invoice-$amount_paid);
                 $merchant['date']=date('d/m/y');
 
@@ -1587,9 +1587,9 @@ class AdminController extends BaseController
             else{
                 return false; // Exclude
             }
-            
+
         });
-        
+
         return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
     }
 
@@ -1649,7 +1649,7 @@ class AdminController extends BaseController
         {
             return $this->sendError('Error',$validator->errors(),422);
         }
-        
+
         $newVoucher=Voucher::create(['code_no'=>$data['code_no']]);
 
         return $this->successfulResponse($newVoucher, 'new voucher successfully created');
@@ -1767,7 +1767,7 @@ class AdminController extends BaseController
         }
 
         $remittance=Remittance::create($data);
-        
+
 
         return $this->successfulResponse($remittance, 'Merchant successfully added to payment schedule list');
     }
@@ -1787,7 +1787,7 @@ class AdminController extends BaseController
      *           type="string",
      *      )
      *   ),
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -1828,7 +1828,7 @@ class AdminController extends BaseController
         {
             $result->status=($result->status==0)?"pending":(($result->status==1)?"completed":"cancel");
             return $result;
-        });  
+        });
 
         return $this->successfulResponse($results, $code_no." payment schedule list successfully retrieved");
     }
@@ -1906,21 +1906,21 @@ class AdminController extends BaseController
             $email=$user->email;
             $phoneNumber=$user->phone;
             $name=$user->business_name;
-            
+
 
             WalletService::subtractFromWallet($userId, $amount, $currency);
 
             $findRmtnce->payment_date=date('Y-m-d h:i:s');
             $findRmtnce->status=1;
             $findRmtnce->save();
-        
+
             //send mail and sms
             $sym = $currency == 'naira' ? '₦': '$';
             $content = "Dear {$name}, {$sym}{$amount} was paid to your account by leverpay.io";
             ZeptomailService::sendMailZeptoMail("Levrepay Payment Notification" ,$content, $email);
             SmsService::sendSms("Levrepay Payment Notification, $content", '234'.$phoneNumber);
         }
-        
+
         return $this->successfulResponse([], 'Payment successfully completed');
 
 
@@ -1947,10 +1947,10 @@ class AdminController extends BaseController
     {
         $total_revenue_naira=Invoice::where('status', 1)->where('currency', 'naira')->sum('total');
         $total_revenue_dollar=Invoice::where('status', 1)->where('currency', 'dollar')->sum('total');
-        
+
         $total_remittance_naira=Remittance::where('status', 1)->where('currency', 'naira')->sum('amount');
         $total_remittance_dollar=Remittance::where('status', 1)->where('currency', 'dollar')->sum('amount');
-        
+
         $response=[
             'naira'=>[
                 'total_revenue'=>$total_revenue_naira,

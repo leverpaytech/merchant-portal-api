@@ -21,6 +21,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\KycController;
 use \App\Http\Controllers\Merchant\InvoiceController;
 use \App\Http\Controllers\BankController;
+use \App\Http\Controllers\BillsController;
 
 use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\WebhookController;
@@ -49,7 +50,7 @@ Route::prefix('v1')->group( function(){
     });
 
     Route::post('/test-providus', [AuthController::class, 'testProvidus']);
-    
+
     //get countries
     Route::get('/get-countries', [CountryController::class, 'index']);
     Route::post('/get-states', [StateController::class, 'index']);
@@ -78,6 +79,8 @@ Route::prefix('v1')->group( function(){
     Route::post('verify-transfer-transaction', [AuthController::class, 'verifyTransferTransaction']);
     Route::get('/invoice/{uuid}', [InvoiceController::class, 'getInvoice']);
 
+    Route::post('/set-pin', [CardController::class, 'setPin']);
+
     Route::prefix('/merchant')->group( function(){
         //merchant external doc
         Route::get('/swagger-json', [AuthController::class, 'getMerchantDocumentation']);
@@ -102,7 +105,7 @@ Route::prefix('v1')->group( function(){
             Route::get('/get-merchant-users-count', [MerchantController::class, 'getMerchantUsers']);
             Route::get('/merchant-total-successfull-failed-transactions', [InvoiceController::class, 'getTotalTransactions']);
             Route::get('/merchant-revenue-generated', [InvoiceController::class, 'getMerchantRevenue']);
-            
+
             Route::middleware('checkMerchantStatus')->group(function () {
                 Route::post('/add-currencies', [MerchantController::class, 'addCurrencies']);
                 Route::get('/get-merchant-keys', [MerchantController::class, 'getMerchantKeys']);
@@ -113,7 +116,7 @@ Route::prefix('v1')->group( function(){
         });
 
     });
-    Route::post('/set-pin', [CardController::class, 'setPin']);
+
     Route::prefix('/user')->group( function() {
         Route::post('/signup', [UserAuthController::class, 'create'])->name('user.sign-up');
         Route::get('/get-all-banks', [BankController::class, 'getBanks'])->name('get-all-banks');
@@ -153,7 +156,7 @@ Route::prefix('v1')->group( function(){
 
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
             Route::get('get-all-topup-requests', [WalletController::class, 'getAllTopupRequests']);
-            
+
 
             Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
             Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
@@ -166,15 +169,18 @@ Route::prefix('v1')->group( function(){
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
 
             Route::post('generate-account', [WalletController::class, 'generateAccount']);
-            
-            Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
-            Route::get('get-referrals', [UserController::class, 'getReferrals']);            
-            
-            //Route::middleware('checkMerchantStatus')->group(function () {
-                Route::post('transfer', [WalletController::class, 'transfer']); 
-            //});
 
+            Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
+            Route::get('get-referrals', [UserController::class, 'getReferrals']);
+
+
+            Route::post('transfer', [WalletController::class, 'transfer']);
             Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
+
+            Route::prefix('bills')->group(function () {
+                Route::get('get-airtime', [BillsController::class,'getAirtime']);
+                Route::post('buy-airtime', [BillsController::class,'buyAirtime']);
+            });
         });
     });
 
@@ -243,7 +249,7 @@ Route::prefix('v1')->group( function(){
             Route::post('schedule-merchant-for-payment', [AdminController::class,'addToRemittance']);
             Route::get('get-payment-schedule-list/{codeno}', [AdminController::class,'getRemittanceByVoucherCode']);
             Route::get('get-total-revenue-n-remittance', [AdminController::class,'getTotalRevenue']);
-            
+
 
         });
     });

@@ -21,7 +21,7 @@ Route::get('/', function (){
     $a = '22994004095959';
     $a[0] = 3;
     $a[1] = 4;
-    dd($a);
+    dd("hello {$a}");
     // php artisan optimize:clear
     // dd(\Doctrine\DBAL\Types\Type::getTypesMap());
     $cd = CardPayment::find('5a5a3906-a8ae-44d7-aced-9f42334580d0');
