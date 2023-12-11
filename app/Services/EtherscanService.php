@@ -17,7 +17,7 @@ class EtherscanService
 
     public static function getBalance($address,$apiUrl,$apiKey)
     {
-        $url = "{$apiUrl}?module=account&action=balance&address={$address}&tag=latest&apikey={$apiKey}";
+        $url = $apiUrl."?module=account&action=balance&address={$address}&tag=latest&apikey=".$apiKey;
 
         $response = file_get_contents($url);
         $data = json_decode($response, true);
