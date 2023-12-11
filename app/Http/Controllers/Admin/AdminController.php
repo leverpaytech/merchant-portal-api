@@ -1844,7 +1844,7 @@ class AdminController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"user_id","voucher_id"},
-     *              @OA\Property(property="user_id", type="number", enum={"2","3","6"}),
+     *              @OA\Property(property="user_id", type="string", enum={"2","3","6"}),
      *              @OA\Property(property="voucher_id", type="string"),
      *          ),
      *      ),

@@ -39,5 +39,9 @@ return [
         'walletCredentials' => env('VFD_WALLET_CREDENTIALS'),
         'onboarding' => env('VFD_ONBOARDING_URL')
     ],
+    'etherscan' => [
+        'api_key' => env('ETHERSCAN_API_KEY'),
+        'api_url' => env('ETHERSCAN_API_URL'),
+    ],
     
 ];
