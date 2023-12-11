@@ -41,8 +41,8 @@ class InvestmentController extends BaseController
      *              @OA\Property( property="phone", type="string"),
      *              @OA\Property( property="password", type="string"),
      *              @OA\Property( property="password_confirmation", type="string"),
-     *              @OA\Property( property="country_id", enum="[1]"),
-     *              @OA\Property( property="state_id", enum="[1]"),
+     *              @OA\Property( property="country_id", type="string", enum={"1"}),
+     *              @OA\Property( property="state_id", type="string", enum={"1"}),
      *              @OA\Property( property="amount", type="string")
      *          ),
      *      ),
