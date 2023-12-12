@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\External;
 
 use App\Http\Controllers\BaseController;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Models\Checkout;
 use App\Services\ProvidusService;
@@ -252,7 +253,7 @@ class CheckoutController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
     public function payWithCard(Request $request){
@@ -383,7 +384,7 @@ class CheckoutController extends BaseController
      *   security={
      *       {"bearer_token": {}}
      *   },
-     *  
+     *
      *)
      **/
     public function verifyCardOTP(Request $request){

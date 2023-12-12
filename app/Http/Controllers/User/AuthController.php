@@ -8,8 +8,8 @@ use App\Mail\GeneralMail;
 use App\Http\Resources\UserResource;
 use App\Mail\SendEmailVerificationCode;
 use App\Models\ActivityLog;
-use App\Models\User;
-use App\Models\{Wallet,UserReferral};
+use App\Models\{User, Account};
+use App\Models\{Wallet,UserReferral,Invoice};
 use App\Services\CardService;
 use App\Services\SmsService;
 use App\Services\ZeptomailService;
@@ -21,6 +21,7 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use App\Services\ProvidusService;
 
 class AuthController extends BaseController
 {
@@ -160,7 +161,7 @@ class AuthController extends BaseController
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
 
-        DB::transaction( function() use($data, $verifyToken) 
+        DB::transaction( function() use($data, $verifyToken)
         {
             $user = User::create($data);
 
@@ -181,17 +182,50 @@ class AuthController extends BaseController
             $data2['user_id']=$user->id;
 
             ActivityLog::createActivity($data2);
-        
+
             // send email
             $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
-            //ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']); 
-            
+            //ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']);
+
             //SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
         });
 
         $uDetails=User::where('email', $data['email'])->get()->first();
-        
+
         return $this->successfulResponse(new UserResource($uDetails), 'User successfully sign-up');
     }
 
+    public function getInvoice($uuid){
+        $uuid = strval($uuid);
+        $invoice = Invoice::query()->where('uuid', $uuid)->with(['merchant' => function ($query) {
+            $query->select('id','uuid', 'first_name','last_name','phone','email');
+        }])->first();
+        if(!$invoice){
+            return $this->sendError('Invoice not found',[],400);
+        }
+
+        $invoice['merchant'] = $invoice->merchant->merchant->business_name;
+        return $this->successfulResponse($invoice, '');
+    }
+
+
+    public function payInvoiceWithTransfer($uuid){
+        $invoice = Invoice::where('uuid', $uuid)->first();
+        if(!$invoice){
+            return $this->sendError('Invoice not found',[],400);
+        }
+
+        $providus = ProvidusService::generateDynamicAccount($invoice->merchant->merchant->business_name);
+        $account = new Account();
+        $account->user_id = $invoice->merchant_id;
+        $account->bank = 'providus';
+        $account->amount = $invoice->total;
+        $account->accountNumber = $providus->account_number;
+        $account->accountName = $providus->account_name;
+        $account->type = 'invoice';
+        $account->model_id = $invoice->uuid;
+        $account->save();
+
+        return $this->successfulResponse($account, '');
+    }
 }
