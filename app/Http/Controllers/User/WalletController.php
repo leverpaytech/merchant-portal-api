@@ -414,13 +414,13 @@ class WalletController extends BaseController
             else if(!empty($details->transfer_uuid))
             {
                 $transfer_uuid=$details->transfer_uuid;
-                
+
                 $transaction->transaction_details = Transfer::query()->where('uuid',$transfer_uuid)->with(['sender' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->with(['recipient' => function ($query) {
                     $query->select('id','uuid', 'first_name','last_name','phone','email');
                 }])->first();
-                
+
             }
             else{
                 $transaction->transaction_details = $details;
@@ -496,7 +496,7 @@ class WalletController extends BaseController
             return $this->sendError("Insufficient balance",[],400);
         }
 
-        
+
 
         if($request['email'] == $user->email){
             return $this->sendError("Invalid transfer, you can't transfer to yourself",[],400);

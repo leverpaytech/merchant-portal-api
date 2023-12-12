@@ -131,6 +131,7 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
+        $request->merge(['other_name' => null,'dob'=>null,'gender'=>null]);
         $data = $request->all();
 
         $validator = Validator::make($data, [
@@ -147,6 +148,7 @@ class AuthController extends BaseController
             'country_id' => 'required',
             'role_id' => 'nullable',
             'referral_code'=> 'nullable',
+            'gender'=>'nullable',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
 
