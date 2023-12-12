@@ -1254,7 +1254,7 @@
                                 ],
                                 "properties": {
                                     "user_id": {
-                                        "type": "number",
+                                        "type": "string",
                                         "enum": [
                                             "2",
                                             "3",
@@ -2421,10 +2421,16 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "state_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "amount": {
                                         "type": "string"
@@ -2547,13 +2553,22 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "state_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "city_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "referral_code": {
                                         "type": "string"
@@ -2991,13 +3006,22 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "state_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "city_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "passport": {
                                         "type": "file"
@@ -3215,7 +3239,10 @@
                                 ],
                                 "properties": {
                                     "document_type_id": {
-                                        "enum": "1"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "id_card_front": {
                                         "type": "file"
@@ -3224,10 +3251,16 @@
                                         "type": "file"
                                     },
                                     "country_id": {
-                                        "enum": "1"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "state_id": {
-                                        "enum": "1"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "bvn": {
                                         "type": "string"
@@ -3447,13 +3480,22 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "state_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "city_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "referral_code": {
                                         "type": "string"
@@ -3710,13 +3752,22 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "state_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "city_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "passport": {
                                         "type": "file"
@@ -3847,7 +3898,10 @@
                                         "type": "string"
                                     },
                                     "bank_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -3928,7 +3982,10 @@
                                         "type": "file"
                                     },
                                     "document_type_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "id_card_front": {
                                         "type": "file"
@@ -3943,10 +4000,16 @@
                                         "type": "string"
                                     },
                                     "country_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "state_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "place_of_birth": {
                                         "type": "string"
@@ -4024,7 +4087,10 @@
                                 ],
                                 "properties": {
                                     "document_type_id": {
-                                        "enum": "[1]"
+                                        "type": "string",
+                                        "enum": [
+                                            "1"
+                                        ]
                                     },
                                     "id_card_front": {
                                         "type": "file"
@@ -4213,6 +4279,61 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/etherscan/validate-transaction": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Validate crepto funding transaction",
+                "operationId": "Validate crepto funding transaction",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "transaction_ref",
+                                    "amount"
+                                ],
+                                "properties": {
+                                    "transaction_ref": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [

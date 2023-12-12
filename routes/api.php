@@ -182,6 +182,10 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-airtime', [BillsController::class,'getAirtime']);
                 Route::post('buy-airtime', [BillsController::class,'buyAirtime']);
             });
+            Route::prefix('etherscan')->group(function () {
+                Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
+            });
+            
         });
     });
 

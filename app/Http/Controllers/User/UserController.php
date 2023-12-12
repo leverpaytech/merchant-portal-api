@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\ChangePhoneAndEmailVerifier;
 use Illuminate\Validation\Rule;
 use App\Services\CardService;
+use App\Services\EtherscanService;
 
 
 class UserController extends BaseController
@@ -230,9 +231,9 @@ class UserController extends BaseController
      *              @OA\Property( property="primary_email", type="string"),
      *              @OA\Property( property="primary_phone", type="string"),
      *              @OA\Property( property="gender", type="string"),
-     *              @OA\Property( property="country_id", enum="[1]"),
-     *              @OA\Property( property="state_id", enum="[1]"),
-     *              @OA\Property( property="city_id", enum="[1]"),
+     *              @OA\Property( property="country_id", type="string", enum={"1"}),
+     *              @OA\Property( property="state_id", type="string", enum={"1"}),
+     *              @OA\Property( property="city_id", type="string", enum={"1"}),
      *              @OA\Property( property="passport", type="file"),
      *          ),
      *      ),
@@ -425,7 +426,7 @@ class UserController extends BaseController
      *          @OA\Schema(
      *              required={"bank_id","account_no"},
      *              @OA\Property( property="account_no", type="string"),
-     *              @OA\Property( property="bank_id", enum="[1]"),
+     *              @OA\Property( property="bank_id", type="string", enum={"1"}),
      *          ),
      *      ),
      *   ),
@@ -663,13 +664,13 @@ class UserController extends BaseController
      *          @OA\Schema(
      *              required={"document_type_id","country_id","state_id","residential_address","passport","id_card_front","bvn","nin","place_of_birth"},
      *              @OA\Property( property="passport", type="file"),
-     *              @OA\Property( property="document_type_id", enum="[1]"),
+     *              @OA\Property( property="document_type_id", type="string", enum={"1"}),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
      *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="nin", type="string"),
-     *              @OA\Property( property="country_id", enum="[1]"),
-     *              @OA\Property( property="state_id", enum="[1]"),
+     *              @OA\Property( property="country_id", type="string", enum={"1"}),
+     *              @OA\Property( property="state_id", type="string", enum={"1"}),
      *              @OA\Property( property="place_of_birth", type="string"),
      *              @OA\Property( property="residential_address", type="string"),
      *          ),
@@ -833,7 +834,7 @@ class UserController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"document_type_id","id_card_front","utility_bill"},
-     *              @OA\Property( property="document_type_id", enum="[1]"),
+     *              @OA\Property( property="document_type_id", type="string", enum={"1"}),
      *              @OA\Property( property="id_card_front", type="file"),
      *              @OA\Property( property="id_card_back", type="file"),
      *              @OA\Property( property="utility_bill", type="file")
@@ -1194,5 +1195,83 @@ class UserController extends BaseController
     }
 
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/etherscan/validate-transaction",
+     *   tags={"User"},
+     *   summary="Validate crepto funding transaction",
+     *   operationId="Validate crepto funding transaction",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"transaction_ref","amount"},
+     *              @OA\Property( property="transaction_ref", type="string"),
+     *              @OA\Property( property="amount", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function fundWalletWithCrepto(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'transaction_ref' => 'required|string',
+            'amount' => 'required|numeric'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        // Replace 'YOUR_API_KEY' with your Etherscan API key
+        $api_key = 'MDQ9EJSVTS5PSGU642ACWXUXSKFGVKITPA';
+
+        // Replace 'YOUR_ADDRESS' with the Ethereum address you want to query
+        $address = $data['transaction_ref'];
+        //$address = "0x19f256453d3245c7ec5213433c89a601625d53f3";
+        //$address = "20525739969620914176";
+        $amount = $data['amount'];
+        $apiUrl = config('services.etherscan.api_url');
+        $apiKey = config('services.etherscan.api_key');
+
+        $response=EtherscanService::getBalance($address,$apiUrl,$apiKey);
+        return response()->json($response, 200);
+
+    }
 
 }
