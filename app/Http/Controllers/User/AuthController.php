@@ -209,11 +209,23 @@ class AuthController extends BaseController
     }
 
 
-    public function payInvoiceWithTransfer($uuid){
-        $invoice = Invoice::where('uuid', $uuid)->first();
+    public function payInvoiceWithTransfer(Request $request){
+        $this->validate($request, [
+            'first_name'=> "required|string",
+            'last_name'=> "required|string",
+            'phone'=> "required|string",
+            'uuid'=> "required|string",
+        ]);
+        $invoice = Invoice::where('uuid', $request->uuid)->first();
         if(!$invoice){
             return $this->sendError('Invoice not found',[],400);
         }
+
+        $invoice->first_name = $request->first_name;
+        $invoice->last_name = $request->last_name;
+        $invoice->phone = $request->phone;
+        $invoice->save();
+
 
         $providus = ProvidusService::generateDynamicAccount($invoice->merchant->merchant->business_name);
         $account = new Account();

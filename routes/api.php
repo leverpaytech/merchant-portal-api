@@ -78,7 +78,7 @@ Route::prefix('v1')->group( function(){
     Route::get('verify-transaction', [WalletController::class, 'verifyTransaction']);
     Route::post('verify-transfer-transaction', [AuthController::class, 'verifyTransferTransaction']);
     Route::get('/invoice/{uuid}', [UserAuthController::class, 'getInvoice']);
-    Route::get('/invoice-transfer-payment/{uuid}', [UserAuthController::class, 'payInvoiceWithTransfer']);
+    Route::post('/invoice-transfer-payment', [UserAuthController::class, 'payInvoiceWithTransfer']);
 
     Route::post('/set-pin', [CardController::class, 'setPin']);
 
@@ -185,7 +185,7 @@ Route::prefix('v1')->group( function(){
             Route::prefix('etherscan')->group(function () {
                 Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
             });
-            
+
         });
     });
 
