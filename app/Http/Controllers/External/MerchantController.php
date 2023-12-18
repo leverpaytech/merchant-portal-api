@@ -123,8 +123,11 @@ class MerchantController extends BaseController
         $checkout->product = $request->product;
         $checkout->merchant_reference = $ref;
         $checkout->access_code = $code;
-        $checkout->authorization_url = env('CHECKOUT_BASE_URL').'/'.$code;
+        //$checkout->authorization_url = env('CHECKOUT_BASE_URL').'/'.$code;
+        $checkout->authorization_url = 'https://checkout-page-lyart-ten.vercel.app/'.$code;
+        
         $checkout->save();
+        
 
         return $this->successfulResponse($checkout);
 
