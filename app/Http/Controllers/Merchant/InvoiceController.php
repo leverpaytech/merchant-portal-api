@@ -124,7 +124,8 @@ class InvoiceController extends BaseController
         $data['uuid'] = $uuid;
         $merchantId=Auth::user()->id;
         $data['merchant_id']=$merchantId;
-        $data['url'] = env('CHECKOUT_BASE_URL').'/invoice/'.$uuid;
+        //$data['url'] = env('CHECKOUT_BASE_URL').'/invoice/'.$uuid;
+        $data['url'] = 'https://checkout-page-lyart-ten.vercel.app/'.$uuid;
         $data['total'] = $cal + $fee;
         $data['fee'] = $fee;
 
