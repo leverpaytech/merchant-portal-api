@@ -90,15 +90,18 @@ class InvoiceController extends BaseController
             'vat'=>'required|numeric|min:0',
             'currency'=>'required|string'
         ]);
+        $data['product_description'] = $request['product_description'];
 
         $user = User::where('email', $data['email'])->first();
         // if(!$user)
         // {
         //     return $this->sendError("The provided email address is not registered with leverpay.io",[],400);
         // }
+        $firstname = '';
         if($user){
             $data['user_id'] = $user->id;
             $data['type'] = 1;
+            $firstname= $user->firstname;
         }
 
         $uuid = Uuid::generate()->string;
@@ -142,7 +145,7 @@ class InvoiceController extends BaseController
         $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        $message="<h2 style='margin-bottom: 8px'>Dear {$data['email']}, find below invoice sent from {$merchant_business_name}</h2><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$sym}{$data['price']} </div><div style='margin-bottom: 8px'>Payment Url: {$data['url']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>";
+        $message="<p style='margin-bottom: 8px'>Dear {$firstname}, <br/> find below invoice sent from {$merchant_business_name}</p><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$sym}{$data['price']} </div><div style='margin-bottom: 8px'>Payment Url: {$data['url']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>";
         //"<div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>";
         ZeptomailService::sendMailZeptoMail("Invoice notification" ,$message, $data['email']);
 
@@ -728,13 +731,13 @@ class InvoiceController extends BaseController
 
         $getCurrency=Wallet::where('user_id', $user_id)->get(['amount','dollar'])->first();
 
-        $totalRevenue['currency']=($getCurrency->amount > 0)?"naira":"dollar";    
+        $totalRevenue['currency']=($getCurrency->amount > 0)?"naira":"dollar";
         $totalRevenue['total_revenue']=$total_invoice;
         $totalRevenue['tota_remitted']=$amount_paid;
         $totalRevenue['last_remitted']=isset($last_remmited->amount)?$last_remmited->amount:0;
 
         $totalRevenue['total_unremitted']=($total_invoice-$amount_paid)>0?floatval($total_invoice-$amount_paid):0;
-            
+
 
         return $this->successfulResponse($totalRevenue, 'Total revenue generated');
     }

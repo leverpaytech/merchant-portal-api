@@ -64,8 +64,8 @@ Route::prefix('v1')->group( function(){
     //Route::get('/get-account-no', [UserController::class, 'generateAccNo']);
     //Route::get('/on-boarding', [UserController::class, 'onBoarding']);
 
-    Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
-    Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
+    // Route::post('/checkout/create-payment', [CheckoutController::class, 'createPayment'])->name('create-card-payment');
+    // Route::post('/checkout/complete-payment', [CheckoutController::class, 'completePayment'])->name('complete-card-payment');
 
 
     Route::post('/login',[AuthController::class, 'login'])->name('login');
@@ -77,7 +77,8 @@ Route::prefix('v1')->group( function(){
 
     Route::get('verify-transaction', [WalletController::class, 'verifyTransaction']);
     Route::post('verify-transfer-transaction', [AuthController::class, 'verifyTransferTransaction']);
-    Route::get('/invoice/{uuid}', [InvoiceController::class, 'getInvoice']);
+    Route::get('/invoice/{uuid}', [UserAuthController::class, 'getInvoice']);
+    Route::post('/invoice-transfer-payment', [UserAuthController::class, 'payInvoiceWithTransfer']);
 
     Route::post('/set-pin', [CardController::class, 'setPin']);
 
@@ -184,7 +185,7 @@ Route::prefix('v1')->group( function(){
             Route::prefix('etherscan')->group(function () {
                 Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
             });
-            
+
         });
     });
 
@@ -278,5 +279,3 @@ Route::prefix('v1/leverchain')->group(function() {
     Route::post('transaction/pay-with-card', [ExternalCheckout::class, 'payWithCard']);
     Route::post('transaction/verify-card-otp', [ExternalCheckout::class, 'verifyCardOTP']);
 });
-
-

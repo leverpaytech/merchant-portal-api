@@ -129,29 +129,45 @@ class AdminController extends BaseController
      *
      *)
      **/
-    public function getAllMerchants()
+    public function getAllMerchants(Request $request)
     {
         if(!Auth::user()->id)
         {
             return $this->sendError("Authourized user",[], 401);
         }
-        $users=User::where('role_id', '1')->with('kyc')->with('wallet')->get();
-        $users->transform(function($user){
-            if($user->kyc !==NULL)
-            {
-                $county=Country::find($user->kyc->country_id);
-                $docType=DocumentType::find($user->kyc->document_type_id);
-                $user->kyc->country=[
-                    'country_id'=>$county->id,
-                    'country_name'=>$county->country_name,
-                ];
-                $user->kyc->document_type=[
-                    'document_type_id'=>$docType->id,
-                    'name'=>$docType->name,
-                ];
-            }
-            return $user;
-        });
+        // $users=User::where('role_id', '1')->with('kyc')->with('wallet')->get();
+        $users=User::where('role_id', '1');
+        $mode = strval($request->query('mode'));
+        //mode == 0 means those that haven't submit kyc
+        //mode == 1 means those that submit kyc and havs been approved
+        //mode == 2 means those that haven submit kyc but hasn't been approved
+        if($mode == 1){
+            $users = $users->where('kyc_status', 1)->with('kyc')->with('wallet')->get();
+            $users->transform(function($user){
+                if($user->kyc !==NULL)
+                {
+                    $county=Country::find($user->kyc->country_id);
+                    $docType=DocumentType::find($user->kyc->document_type_id);
+                    $user->kyc->country=[
+                        'country_id'=>$county->id,
+                        'country_name'=>$county->country_name,
+                    ];
+                    $user->kyc->document_type=[
+                        'document_type_id'=>$docType->id,
+                        'name'=>$docType->name,
+                    ];
+                }
+                return $user;
+            });
+        }elseif($mode == 0){
+            $users = $users->where('kyc_status', 0)->doesntHave('kyc')->with('wallet')->get();
+        }elseif($mode == 2){
+            $users = $users->whereHas('kyc', function ($query) {
+                $query->where('status', 0);
+            })->with('kyc')->get();
+        }else {
+            $users = $users->with('kyc')->with('wallet')->get();
+        }
         return $this->successfulResponse($users, 'Merchants list');
 
     }
@@ -734,7 +750,7 @@ class AdminController extends BaseController
         if($val==false)
         {
             return $this->sendError("Atleast one rate value is required",[],400);
-            exit();
+
         }
 
         ExchangeRate::create($data2);
