@@ -10,20 +10,42 @@ class EtherscanService
 {
     public static function getTransactionDetails($transactionHash,$apiUrl,$apiKey)
     {
-        $client = new Client();
 
-        $response = $client->get($apiUrl, [
+        $url="https://api.etherscan.io/api
+        ?module=account
+        &action=txlist
+        &address=0x19f256453d3245c7ec5213433c89a601625d53f3
+        &startblock=0
+        &endblock=99999999
+        &page=1
+        &offset=10
+        &sort=asc
+        &apikey=MDQ9EJSVTS5PSGU642ACWXUXSKFGVKITPA";
+
+        $url = file_get_contents($url);
+        //$data = json_decode($url->getBody(), true);
+        $data = json_decode($url, true);
+        return response()->json([$url,'messages']);
+        /*$client = new Client([
+            'base_uri' => 'https://api.etherscan.io/api',
+        ]);
+        //MDQ9EJSVTS5PSGU642ACWXUXSKFGVKITPA
+        //https://api.etherscan.io/api
+        $response = $client->get('api', [
             'query' => [
                 'module' => 'proxy',
                 'action' => 'eth_getTransactionByHash',
-                'txhash' => $transactionHash,
-                'apikey' => $apiKey,
+                'txhash' => '0x3b9aca3c94da2b0ebd6f8a8b4054a6bbd23f4bf14185a5e0cbfa0515e6e4edc3',
+                'apikey' => 'MDQ9EJSVTS5PSGU642ACWXUXSKFGVKITPA',
             ],
         ]);
 
         $data = json_decode($response->getBody(), true);
 
-        if ($data['status'] == '1') {
+        return response()->json([$data,'messages']);
+        exit();
+        if (isset($data['status']) && $data['status'] == '1') 
+        {
             $transaction = $data['result'];
 
             $sender = $transaction['from'];
@@ -69,7 +91,7 @@ class EtherscanService
                 'status' => 'error',
                 'message' => 'Transaction not found or invalid API key.',
             ]);
-        }
+        }*/
     }
 
     public static function getBalance($address,$apiUrl,$apiKey)

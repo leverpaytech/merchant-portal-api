@@ -1194,7 +1194,6 @@ class UserController extends BaseController
         return $this->successfulResponse($referrals, 'referrals successfully retrieved');
     }
 
-
     /**
      * @OA\Post(
      ** path="/api/v1/user/etherscan/validate-transaction",

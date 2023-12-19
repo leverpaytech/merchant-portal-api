@@ -46,8 +46,19 @@ class ZeptomailService
         }
     }
 
-    public static function payInvoice($subject ,$message, $email)
+    public static function payInvoiceMail($subject ,$message, $email)
     {
+        //return $message;
+        $product_name=$message['product_name'];
+        $price=$message['price'];
+        $description=$message['product_description'];
+        $total=$message['total'];
+        $vat=$message['vat'];
+        $customer=$message['customer'];
+        $url=$message['url'];
+        $fee=$message['fee'];
+        $merchant=$message['merchant'];
+
         $curl = curl_init();
 
             curl_setopt_array($curl, array(
@@ -63,7 +74,7 @@ class ZeptomailService
                 "mail_template_key": "2d6f.117fe6ec4fda4841.k1.d46e9be0-9b7d-11ee-a277-5254004d4100.18c6ee4949e",
                 "from": { "address": "noreply@leverpay.io", "name": "noreply"},
                 "to": [{"email_address": {"address": '.$email.', "name": "LeverPay"}}],
-                "merge_info": {"product name":"product name_value","amount":"amount_value","total price":"total price_value","vat":"vat_value","due_date":"due_date_value","description":"description_value","transaction_fee":"transaction_fee_value","view_invoice_link":"view_invoice_link_value","customer_name":"customer_name_value","setreminder_link":"setreminder_link_value"}}',
+                "merge_info": {"product name":"'.$product_name.'","amount":"'.$price.'","total price":"'.$total.'","vat":"'.$vat.'","due_date":"due_date_value","description":"'.$description.'","transaction_fee":"'.$fee.'","view_invoice_link":"'.$url.'", "Merchant-Name": "'.$merchant.'","customer_name":"'.$customer.'","setreminder_link":"setreminder_link_value"}}',
                 CURLOPT_HTTPHEADER => array(
                 "accept: application/json",
                 "authorization: Zoho-enczapikey wSsVR61x+ETwXfovymKucr8/mglcUl/yQU16jVCn6ySvGKuR9Mc/kkCYUFLyFPgdFGBuRjUVpLJ8nEtV0TcIj9t7yVEGCyiF9mqRe1U4J3x17qnvhDzOXWRdkROLJY8Kxg5skmVoEc4k+g==",
