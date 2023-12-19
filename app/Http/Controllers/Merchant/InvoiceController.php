@@ -124,7 +124,8 @@ class InvoiceController extends BaseController
         $data['uuid'] = $uuid;
         $merchantId=Auth::user()->id;
         $data['merchant_id']=$merchantId;
-        $data['url'] = env('CHECKOUT_BASE_URL').'/invoice/'.$uuid;
+        //$data['url'] = env('CHECKOUT_BASE_URL').'/invoice/'.$uuid;
+        $data['url'] = 'https://checkout-page-lyart-ten.vercel.app/'.$uuid;
         $data['total'] = $cal + $fee;
         $data['fee'] = $fee;
 
@@ -145,10 +146,21 @@ class InvoiceController extends BaseController
         $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        $message="<p style='margin-bottom: 8px'>Dear {$firstname}, <br/> find below invoice sent from {$merchant_business_name}</p><div style='margin-bottom: 8px'>Product Name: {$data['product_name']} </div><div style='margin-bottom: 8px'>Product Description: {$data['product_description']} </div><div style='margin-bottom: 8px'>Price: {$sym}{$data['price']} </div><div style='margin-bottom: 8px'>Payment Url: {$data['url']} </div><div style='margin-bottom: 8px'>vat: {$vat_cal} </div><div style='margin-bottom: 8px'>Transaction Fee: {$data['fee']} </div><div style='margin-bottom: 8px'>Total: {$data['total']} </div>";
-        //"<div style='margin-bottom: 8px'>Invoice URL: {$data['url']} </div>";
-        ZeptomailService::sendMailZeptoMail("Invoice notification" ,$message, $data['email']);
-
+        
+        $message=[
+            'customer'=>$data['email'],
+            'merchant'=>$merchant_business_name,
+            'product_name'=>$data['product_name'],
+            'product_description'=>$data['product_description'],
+            'price'=>$sym.$data['price'],
+            'fee'=>$data['fee'],
+            'total'=>$data['total'],
+            'url'=>$data['url'],
+            'vat'=>$vat_cal
+        ];
+        
+        ZeptomailService::payInvoiceMail("Invoice notification" ,$message, $data['email']);
+        
 
 
         return $this->successfulResponse($invoice,"Invoice successfully created");

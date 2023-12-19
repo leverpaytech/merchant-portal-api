@@ -1727,12 +1727,10 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"voucher_id","user_id","amount","account_no","currency"},
+     *              required={"voucher_id","uuid","amount"},
      *              @OA\Property( property="voucher_id", type="string"),
-     *              @OA\Property( property="user_id", type="string"),
-     *              @OA\Property( property="amount", type="string"),
-     *              @OA\Property( property="account_no", type="string"),
-     *              @OA\Property( property="currency", type="string"),
+     *              @OA\Property( property="uuid", type="string"),
+     *              @OA\Property( property="amount", type="string")
      *          ),
      *      ),
      *   ),
@@ -1771,10 +1769,8 @@ class AdminController extends BaseController
 
         $validator = Validator::make($data, [
             'voucher_id' => 'required',
-            'user_id' => 'required',
-            'amount' => 'required|numeric',
-            'account_no' => 'required|numeric',
-            'currency' => 'required|string',
+            'uuid' => 'required',
+            'amount' => 'required|numeric'
         ]);
 
         if($validator->fails())
@@ -1782,7 +1778,17 @@ class AdminController extends BaseController
             return $this->sendError('Error',$validator->errors(),422);
         }
 
-        $remittance=Remittance::create($data);
+        $getMerchant=User::where('uuid',$data['uuid'])->get(['id'])->first();
+        
+        $account_no=sprintf('%010d', mt_rand(1111111111,99999999999));
+
+        
+        $remittance=Remittance::create([
+            'user_id'=>$getMerchant->id,
+            'voucher_id'=>$data['voucher_id'],
+            'amount'=>$data['amount'],
+            'account_no'=>$account_no
+        ]);
 
 
         return $this->successfulResponse($remittance, 'Merchant successfully added to payment schedule list');

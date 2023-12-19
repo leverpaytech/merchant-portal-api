@@ -1194,7 +1194,6 @@ class UserController extends BaseController
         return $this->successfulResponse($referrals, 'referrals successfully retrieved');
     }
 
-
     /**
      * @OA\Post(
      ** path="/api/v1/user/etherscan/validate-transaction",
@@ -1259,7 +1258,7 @@ class UserController extends BaseController
         $userId = Auth::user()->id;
 
         // Replace 'YOUR_API_KEY' with your Etherscan API key
-        $api_key = 'MDQ9EJSVTS5PSGU642ACWXUXSKFGVKITPA';
+        //$api_key = 'MDQ9EJSVTS5PSGU642ACWXUXSKFGVKITPA';
 
         // Replace 'YOUR_ADDRESS' with the Ethereum address you want to query
         $address = $data['transaction_ref'];
@@ -1269,7 +1268,8 @@ class UserController extends BaseController
         $apiUrl = config('services.etherscan.api_url');
         $apiKey = config('services.etherscan.api_key');
 
-        $response=EtherscanService::getBalance($address,$apiUrl,$apiKey);
+        //$response=EtherscanService::getBalance($address,$apiUrl,$apiKey);
+        $response=EtherscanService::getTransactionDetails($address,$apiUrl,$apiKey);
         return response()->json($response, 200);
 
     }
