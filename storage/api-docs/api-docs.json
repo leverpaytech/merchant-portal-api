@@ -4292,11 +4292,11 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "transaction_ref",
+                                    "transaction_hash",
                                     "amount"
                                 ],
                                 "properties": {
-                                    "transaction_ref": {
+                                    "transaction_hash": {
                                         "type": "string"
                                     },
                                     "amount": {

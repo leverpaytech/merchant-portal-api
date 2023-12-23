@@ -1204,8 +1204,8 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"transaction_ref","amount"},
-     *              @OA\Property( property="transaction_ref", type="string"),
+     *              required={"transaction_hash","amount"},
+     *              @OA\Property( property="transaction_hash", type="string"),
      *              @OA\Property( property="amount", type="string")
      *          ),
      *      ),
@@ -1244,7 +1244,7 @@ class UserController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'transaction_ref' => 'required|string',
+            'transaction_hash' => 'required|string',
             'amount' => 'required|numeric'
         ]);
 
@@ -1257,19 +1257,15 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
-        // Replace 'YOUR_API_KEY' with your Etherscan API key
-        //$api_key = 'MDQ9EJSVTS5PSGU642ACWXUXSKFGVKITPA';
-
-        // Replace 'YOUR_ADDRESS' with the Ethereum address you want to query
-        $address = $data['transaction_ref'];
-        //$address = "0x19f256453d3245c7ec5213433c89a601625d53f3";
-        //$address = "20525739969620914176";
+        $transactionHash = $data['transaction_hash'];
         $amount = $data['amount'];
-        $apiUrl = config('services.etherscan.api_url');
-        $apiKey = config('services.etherscan.api_key');
 
-        //$response=EtherscanService::getBalance($address,$apiUrl,$apiKey);
-        $response=EtherscanService::getTransactionDetails($address,$apiUrl,$apiKey);
+        //$apiUrl = config('services.etherscan.api_url');
+        //$apiKey = config('services.etherscan.api_key');
+        //$response=EtherscanService::getTransactionDetails($address,$apiUrl,$apiKey);
+        
+        $response=EtherscanService::getTransactionDetails($transactionHash);
+
         return response()->json($response, 200);
 
     }
