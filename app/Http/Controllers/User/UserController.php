@@ -1273,12 +1273,16 @@ class UserController extends BaseController
             {
                 $result=[
                     'actual_transaction_amount_found'=>$amount,
+                    'sender_address'=>$response['sender'],
+                    'reciever_address'=>$response['reciever'],
                     'message'=>"transaction with $".$amount." successfully found on etherscan"
                 ];
             }
             else{
                 $result=[
                     'actual_transaction_amount_found'=>$response['amount'],
+                    'sender_address'=>$response['sender'],
+                    'reciever_address'=>$response['reciever'],
                     'message'=>"transaction found on etherscan, but the amount provided does not correspond with the one found on etherscan"
                 ];
             }
