@@ -165,7 +165,7 @@ class WebhookController extends Controller
             $account->status = 0;
 
         }else{
-            if($account->type == 'topup' || $account->type == 'checkout'){
+            if($account->type == 'topup' || $account->type == 'checkout' || $account->type == 'invoice'){
                 $account->accountNumber = rand(1,9999999999).'_'.$request['accountNumber'];
                 $account->status = 0;
             }
