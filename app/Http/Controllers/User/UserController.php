@@ -1266,7 +1266,28 @@ class UserController extends BaseController
         
         $response=EtherscanService::getTransactionDetails($transactionHash);
 
-        return response()->json($response, 200);
+        
+        if(isset($response['amount']) && $response['amount'] !=0)
+        {
+            if($response['amount']==$amount)
+            {
+                $result=[
+                    'actual_transaction_amount_found'=>$amount,
+                    'message'=>"transaction with $".$amount." successfully found on etherscan"
+                ];
+            }
+            else{
+                $result=[
+                    'actual_transaction_amount_found'=>$response['amount'],
+                    'message'=>"transaction found on etherscan, but the amount provided does not correspond with the one found on etherscan"
+                ];
+            }
+        }else{
+            $result=$response;
+        }
+        
+
+        return response()->json($result, 200);
 
     }
 

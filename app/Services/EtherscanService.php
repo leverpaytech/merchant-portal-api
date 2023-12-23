@@ -40,13 +40,13 @@ class EtherscanService
             // Convert Wei to Ether
             $valueInEther = $amountInWei / 1e18;
 
-            return response()->json([
+            return [
                 'amount'=>$valueInEther,
                 'sender'=>$sender,
                 'reciever'=>$recipient,
                 'value'=>$transaction['value'],
                 
-            ],200);
+            ];
 
             /*** 
                 to extract more details about transaction decode $transaction['input'] as below
@@ -61,15 +61,10 @@ class EtherscanService
             // Decode the input data using the ABI
             $decodedInput = self::decodeInputData($abi, $inputData);
 
-            return response()->json([
-                "result"=> $decodedInput
-            ]);
+            return $decodedInput;
     
         } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Transaction not found',
-            ]);
+            return 'Transaction not found on etherscan';
         }
     }
 
