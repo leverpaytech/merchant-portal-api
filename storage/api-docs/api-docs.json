@@ -1241,17 +1241,12 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "user_id",
+                                    "uuid",
                                     "voucher_id"
                                 ],
                                 "properties": {
-                                    "user_id": {
-                                        "type": "string",
-                                        "enum": [
-                                            "2",
-                                            "3",
-                                            "6"
-                                        ]
+                                    "uuid": {
+                                        "type": "string"
                                     },
                                     "voucher_id": {
                                         "type": "string"

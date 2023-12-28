@@ -1865,8 +1865,8 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"user_id","voucher_id"},
-     *              @OA\Property(property="user_id", type="string", enum={"2","3","6"}),
+     *              required={"uuid","voucher_id"},
+     *              @OA\Property(property="uuid", type="string"),
      *              @OA\Property(property="voucher_id", type="string"),
      *          ),
      *      ),
@@ -1905,7 +1905,7 @@ class AdminController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'user_id'=>'required',
+            'uuid'=>'required',
             'voucher_id'=>'required'
         ]);
 
@@ -1914,8 +1914,10 @@ class AdminController extends BaseController
             return $this->sendError('Error',$validator->errors(),422);
         }
         //$data['user_id']=[3,3];
-        foreach($data['user_id'] as $userId)
+        foreach($data['uuid'] as $userUUId)
         {
+            $getUU=User::where('uuid', $userUUId)->get(['id'])->first();
+            $userId=$getUU->id;
             $user = User::join('merchants','merchants.user_id','=','users.id')
                 ->where('users.id', $userId)
                 ->get(['users.email','users.phone','merchants.business_name'])
