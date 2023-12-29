@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice};
+use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice,creptoFundingHistory};
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +20,7 @@ use App\Mail\ChangePhoneAndEmailVerifier;
 use Illuminate\Validation\Rule;
 use App\Services\CardService;
 use App\Services\EtherscanService;
+use Webpatser\Uuid\Uuid;
 
 
 class UserController extends BaseController
@@ -1260,6 +1261,12 @@ class UserController extends BaseController
         $transactionHash = $data['transaction_hash'];
         $amount = $data['amount'];
 
+        $checkIfExist=creptoFundingHistory::where('transaction_hash', $transactionHash)->get(['id'])->first();
+        
+        if($checkIfExist->id)
+        {
+            return $this->sendError('Invalid Transaction has',[],402);
+        }
         //$apiUrl = config('services.etherscan.api_url');
         //$apiKey = config('services.etherscan.api_key');
         //$response=EtherscanService::getTransactionDetails($address,$apiUrl,$apiKey);
@@ -1286,6 +1293,12 @@ class UserController extends BaseController
                     'message'=>"transaction found on etherscan, but the amount provided does not correspond with the one found on etherscan"
                 ];
             }
+            creptoFundingHistory::create([
+                'user_id'=>$userId,
+                'uuid'=> Uuid::generate()->string,
+                'transaction_hash'=>$transactionHash,
+                'amount'=>$amount
+            ]);
         }else{
             $result=$response;
         }
