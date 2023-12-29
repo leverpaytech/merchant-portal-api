@@ -1265,7 +1265,7 @@ class UserController extends BaseController
         
         if($checkIfExist->id)
         {
-            return $this->sendError('Invalid Transaction has',[],402);
+            return $this->sendError('Invalid Transaction hash',[],402);
         }
         //$apiUrl = config('services.etherscan.api_url');
         //$apiKey = config('services.etherscan.api_key');
