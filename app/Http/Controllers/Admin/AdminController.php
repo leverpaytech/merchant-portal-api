@@ -1796,7 +1796,7 @@ class AdminController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-payment-schedule-list/{codeno}",
+     ** path="/api/v1/admin/get-payment-schedule-list/{code_no}",
      *   tags={"Admin"},
      *   summary="Get payment schedule list by voucher code no",
      *   operationId="Get payment schedule list by voucher code no",

@@ -252,7 +252,7 @@ Route::prefix('v1')->group( function(){
             Route::get('get-all-vouchers', [AdminController::class,'getAllVouchers']);
             Route::get('get-active-voucher', [AdminController::class,'getActiveVoucher']);
             Route::post('schedule-merchant-for-payment', [AdminController::class,'addToRemittance']);
-            Route::get('get-payment-schedule-list/{codeno}', [AdminController::class,'getRemittanceByVoucherCode']);
+            Route::get('/get-payment-schedule-list/{code_no}', [AdminController::class,'getRemittanceByVoucherCode']);
             Route::get('get-total-revenue-n-remittance', [AdminController::class,'getTotalRevenue']);
 
 

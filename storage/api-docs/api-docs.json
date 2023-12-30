@@ -1200,7 +1200,7 @@
                 ]
             }
         },
-        "/api/v1/admin/get-payment-schedule-list/{codeno}": {
+        "/api/v1/admin/get-payment-schedule-list/{code_no}": {
             "get": {
                 "tags": [
                     "Admin"
