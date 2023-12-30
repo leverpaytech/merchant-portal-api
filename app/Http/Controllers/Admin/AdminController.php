@@ -1842,8 +1842,8 @@ class AdminController extends BaseController
                 'remittances.amount',
                 'remittances.currency',
                 'remittances.account_no',
-                'remittances.status',
-                'remittances.voucher_id'
+                'remittances.voucher_id',
+                'remittances.status'
             ]);
 
         $results->transform(function ($result)

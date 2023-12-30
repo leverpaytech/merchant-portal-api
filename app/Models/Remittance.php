@@ -20,7 +20,7 @@ class Remittance extends Model
         'created_at',
         'updated_at'
     ];
-    protected $hidden = ['id', 'user_id','voucher_id','account_no'];
+    protected $hidden = ['id', 'user_id','account_no'];
 
     public function user()
     {
