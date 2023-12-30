@@ -1832,7 +1832,6 @@ class AdminController extends BaseController
             ->where('code_no', $code_no)
             ->get([
                 'remittances.created_at',
-                'users.id',
                 'users.uuid',
                 'users.email',
                 'merchants.business_name',
@@ -1853,7 +1852,7 @@ class AdminController extends BaseController
             return $result;
         });
 
-        return $this->successfulResponse($results, $code_no." payment schedule list successfully retrieved");
+        return $this->successfulResponse($results, $code_no." vourcher payment schedule list successfully retrieved");
     }
 
     /**
