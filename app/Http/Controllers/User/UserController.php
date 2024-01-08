@@ -20,6 +20,7 @@ use App\Mail\ChangePhoneAndEmailVerifier;
 use Illuminate\Validation\Rule;
 use App\Services\CardService;
 use App\Services\EtherscanService;
+use App\Services\VfdService;
 use Webpatser\Uuid\Uuid;
 
 
@@ -1293,12 +1294,21 @@ class UserController extends BaseController
                     'message'=>"transaction found on etherscan, but the amount provided does not correspond with the one found on etherscan"
                 ];
             }
-            creptoFundingHistory::create([
-                'user_id'=>$userId,
-                'uuid'=> Uuid::generate()->string,
-                'transaction_hash'=>$transactionHash,
-                'amount'=>$amount
-            ]);
+            DB::transaction(function () use($userId, $transactionHash, $amount){
+                creptoFundingHistory::create([
+                    'user_id'=>$userId,
+                    'uuid'=> Uuid::generate()->string,
+                    'transaction_hash'=>$transactionHash,
+                    'amount'=>$amount
+                ]);
+                TopupRequest::create([
+                    'user_id'=>$userId,
+                    'reference'=>$transactionHash,
+                    'amount'=>$amount,
+                    'image_url'=>'Nil'
+                ]);
+            });
+            
         }else{
             $result=$response;
         }
@@ -1308,4 +1318,229 @@ class UserController extends BaseController
 
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/vfd/get-biller-categories",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Get Biller Categories",
+     *   operationId="Get Biller Categories",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function billerCategories()
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $response=VfdService::generateAccessToken();
+        $response=json_decode($response);
+        $accessToken=$response->data->access_token;
+        
+        $getCategories=VfdService::getBillerCategory($accessToken);
+        $billCategories=json_decode($getCategories);
+
+        return $billCategories;
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/vfd/get-biller-list/{categoryName}",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Get Biller List",
+     *   operationId="Get Biller List",
+     *
+     * * @OA\Parameter(
+     *      name="categoryName",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function billerList($categoryName)
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $response=VfdService::generateAccessToken();
+        $response=json_decode($response);
+        $accessToken=$response->data->access_token;
+        
+        //return $categoryName;
+        $getBillCategories=VfdService::getBillerCategoryList($accessToken,$categoryName);
+        $getBillerList=json_decode($getBillCategories);
+
+
+        return $getBillerList;
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/vfd/get-biller-items/{billerId}/{divisionId}/{productId}",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Get Biller Items",
+     *   operationId="Get Biller Items",
+     *
+     * * @OA\Parameter(
+     *      name="billerId",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * * @OA\Parameter(
+     *      name="divisionId",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * * @OA\Parameter(
+     *      name="productId",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function billerItems($billerId,$divisionId,$productId)
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $response=VfdService::generateAccessToken();
+        $response=json_decode($response);
+        $accessToken=$response->data->access_token;
+        
+
+        $getItems=VfdService::getBillerItems($accessToken,$billerId,$divisionId,$productId);
+        $geBillerItems=json_decode($getItems);
+
+        return $geBillerItems;
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/vfd/submit-bill-payment",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Submit Bill Payment",
+     *   operationId="Submit Bill Payment",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"customerId","amount","division","paymentItem","productId","billerId"},
+     *              @OA\Property( property="customerId", type="string"),
+     *              @OA\Property( property="amount", type="string"),
+     *              @OA\Property( property="division", type="string"),
+     *              @OA\Property( property="paymentItem", type="string"),
+     *              @OA\Property( property="productId", type="string"),
+     *              @OA\Property( property="billerId", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function billPayment(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'customerId' => 'required|string',
+            'amount' => 'required|numeric',
+            'division' => 'required|string',
+            'paymentItem' => 'required',
+            'productId' => 'required',
+            'billerId' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $response=VfdService::generateAccessToken();
+        $response=json_decode($response);
+        $accessToken=$response->data->access_token;
+        
+        $reference="Levey-".time();
+        $customerId=$data['customerId'];
+        $amount=$data['amount'];
+        $division=$data['division'];
+        $paymentItem=$data['paymentItem'];
+        $productId=$data['productId'];
+        $billerId=$data['billerId'];
+
+        $payBill=VfdService::payBill($accessToken,$customerId,$amount,$division,$paymentItem,$productId,$billerId,$reference);
+        $result=json_decode($payBill);
+
+        return $result;
+
+    }
 }

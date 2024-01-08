@@ -1609,67 +1609,7 @@ class AdminController extends BaseController
         return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
     }
 
-    /**
-     * @OA\Post(
-     ** path="/api/v1/admin/create-new-voucher",
-     *   tags={"Admin"},
-     *   summary="Create new voucher",
-     *   operationId="Create new voucher",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"code_no"},
-     *              @OA\Property( property="code_no", type="string")
-     *          ),
-     *      ),
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   }
-     *)
-     **/
-    public function createNewVocher(Request $request)
-    {
-        $data = $request->all();
 
-        $validator = Validator::make($data, [
-            'code_no' => 'required|unique:vouchers,code_no'
-        ]);
-
-        if($validator->fails())
-        {
-            return $this->sendError('Error',$validator->errors(),422);
-        }
-
-        $newVoucher=Voucher::create(['code_no'=>$data['code_no']]);
-
-        return $this->successfulResponse($newVoucher, 'new voucher successfully created');
-    }
 
     /**
      * @OA\Get(
@@ -1728,7 +1668,6 @@ class AdminController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"voucher_id","uuid","amount"},
-     *              @OA\Property( property="voucher_id", type="string"),
      *              @OA\Property( property="uuid", type="string"),
      *              @OA\Property( property="amount", type="string")
      *          ),
@@ -1768,7 +1707,6 @@ class AdminController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'voucher_id' => 'required',
             'uuid' => 'required',
             'amount' => 'required|numeric'
         ]);
@@ -1782,10 +1720,31 @@ class AdminController extends BaseController
         
         $account_no=sprintf('%010d', mt_rand(1111111111,99999999999));
 
+        $serchV=Voucher::where('status', 1)->get()->first();
+        $countAll=Voucher::count();
+        $newCode="LVP-".date('Y').sprintf('%04d',($countAll+1));
+
+        if(!empty($serchV->id))
+        {
+            $count=Remittance::where('voucher_id', $serchV->id)->count();
+            if($count < 50)
+            {
+                $voucher_id=$serchV->id;
+            }else{
+                Voucher::where('status', 1)->update(['status'=>0]);
+                $addNew=Voucher::create(['code_no'=>$newCode]);
+                $voucher_id=$addNew->id;
+            }
+        }
+        else{
+            Voucher::where('status', 1)->update(['status'=>0]);
+            $addNew=Voucher::create(['code_no'=>$newCode]);
+            $voucher_id=$addNew->id;
+        }
         
         $remittance=Remittance::create([
             'user_id'=>$getMerchant->id,
-            'voucher_id'=>$data['voucher_id'],
+            'voucher_id'=>$voucher_id,
             'amount'=>$data['amount'],
             'account_no'=>$account_no
         ]);
@@ -1796,13 +1755,13 @@ class AdminController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-payment-schedule-list/{code_no}",
+     ** path="/api/v1/admin/get-payment-schedule-list/{id}",
      *   tags={"Admin"},
-     *   summary="Get payment schedule list by voucher code no",
-     *   operationId="Get payment schedule list by voucher code no",
+     *   summary="Get payment schedule list by voucher id",
+     *   operationId="Get payment schedule list by voucher id",
      *
-     * * * @OA\Parameter(
-     *      name="code_no",
+     * *  @OA\Parameter(
+     *      name="id",
      *      in="path",
      *      required=true,
      *      @OA\Schema(
@@ -1820,16 +1779,15 @@ class AdminController extends BaseController
      *
      *)
      **/
-    public function getRemittanceByVoucherCode($code_no)
+    public function getRemittanceByVoucherCode($id)
     {
-        $checkpoint=Voucher::where('code_no',$code_no)->first();
+        $checkpoint=Voucher::where('id',$id)->first();
         if(!$checkpoint)
-            return $this->sendError("Invalid voucher codeno ".$code_no, [],400);
+            return $this->sendError("Invalid voucher id ".$id, [],400);
 
-        $results=Remittance::join('vouchers', 'vouchers.id', '=', 'remittances.voucher_id')
-            ->join('users', 'users.id', '=', 'remittances.user_id')
+        $results=Remittance::join('users', 'users.id', '=', 'remittances.user_id')
             ->join('merchants', 'merchants.user_id', '=', 'users.id')
-            ->where('code_no', $code_no)
+            ->where('remittances.voucher_id', $id)
             ->get([
                 'remittances.created_at',
                 'users.uuid',
@@ -1840,8 +1798,6 @@ class AdminController extends BaseController
                 'users.first_name as contact_person',
                 'users.phone as contact_person_phone',
                 'remittances.amount',
-                'remittances.currency',
-                'remittances.account_no',
                 'remittances.voucher_id',
                 'remittances.status'
             ]);

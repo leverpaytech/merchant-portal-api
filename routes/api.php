@@ -182,9 +182,19 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-airtime', [BillsController::class,'getAirtime']);
                 Route::post('buy-airtime', [BillsController::class,'buyAirtime']);
             });
+            
             Route::prefix('etherscan')->group(function () {
                 Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
             });
+
+            Route::prefix('vfd')->group(function () {
+                Route::get('get-biller-categories', [UserController::class,'billerCategories']);
+                Route::get('get-biller-list/{categoryName}', [UserController::class,'billerList']);
+                Route::get('get-biller-items/{billerId}/{divisionId}/{productId}', [UserController::class,'billerItems']);
+                Route::post('submit-bill-payment', [UserController::class,'billPayment']);
+                
+            });
+            
 
         });
     });
@@ -248,11 +258,11 @@ Route::prefix('v1')->group( function(){
             //remittance endpoints
             Route::post('complete-remittance', [AdminController::class,'completeRemittance']);
             Route::get('get-merchants-for-remittance', [AdminController::class,'getMerchantAccount']);
-            Route::post('create-new-voucher', [AdminController::class,'createNewVocher']);
+            //Route::post('create-new-voucher', [AdminController::class,'createNewVocher']);
             Route::get('get-all-vouchers', [AdminController::class,'getAllVouchers']);
             Route::get('get-active-voucher', [AdminController::class,'getActiveVoucher']);
             Route::post('schedule-merchant-for-payment', [AdminController::class,'addToRemittance']);
-            Route::get('/get-payment-schedule-list/{code_no}', [AdminController::class,'getRemittanceByVoucherCode']);
+            Route::get('/get-payment-schedule-list/{id}', [AdminController::class,'getRemittanceByVoucherCode']);
             Route::get('get-total-revenue-n-remittance', [AdminController::class,'getTotalRevenue']);
 
 
