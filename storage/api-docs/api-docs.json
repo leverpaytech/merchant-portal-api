@@ -4337,6 +4337,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
+                            "description": "This is returned from biller List",
                             "type": "string"
                         }
                     },
@@ -4345,6 +4346,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
+                            "description": "This is returned from biller List",
                             "type": "string"
                         }
                     },
@@ -4353,6 +4355,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
+                            "description": "This is returned from biller List",
                             "type": "string"
                         }
                     }
@@ -4390,21 +4393,27 @@
                                 ],
                                 "properties": {
                                     "customerId": {
+                                        "description": "e.g Phone Number or Meter Token",
                                         "type": "string"
                                     },
                                     "amount": {
+                                        "description": "amount to acquire service",
                                         "type": "string"
                                     },
                                     "division": {
+                                        "description": "This is returned from biller List",
                                         "type": "string"
                                     },
                                     "paymentItem": {
+                                        "description": "This is returned from biller items",
                                         "type": "string"
                                     },
                                     "productId": {
+                                        "description": "This is returned from biller List",
                                         "type": "string"
                                     },
                                     "billerId": {
+                                        "description": "This signifies the ID of the biller it is returned from the Biller List",
                                         "type": "string"
                                     }
                                 },

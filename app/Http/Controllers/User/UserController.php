@@ -1408,6 +1408,7 @@ class UserController extends BaseController
      *      required=true,
      *      @OA\Schema(
      *           type="string",
+     *           description="This is returned from biller List"
      *      )
      *   ),
      * * @OA\Parameter(
@@ -1416,6 +1417,7 @@ class UserController extends BaseController
      *      required=true,
      *      @OA\Schema(
      *           type="string",
+     *           description="This is returned from biller List"
      *      )
      *   ),
      * * @OA\Parameter(
@@ -1424,6 +1426,7 @@ class UserController extends BaseController
      *      required=true,
      *      @OA\Schema(
      *           type="string",
+     *           description="This is returned from biller List"
      *      )
      *   ),
      * 
@@ -1465,12 +1468,12 @@ class UserController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"customerId","amount","division","paymentItem","productId","billerId"},
-     *              @OA\Property( property="customerId", type="string"),
-     *              @OA\Property( property="amount", type="string"),
-     *              @OA\Property( property="division", type="string"),
-     *              @OA\Property( property="paymentItem", type="string"),
-     *              @OA\Property( property="productId", type="string"),
-     *              @OA\Property( property="billerId", type="string"),
+     *              @OA\Property( property="customerId", type="string", description="e.g Phone Number or Meter Token"),
+     *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
+     *              @OA\Property( property="division", type="string", description="This is returned from biller List"),
+     *              @OA\Property( property="paymentItem", type="string", description="This is returned from biller items"),
+     *              @OA\Property( property="productId", type="string", description="This is returned from biller List"),
+     *              @OA\Property( property="billerId", type="string", description="This signifies the ID of the biller it is returned from the Biller List"),
      *          ),
      *      ),
      *   ),
