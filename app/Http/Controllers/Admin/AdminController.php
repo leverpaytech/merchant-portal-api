@@ -1598,7 +1598,7 @@ class AdminController extends BaseController
                 $merchant->total_unremitted=floatval($total_invoice-$amount_paid);
                 $merchant->date=date('d/m/y');
 
-                return true; // Include
+                return $merchant; // Include
             }
             else{
                 return false; // Exclude
