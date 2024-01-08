@@ -1420,15 +1420,17 @@ class UserController extends BaseController
      *           description="This is returned from biller List"
      *      )
      *   ),
-     * * @OA\Parameter(
-     *      name="productId",
-     *      in="path",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string",
-     *           description="This is returned from biller List"
-     *      )
-     *   ),
+     *
+     * @OA\Parameter(
+     *     name="productId",
+     *     in="path",
+     *     required=true,
+     *     @OA\Schema(
+     *         type="string",
+     *         description="This is returned from biller List"
+     *     )
+     * )
+     *
      * 
      *   @OA\Response(
      *      response=200,
