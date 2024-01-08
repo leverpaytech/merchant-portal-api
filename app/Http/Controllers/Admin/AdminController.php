@@ -1579,32 +1579,32 @@ class AdminController extends BaseController
                 'wallets.withdrawable_amount'
             ]);
 
-        // $merchants = $merchants->filter(function($merchant)
-        // {
-        //     $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
-        //     $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
-        //     $last_remmited=Remittance::where('user_id', $merchant->id)->latest()->get()->first();
+        $merchants = $merchants->filter(function($merchant)
+        {
+            $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
+            $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
+            $last_remmited=Remittance::where('user_id', $merchant->id)->latest()->get()->first();
 
-        //     $getCurrency=Wallet::where('user_id', $merchant->id)->get(['amount','dollar'])->first();
+            $getCurrency=Wallet::where('user_id', $merchant->id)->get(['amount','dollar'])->first();
 
-        //     if(($total_invoice-$amount_paid) > 0)
-        //     {
-        //         $merchant->currency=($getCurrency->amount > 0)?"naira":"dollar";
+            if(($total_invoice-$amount_paid) > 0)
+            {
+                $merchant->currency=($getCurrency->amount > 0)?"naira":"dollar";
 
-        //         $merchant->total_revenue=$total_invoice;
-        //         $merchant->tota_remitted=$amount_paid;
-        //         $merchant->last_remitted=isset($last_remmited->amount)?$last_remmited->amount:0;
+                $merchant->total_revenue=$total_invoice;
+                $merchant->tota_remitted=$amount_paid;
+                $merchant->last_remitted=isset($last_remmited->amount)?$last_remmited->amount:0;
 
-        //         $merchant->total_unremitted=floatval($total_invoice-$amount_paid);
-        //         $merchant->date=date('d/m/y');
+                $merchant->total_unremitted=floatval($total_invoice-$amount_paid);
+                $merchant->date=date('d/m/y');
 
-        //         return true; // Include
-        //     }
-        //     else{
-        //         return false; // Exclude
-        //     }
+                return true; // Include
+            }
+            else{
+                return false; // Exclude
+            }
 
-        // });
+        });
 
         // $response = [
         //     'success' => true,
