@@ -1605,8 +1605,15 @@ class AdminController extends BaseController
             }
 
         });
-        $merchants=json_decode($merchants);
-        return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
+
+        $response = [
+            'success' => true,
+            'data' => $merchants,
+            'message' => 'Machants list with account balance greater than zero successfully retrieved'
+        ];
+
+        return response()->json($response, 200);
+        //return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
     }
 
 
