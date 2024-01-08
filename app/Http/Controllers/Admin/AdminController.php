@@ -1589,14 +1589,14 @@ class AdminController extends BaseController
 
             if(($total_invoice-$amount_paid) > 0)
             {
-                $merchant['currency']=($getCurrency->amount > 0)?"naira":"dollar";
+                $merchant->currency=($getCurrency->amount > 0)?"naira":"dollar";
 
-                $merchant['total_revenue']=$total_invoice;
-                $merchant['tota_remitted']=$amount_paid;
-                $merchant['last_remitted']=isset($last_remmited->amount)?$last_remmited->amount:0;
+                $merchant->total_revenue=$total_invoice;
+                $merchant->tota_remitted=$amount_paid;
+                $merchant->last_remitted=isset($last_remmited->amount)?$last_remmited->amount:0;
 
-                $merchant['total_unremitted']=floatval($total_invoice-$amount_paid);
-                $merchant['date']=date('d/m/y');
+                $merchant->total_unremitted=floatval($total_invoice-$amount_paid);
+                $merchant->date=date('d/m/y');
 
                 return true; // Include
             }
@@ -1613,7 +1613,7 @@ class AdminController extends BaseController
         // ];
 
         // return response()->json($response, 200);
-        $merchants = json_decode($merchants, true);
+        //$merchants = json_decode($merchants, true);
 
         return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
     }
