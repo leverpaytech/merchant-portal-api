@@ -1612,10 +1612,10 @@ class AdminController extends BaseController
         //     'message' => 'Machants list with account balance greater than zero successfully retrieved'
         // ];
 
-        return response()->json($merchants, 200);
+        //return response()->json($merchants, 200);
         //$merchants = json_decode($merchants, true);
 
-        //return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
+        return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
     }
 
 
