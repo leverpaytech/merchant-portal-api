@@ -4401,19 +4401,19 @@
                                         "type": "string"
                                     },
                                     "division": {
-                                        "description": "This is returned from biller List",
+                                        "description": "This is returned from biller List and it should be hidden",
                                         "type": "string"
                                     },
                                     "paymentItem": {
-                                        "description": "This is returned from biller items",
+                                        "description": "This is returned from biller items and it should be hidden",
                                         "type": "string"
                                     },
                                     "productId": {
-                                        "description": "This is returned from biller List",
+                                        "description": "This is returned from biller List and it should be hidden",
                                         "type": "string"
                                     },
                                     "billerId": {
-                                        "description": "This signifies the ID of the biller it is returned from the Biller List",
+                                        "description": "This signifies the ID of the biller it is returned from the Biller List and it should be hidden",
                                         "type": "string"
                                     }
                                 },

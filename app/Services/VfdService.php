@@ -90,6 +90,7 @@ class VfdService
 
     public static function getBillerCategoryList($accessToken,$categoryName)
     {
+        $categoryName=urlencode($categoryName);
         $url = self::$baseUrl . "billerlist?categoryName={$categoryName}";
         
         $headers = [
@@ -117,6 +118,10 @@ class VfdService
 
     public static function getBillerItems($accessToken,$billerId,$divisionId,$productId)
     {
+        $billerId=urlencode($billerId);
+        $divisionId=urlencode($divisionId);
+        $productId=urlencode($productId);
+        
         $url = self::$baseUrl . "billerItems?billerId={$billerId}&divisionId={$divisionId}&productId={$productId}";
         //return $url;
         $headers = [

@@ -1429,7 +1429,7 @@ class UserController extends BaseController
      *         type="string",
      *         description="This is returned from biller List"
      *     )
-     * )
+     * ),
      *
      * 
      *   @OA\Response(
@@ -1472,10 +1472,10 @@ class UserController extends BaseController
      *              required={"customerId","amount","division","paymentItem","productId","billerId"},
      *              @OA\Property( property="customerId", type="string", description="e.g Phone Number or Meter Token"),
      *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
-     *              @OA\Property( property="division", type="string", description="This is returned from biller List"),
-     *              @OA\Property( property="paymentItem", type="string", description="This is returned from biller items"),
-     *              @OA\Property( property="productId", type="string", description="This is returned from biller List"),
-     *              @OA\Property( property="billerId", type="string", description="This signifies the ID of the biller it is returned from the Biller List"),
+     *              @OA\Property( property="division", type="string", description="This is returned from biller List and it should be hidden"),
+     *              @OA\Property( property="paymentItem", type="string", description="This is returned from biller items and it should be hidden"),
+     *              @OA\Property( property="productId", type="string", description="This is returned from biller List and it should be hidden"),
+     *              @OA\Property( property="billerId", type="string", description="This signifies the ID of the biller it is returned from the Biller List and it should be hidden"),
      *          ),
      *      ),
      *   ),
@@ -1534,7 +1534,7 @@ class UserController extends BaseController
         $response=json_decode($response);
         $accessToken=$response->data->access_token;
         
-        $reference="Levey-".time();
+        $reference="Leverpay-".time();
         $customerId=$data['customerId'];
         $amount=$data['amount'];
         $division=$data['division'];
