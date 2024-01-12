@@ -8,8 +8,9 @@ namespace App\Services;
 class VfdService
 {
     public static $baseUrl='https://api-devapps.vfdbank.systems/vtech-wallet/api/v1.1/billspaymentstore/';
-    //public static $baseUrl='https://api-apps.vfdbank.systems/vtech-wallet/api/v1/billspaymentstore/';
     public static $authUrl='https://api-devapps.vfdbank.systems/vfd-tech/baas-portal/v1/';
+
+    //public static $baseUrl='https://api-apps.vfdbank.systems/vtech-wallet/api/v1/billspaymentstore/';
     //public static $authUrl='https://api-apps.vfdbank.systems/vfd-tech/baas-portal/v1/';
 
     // public static $authUrl;
@@ -30,12 +31,18 @@ class VfdService
             'Accept: application/json',
         ];
 
+        //test
         $data = [
             'consumerKey' => 'hAKkhUvxa6bKJCUVVJbXyjtwJARz',
             'consumerSecret' => 'N5gOiQqhBNrcXEsp4zoasibUeUv3',
             'validityTime' => '-1',
         ];
-
+        //live
+        // $data = [
+        //     'consumerKey' => 'SuZ1Cc7ZAbYL5XnSqsimXuN6r4cD',
+        //     'consumerSecret' => '7hf0ykJT5NZUXiiq4VmJ039wrov7',
+        //     'validityTime' => '-1',
+        // ];
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -181,5 +188,33 @@ class VfdService
         curl_close($ch);
         // Handle the response as needed
         return  $response;
+    }
+
+    public static function checkTransaction($accessToken,$tReference)
+    {
+        $tReference=urlencode($tReference);
+        $url = self::$baseUrl . "transactionStatus?transactionId=={$tReference}";
+        
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'AccessToken: ' . $accessToken, // Include the actual access token
+        ];
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            return curl_error($ch);
+        }
+
+        curl_close($ch);
+        // Handle the response as needed
+        return $response;
     }
 }

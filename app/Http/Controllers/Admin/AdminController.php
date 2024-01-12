@@ -1813,7 +1813,7 @@ class AdminController extends BaseController
             return $result;
         });
 
-        return $this->successfulResponse($results, $code_no." vourcher payment schedule list successfully retrieved");
+        return $this->successfulResponse($results, " vourcher payment schedule list successfully retrieved");
     }
 
     /**

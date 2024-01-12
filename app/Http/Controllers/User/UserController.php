@@ -8,7 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice,creptoFundingHistory};
+use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice,creptoFundingHistory,BillPaymentPin,BillPaymentHistory};
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1320,6 +1320,49 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
+     ** path="/api/v1/user/vfd/check-transaction/{reference_no}",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Check transaction by reference no",
+     *   operationId="Check transaction by reference no",
+     *
+     * * @OA\Parameter(
+     *      name="reference_no",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function checkTransaction($reference_no)
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $response=VfdService::generateAccessToken();
+        $response=json_decode($response);
+        $accessToken=$response->data->access_token;
+        
+        $response=VfdService::checkTransaction($accessToken,$reference_no);
+        $response=json_decode($response);
+
+
+        return $response;
+    }
+
+    /**
+     * @OA\Get(
      ** path="/api/v1/user/vfd/get-biller-categories",
      *   tags={"VFD Bill Payment"},
      *   summary="Get Biller Categories",
@@ -1534,18 +1577,158 @@ class UserController extends BaseController
         $response=json_decode($response);
         $accessToken=$response->data->access_token;
         
-        $reference="Leverpay-".time();
+        //$reference="Leverpay-".time();
+        $reference="Leverpay-".uniqid();
         $customerId=$data['customerId'];
         $amount=$data['amount'];
         $division=$data['division'];
         $paymentItem=$data['paymentItem'];
         $productId=$data['productId'];
         $billerId=$data['billerId'];
+        $extra=[
+            'Ref'=>$reference,
+            'customerId'=>$customerId,
+            'amount'=>$amount,
+            'division'=>$division,
+            'paymentItem'=>$paymentItem,
+            'productId'=>$productId,
+            'billerId'=>$billerId
+        ];
+        $extra=json_encode($extra);
 
         $payBill=VfdService::payBill($accessToken,$customerId,$amount,$division,$paymentItem,$productId,$billerId,$reference);
         $result=json_decode($payBill);
 
+        // if($result->status=='00')
+        // {
+        //     BillPaymentHistory::create([
+        //         'user_id'=>$userId,
+        //         'customerId'=>$customerId,
+        //         'unit_purchased'=>0,
+        //         'price'=>$amount,
+        //         'amount'=>$amount,
+        //         'category'=>$division,
+        //         'biller'=>$billerId,
+        //         'product'=>$productId,
+        //         'item'=>$paymentItem,
+        //         'extra'=>$extra,
+        //         'transaction_reference'=>$reference
+        //     ]);
+
+        //     return $this->successfulResponse($response, 'Transaction Successfully Completed');
+        // }
+        // else{
+        //     return $this->sendError('Transaction Failed',422);
+        // }
+
         return $result;
 
+    }
+
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/vfd/create-new-pin",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Create Pin",
+     *   operationId="Create Pin",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"pin","confirm_pin"},
+     *              @OA\Property( property="pin", type="string", description="it should be 4 digits"),
+     *              @OA\Property( property="confirm_pin", type="string", description="same as above")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function createBillPaymentPin(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'pin' => 'required|numeric|unique:bill_payment_pins',
+            'confirm_pin' => 'required|numeric|same:pin'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $checkIfUserExist=BillPaymentPin::where('user_id', $userId)->first();
+        if($checkIfUserExist)
+        {
+            $response=BillPaymentPin::where('user_id', $userId)->update(['pin'=>$data['pin']]);
+        }
+        else{
+            $response=BillPaymentPin::craete([
+                'user_id'=>$userId,
+                'pin'=>$data['pin']
+            ]);
+        }
+        //return $this->sendError('User already created a pin',[],409);
+
+        
+        return $this->successfulResponse($response, 'New Pin successfully created');
+    }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/vfd/get-billpayments-history",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Get Bill Payments History",
+     *   operationId="Get Bill Payments History",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function viewBillPaymentHistory()
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+
+        $history=BillPaymentHistory::where('user_id', Auth::user()->id)->get();
+
+        return $this->successfulResponse($history, 'Bill payment history');   
     }
 }
