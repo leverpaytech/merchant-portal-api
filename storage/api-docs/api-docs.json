@@ -4418,7 +4418,8 @@
                                     "division",
                                     "paymentItem",
                                     "productId",
-                                    "billerId"
+                                    "billerId",
+                                    "pin"
                                 ],
                                 "properties": {
                                     "customerId": {
@@ -4443,6 +4444,10 @@
                                     },
                                     "billerId": {
                                         "description": "This signifies the ID of the biller it is returned from the Biller List and it should be hidden",
+                                        "type": "string"
+                                    },
+                                    "pin": {
+                                        "description": "bill payment pin",
                                         "type": "string"
                                     }
                                 },

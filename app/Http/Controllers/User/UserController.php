@@ -1513,13 +1513,14 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"customerId","amount","division","paymentItem","productId","billerId"},
+     *              required={"customerId","amount","division","paymentItem","productId","billerId","pin"},
      *              @OA\Property( property="customerId", type="string", description="e.g Phone Number or Meter Token"),
      *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
      *              @OA\Property( property="division", type="string", description="This is returned from biller List and it should be hidden"),
      *              @OA\Property( property="paymentItem", type="string", description="This is returned from biller items and it should be hidden"),
      *              @OA\Property( property="productId", type="string", description="This is returned from biller List and it should be hidden"),
      *              @OA\Property( property="billerId", type="string", description="This signifies the ID of the biller it is returned from the Biller List and it should be hidden"),
+     *              @OA\Property( property="pin", type="string", description="bill payment pin"),
      *          ),
      *      ),
      *   ),
