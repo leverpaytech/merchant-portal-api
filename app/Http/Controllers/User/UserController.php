@@ -8,8 +8,9 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
-use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice,creptoFundingHistory,BillPaymentPin,BillPaymentHistory};
-use App\Services\SmsService;
+use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice,creptoFundingHistory};
+use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,LeverPayAccountNo};
+use App\Services\{SmsService,WalletService};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -1561,7 +1562,8 @@ class UserController extends BaseController
             'division' => 'required|string',
             'paymentItem' => 'required',
             'productId' => 'required',
-            'billerId' => 'required'
+            'billerId' => 'required',
+            'pin' => 'required|numeric',
         ]);
 
         if ($validator->fails())
@@ -1585,8 +1587,9 @@ class UserController extends BaseController
         $paymentItem=$data['paymentItem'];
         $productId=$data['productId'];
         $billerId=$data['billerId'];
-        $extra=[
-            'Ref'=>$reference,
+
+        $vData=[
+            'ref'=>$reference,
             'customerId'=>$customerId,
             'amount'=>$amount,
             'division'=>$division,
@@ -1594,34 +1597,64 @@ class UserController extends BaseController
             'productId'=>$productId,
             'billerId'=>$billerId
         ];
-        $extra=json_encode($extra);
+
+        $checkPin=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
+        if(!$checkPin)
+        {
+            return $this->sendError('Invalid pin',422);
+        }
+
+        $checkBalance = Wallet::where('user_id', $userId)->get(['withdrawable_amount'])->first();
+        if($checkBalance->withdrawable_amount < $vData['amount'])
+        {
+            return $this->sendError('Insufficient wallet balance',422);
+        }
+
+        $getLeverPayAccount=DB::table('lever_pay_account_no')->where('id',1)->first();
+        if(empty($getLeverPayAccount->balance))
+        {
+            return $this->sendError('Transaction Failed, Add atleast one leverpay account',422);
+        }
+        $new_balance=($data['amount']+$getLeverPayAccount->balance);
 
         $payBill=VfdService::payBill($accessToken,$customerId,$amount,$division,$paymentItem,$productId,$billerId,$reference);
         $result=json_decode($payBill);
+        
+        if($result->status !='00')
+        {
+            return $this->sendError('Transaction Failed',422);
+        }
 
-        // if($result->status=='00')
-        // {
-        //     BillPaymentHistory::create([
-        //         'user_id'=>$userId,
-        //         'customerId'=>$customerId,
-        //         'unit_purchased'=>0,
-        //         'price'=>$amount,
-        //         'amount'=>$amount,
-        //         'category'=>$division,
-        //         'biller'=>$billerId,
-        //         'product'=>$productId,
-        //         'item'=>$paymentItem,
-        //         'extra'=>$extra,
-        //         'transaction_reference'=>$reference
-        //     ]);
+        DB::transaction(function () use($userId, $vData, $new_balance){
 
-        //     return $this->successfulResponse($response, 'Transaction Successfully Completed');
-        // }
-        // else{
-        //     return $this->sendError('Transaction Failed',422);
-        // }
+            $extra=json_encode($vData);
 
-        return $result;
+            WalletService::subtractFromWallet($userId, $vData['amount'], 'naira');
+
+            //$getLeverPayAccount->balance = $vData['amount'];
+            //$getLeverPayAccount->save();
+            DB::table('lever_pay_account_no')->where('id',1)->update(['balance'=>$new_balance]);
+            
+            BillPaymentHistory::create([
+                'user_id'=>$userId,
+                'customerId'=>$vData['customerId'],
+                'unit_purchased'=>0,
+                'price'=>$vData['amount'],
+                'amount'=>$vData['amount'],
+                'category'=>$vData['division'],
+                'biller'=>$vData['billerId'],
+                'product'=>$vData['productId'],
+                'item'=>$vData['paymentItem'],
+                'extra'=>$extra,
+                'provider_name'=>'VFD',
+                'transaction_reference'=>$vData['ref']
+            ]); 
+        });
+
+        $result=['reference'=>$reference,'product'=>$paymentItem];
+        return $this->successfulResponse($result, 'Transaction Successfully Completed');
+
+        //return $result;
 
     }
 
@@ -1694,7 +1727,7 @@ class UserController extends BaseController
             $response=BillPaymentPin::where('user_id', $userId)->update(['pin'=>$data['pin']]);
         }
         else{
-            $response=BillPaymentPin::craete([
+            $response=BillPaymentPin::create([
                 'user_id'=>$userId,
                 'pin'=>$data['pin']
             ]);
@@ -1703,6 +1736,86 @@ class UserController extends BaseController
 
         
         return $this->successfulResponse($response, 'New Pin successfully created');
+    }
+
+        /**
+     * @OA\Post(
+     ** path="/api/v1/user/vfd/reset-billpayment-pin",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Reset Billpayment Pin",
+     *   operationId="Reset Billpayment Pin",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"pin","confirm_new_pin"},
+     *              @OA\Property( property="pin", type="string", description="it should be 4 digits"),
+     *              @OA\Property( property="confirm_new_pin", type="string", description="same as above")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function resetBillPaymentPin(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'pin' => 'required|numeric|unique:bill_payment_pins',
+            'confirm_new_pin' => 'required|numeric|same:pin'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $checkIfUserExist=BillPaymentPin::where('user_id', $userId)->first();
+        if($checkIfUserExist)
+        {
+            $response=BillPaymentPin::where('user_id', $userId)->update(['pin'=>$data['pin']]);
+        }
+        else{
+            $response=BillPaymentPin::create([
+                'user_id'=>$userId,
+                'pin'=>$data['pin']
+            ]);
+        }
+        //return $this->sendError('User already created a pin',[],409);
+
+        
+        return $this->successfulResponse($response, 'New Pin successfully set');
     }
 
     /**

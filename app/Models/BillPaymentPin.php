@@ -12,7 +12,6 @@ class BillPaymentPin extends Model
         'id',
         'user_id',
         'pin',
-        'confirm_pin',
         'created_at',
         'updated_at'
     ];

@@ -7,11 +7,11 @@ namespace App\Services;
  */
 class VfdService
 {
-    // public static $baseUrl='https://api-devapps.vfdbank.systems/vtech-wallet/api/v1.1/billspaymentstore/';
-    // public static $authUrl='https://api-devapps.vfdbank.systems/vfd-tech/baas-portal/v1/';
+    public static $baseUrl='https://api-devapps.vfdbank.systems/vtech-wallet/api/v1.1/billspaymentstore/';
+    public static $authUrl='https://api-devapps.vfdbank.systems/vfd-tech/baas-portal/v1/';
 
-    public static $baseUrl='https://api-apps.vfdbank.systems/vtech-wallet/api/v1/billspaymentstore/';
-    public static $authUrl='https://api-apps.vfdbank.systems/vfd-tech/baas-portal/v1/';
+    // public static $baseUrl='https://api-apps.vfdbank.systems/vtech-wallet/api/v1/billspaymentstore/';
+    // public static $authUrl='https://api-apps.vfdbank.systems/vfd-tech/baas-portal/v1/';
 
     // public static $authUrl;
     // public static $baseUrl;
@@ -32,17 +32,17 @@ class VfdService
         ];
 
         //test
-        // $data = [
-        //     'consumerKey' => 'hAKkhUvxa6bKJCUVVJbXyjtwJARz',
-        //     'consumerSecret' => 'N5gOiQqhBNrcXEsp4zoasibUeUv3',
-        //     'validityTime' => '-1',
-        // ];
-        //live
         $data = [
-            'consumerKey' => 'SuZ1Cc7ZAbYL5XnSqsimXuN6r4cD',
-            'consumerSecret' => '7hf0ykJT5NZUXiiq4VmJ039wrov7',
+            'consumerKey' => 'hAKkhUvxa6bKJCUVVJbXyjtwJARz',
+            'consumerSecret' => 'N5gOiQqhBNrcXEsp4zoasibUeUv3',
             'validityTime' => '-1',
         ];
+        //live
+        // $data = [
+        //     'consumerKey' => 'SuZ1Cc7ZAbYL5XnSqsimXuN6r4cD',
+        //     'consumerSecret' => '7hf0ykJT5NZUXiiq4VmJ039wrov7',
+        //     'validityTime' => '-1',
+        // ];
         $ch = curl_init($url);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -192,7 +192,7 @@ class VfdService
 
     public static function checkTransaction($accessToken,$tReference)
     {
-        //$tReference=urlencode($tReference);
+        $tReference=urlencode($tReference);
         $url = self::$baseUrl . "/transactionStatus?transactionId={$tReference}";
         
         $headers = [

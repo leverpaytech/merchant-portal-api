@@ -4276,6 +4276,35 @@
                 ]
             }
         },
+        "/api/v1/user/vfd/check-transaction/{reference_no}": {
+            "get": {
+                "tags": [
+                    "VFD Bill Payment"
+                ],
+                "summary": "Check transaction by reference no",
+                "operationId": "Check transaction by reference no",
+                "parameters": [
+                    {
+                        "name": "reference_no",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/vfd/get-biller-categories": {
             "get": {
                 "tags": [
@@ -4440,6 +4469,139 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/vfd/create-new-pin": {
+            "post": {
+                "tags": [
+                    "VFD Bill Payment"
+                ],
+                "summary": "Create Pin",
+                "operationId": "Create Pin",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "pin",
+                                    "confirm_pin"
+                                ],
+                                "properties": {
+                                    "pin": {
+                                        "description": "it should be 4 digits",
+                                        "type": "string"
+                                    },
+                                    "confirm_pin": {
+                                        "description": "same as above",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/vfd/reset-billpayment-pin": {
+            "post": {
+                "tags": [
+                    "VFD Bill Payment"
+                ],
+                "summary": "Reset Billpayment Pin",
+                "operationId": "Reset Billpayment Pin",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "pin",
+                                    "confirm_new_pin"
+                                ],
+                                "properties": {
+                                    "pin": {
+                                        "description": "it should be 4 digits",
+                                        "type": "string"
+                                    },
+                                    "confirm_new_pin": {
+                                        "description": "same as above",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/vfd/get-billpayments-history": {
+            "get": {
+                "tags": [
+                    "VFD Bill Payment"
+                ],
+                "summary": "Get Bill Payments History",
+                "operationId": "Get Bill Payments History",
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [

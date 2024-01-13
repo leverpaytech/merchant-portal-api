@@ -194,9 +194,10 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-biller-items/{billerId}/{divisionId}/{productId}', [UserController::class,'billerItems']);
                 Route::post('submit-bill-payment', [UserController::class,'billPayment']);
                 Route::post('create-new-pin', [UserController::class,'createBillPaymentPin']);
+                Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
                 Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
             });
-            //
+            
 
         });
     });

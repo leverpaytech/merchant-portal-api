@@ -861,6 +861,7 @@ class AdminController extends BaseController
             'account_name'=>'required'
         ]);
 
+        
         DB::table('lever_pay_account_no')->insert($data);
 
         return $this->successfulResponse([], 'Bank created successfully');

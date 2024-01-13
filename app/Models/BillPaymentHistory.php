@@ -22,6 +22,7 @@ class BillPaymentHistory extends Model
         'product',
         'item',
         'extra',
+        'provider_name',
         'transaction_reference',
         'status',
         'created_at',
