@@ -1599,13 +1599,13 @@ class UserController extends BaseController
             'billerId'=>$billerId
         ];
 
-        $checkPin=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
-        if(!$checkPin)
-        {
-            return $this->sendError('Invalid pin',422);
-        }
-        $gf=[$accessToken, $userId,$checkPin ];
-        return response()->json($gf,200);
+        // $checkPin=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
+        // if(!$checkPin)
+        // {
+        //     return $this->sendError('Invalid pin',422);
+        // }
+        // $gf=[$accessToken, $userId,$checkPin ];
+        // return response()->json($gf,200);
 
         $checkBalance = Wallet::where('user_id', $userId)->get(['withdrawable_amount','amount'])->first();
         if(!$checkBalance || $checkBalance->amount < $vData['amount'])
