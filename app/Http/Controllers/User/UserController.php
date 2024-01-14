@@ -1576,6 +1576,12 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
+        $checkPinT=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->get()->first();
+        if(!$checkPinT)
+        {
+            return $this->sendError('Invalid pin',422);
+        }
+
         $response=VfdService::generateAccessToken();
         $response=json_decode($response);
         $accessToken=$response->data->access_token;
@@ -1589,23 +1595,21 @@ class UserController extends BaseController
         $productId=$data['productId'];
         $billerId=$data['billerId'];
 
-        // $vData=[
-        //     'ref'=>$reference,
-        //     'customerId'=>$customerId,
-        //     'amount'=>$amount,
-        //     'division'=>$division,
-        //     'paymentItem'=>$paymentItem,
-        //     'productId'=>$productId,
-        //     'billerId'=>$billerId
-        // ];
-
-        $checkPin=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->get()->first();
-        if(!$checkPin)
-        {
-            return $this->sendError('Invalid pin',422);
-        }
-        $gf=[$accessToken, $userId,$checkPin ];
+        $gf=[$accessToken, $userId];
         return response()->json($gf,200);
+
+        $vData=[
+            'ref'=>$reference,
+            'customerId'=>$customerId,
+            'amount'=>$amount,
+            'division'=>$division,
+            'paymentItem'=>$paymentItem,
+            'productId'=>$productId,
+            'billerId'=>$billerId
+        ];
+
+        
+        
 
         $checkBalance = Wallet::where('user_id', $userId)->get(['withdrawable_amount','amount'])->first();
         if(!$checkBalance || $checkBalance->amount < $vData['amount'])
