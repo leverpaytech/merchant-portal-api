@@ -1587,7 +1587,7 @@ class UserController extends BaseController
         $accessToken=$response->data->access_token;
         
         //$reference="Leverpay-".time();
-        $reference="Leverpay-".uniqid();
+        //$referenceNo="Leverpay-".uniqid();
         $customerId=$data['customerId'];
         $amount=$data['amount'];
         $division=$data['division'];
@@ -1599,7 +1599,7 @@ class UserController extends BaseController
         return response()->json($gf,200);
 
         $vData=[
-            'ref'=>$reference,
+            'ref'=>$referenceNo,
             'customerId'=>$customerId,
             'amount'=>$amount,
             'division'=>$division,
@@ -1624,7 +1624,7 @@ class UserController extends BaseController
         }
         $new_balance=($data['amount']+$getLeverPayAccount->balance);
 
-        $payBill=VfdService::payBill($accessToken,$customerId,$amount,$division,$paymentItem,$productId,$billerId,$reference);
+        $payBill=VfdService::payBill($accessToken,$customerId,$amount,$division,$paymentItem,$productId,$billerId,$referenceNo);
         $result=json_decode($payBill);
         
         if($result->status !='00')
@@ -1658,7 +1658,7 @@ class UserController extends BaseController
             ]); 
         });
 
-        $result=['reference'=>$reference,'product'=>$paymentItem];
+        $result=['reference'=>$referenceNo,'product'=>$paymentItem];
         return $this->successfulResponse($result, 'Transaction Successfully Completed');
 
         //return $result;
