@@ -1605,8 +1605,8 @@ class UserController extends BaseController
             return $this->sendError('Invalid pin',422);
         }
 
-        $checkBalance = Wallet::where('user_id', $userId)->get(['withdrawable_amount'])->first();
-        if($checkBalance->withdrawable_amount < $vData['amount'])
+        $checkBalance = Wallet::where('user_id', $userId)->get(['withdrawable_amount','amount'])->first();
+        if(!$checkBalance || $checkBalance->amount < $vData['amount'])
         {
             return $this->sendError('Insufficient wallet balance',422);
         }
