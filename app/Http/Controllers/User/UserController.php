@@ -1583,7 +1583,7 @@ class UserController extends BaseController
             return response()->json('Insufficient wallet balance', 422);
         }
 
-        $checkPinValidity=BillPaymentPin::where('user_id', $userId)->where('pin', $pin)->first();
+        $checkPinValidity=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
         if(empty($checkPinValidity))
         {
             return response()->json('Invalid pin', 422);
