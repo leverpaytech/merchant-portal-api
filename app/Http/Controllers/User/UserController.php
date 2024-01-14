@@ -1564,7 +1564,7 @@ class UserController extends BaseController
             'paymentItem' => 'required',
             'productId' => 'required',
             'billerId' => 'required',
-            //'pin' => 'required|numeric',
+            'pin' => 'required|numeric'
         ]);
 
         if ($validator->fails())
@@ -1576,93 +1576,100 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
-        // $checkPinT=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->get()->first();
-        // if(!$checkPinT)
-        // {
-        //     return $this->sendError('Invalid pin',422);
-        // }
-
-        $response=VfdService::generateAccessToken();
-        $response=json_decode($response);
-        $accessToken=$response->data->access_token;
+        // $response=VfdService::generateAccessToken();
+        // $response=json_decode($response);
+        // $accessToken=$response->data->access_token;
+        $accessToken = json_decode(VfdService::generateAccessToken())->data->access_token;
         
-        //$reference="Leverpay-".time();
-        $referenceNo="Leverpay-".uniqid();
-        $customerId=$data['customerId'];
-        $amount=$data['amount'];
-        $division=$data['division'];
-        $paymentItem=$data['paymentItem'];
-        $productId=$data['productId'];
-        $billerId=$data['billerId'];
-
-        // $gf=[$accessToken, $userId];
-        // return response()->json($gf,200);
-
-        $vData=[
-            'ref'=>$referenceNo,
-            'customerId'=>$customerId,
-            'amount'=>$amount,
-            'division'=>$division,
-            'paymentItem'=>$paymentItem,
-            'productId'=>$productId,
-            'billerId'=>$billerId
+        $nin=[
+            'referenceNo'=>"Leverpay-".uniqid(),
+            'customerId'=>$data['customerId'],
+            'amount'=>$data['amount'],
+            'division'=>$data['division'],
+            'paymentItem'=>$data['paymentItem'],
+            'productId'=>$data['productId'],
+            'billerId'=>$data['billerId']
         ];
 
-        
-        
-
-        $checkBalance = Wallet::where('user_id', $userId)->get(['withdrawable_amount','amount'])->first();
-        if(!$checkBalance || $checkBalance->amount < $vData['amount'])
-        {
-            return $this->sendError('Insufficient wallet balance',422);
+        $checkPin = $this->checkPinValidity($userId, $data['pin']);
+        if (!$checkPin) {
+            return $this->sendError('Invalid pin', 422);
         }
 
-        $getLeverPayAccount=DB::table('lever_pay_account_no')->where('id',1)->first();
-        if(empty($getLeverPayAccount->balance))
-        {
-            return $this->sendError('Transaction Failed, Add atleast one leverpay account',422);
-        }
-        $new_balance=($data['amount']+$getLeverPayAccount->balance);
-
-        $payBill=VfdService::payBill($accessToken,$customerId,$amount,$division,$paymentItem,$productId,$billerId,$referenceNo);
-        $result=json_decode($payBill);
-        
-        if($result->status !='00')
-        {
-            return $this->sendError('Transaction Failed',422);
+        $checkBalance = $this->checkWalletBalance($userId, $data['amount']);
+        if (!$checkBalance) {
+            return $this->sendError('Insufficient wallet balance', 422);
         }
 
-        DB::transaction(function () use($userId, $vData, $new_balance){
+        $getLeverPayAccount = $this->getLeverPayAccount();
+        if (empty($getLeverPayAccount->balance)) {
+            return $this->sendError('Transaction Failed, Add at least one leverpay account', 422);
+        }
 
-            $extra=json_encode($vData);
+        $newBalance = $this->updateLeverPayAccountBalance($data['amount'], $getLeverPayAccount->balance);
 
-            WalletService::subtractFromWallet($userId, $vData['amount'], 'naira');
+        $payBillResult = json_decode(
+            VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
+        );
 
-            //$getLeverPayAccount->balance = $vData['amount'];
-            //$getLeverPayAccount->save();
-            DB::table('lever_pay_account_no')->where('id',1)->update(['balance'=>$new_balance]);
-            
-            BillPaymentHistory::create([
-                'user_id'=>$userId,
-                'customerId'=>$vData['customerId'],
-                'unit_purchased'=>0,
-                'price'=>$vData['amount'],
-                'amount'=>$vData['amount'],
-                'category'=>$vData['division'],
-                'biller'=>$vData['billerId'],
-                'product'=>$vData['productId'],
-                'item'=>$vData['paymentItem'],
-                'extra'=>$extra,
-                'provider_name'=>'VFD',
-                'transaction_reference'=>$vData['ref']
-            ]); 
-        });
+        if ($payBillResult->status != '00') {
+            return $this->sendError('Transaction Failed', 422);
+        }
 
-        $result=['reference'=>$referenceNo,'product'=>$paymentItem];
+        $this->performTransaction($userId, $nin, $newBalance);
+
+        $result = ['reference' => $nin['referenceNo'], 'product' => $data['paymentItem']];
         return $this->successfulResponse($result, 'Transaction Successfully Completed');
 
-        //return $result;
+    }
 
+    protected function checkPinValidity($userId, $pin)
+    {
+        return BillPaymentPin::where('user_id', $userId)->where('pin', $pin)->first();
+    }
+
+    protected function checkWalletBalance($userId, $amount)
+    {
+        $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
+
+        return $checkBalance && $checkBalance->amount >= $amount;
+    }
+
+    protected function getLeverPayAccount()
+    {
+        return DB::table('lever_pay_account_no')->where('id', 1)->first();
+    }
+
+    protected function updateLeverPayAccountBalance($amount, $currentBalance)
+    {
+        $newBalance = $currentBalance + $amount;
+        DB::table('lever_pay_account_no')->where('id', 1)->update(['balance' => $newBalance]);
+
+        return $newBalance;
+    }
+
+    protected function performTransaction($userId, $nin, $newBalance)
+    {
+        $extra=json_encode($nin);
+        WalletService::subtractFromWallet($userId, $nin['amount'], 'naira');
+
+        //$getLeverPayAccount->balance = $nin['amount'];
+        //$getLeverPayAccount->save();
+
+        BillPaymentHistory::create([
+            'user_id' => $userId,
+            'customerId' => $nin['customerId'],
+            'unit_purchased' => 0,
+            'price' => $nin['amount'],
+            'amount' => $nin['amount'],
+            'category' => $nin['division'],
+            'biller' => $nin['billerId'],
+            'product' => $nin['productId'],
+            'item' => $nin['paymentItem'],
+            'extra' => $extra,
+            'provider_name' => 'VFD',
+            'transaction_reference' => $nin['referenceNo'],
+        ]);
     }
 
     /**
