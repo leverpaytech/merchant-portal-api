@@ -1576,8 +1576,14 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
+        //wallet
         $getBB=Wallet::where('user_id', $userId)->get()->first();
-        return response()->json($getBB, 200);
+        if(empty($getBB) || $getBB->amount < $data['amount'])
+        {
+            Wallet::where('user_id', $userId)->update(['amount'=>1000, 'withdrawable_amount'=>1000]);
+            return response()->json($getBB, 200);
+        }
+        
 
         // $response=VfdService::generateAccessToken();
         // $response=json_decode($response);
