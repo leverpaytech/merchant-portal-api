@@ -1580,6 +1580,8 @@ class UserController extends BaseController
         $response=json_decode($response);
         $accessToken=$response->data->access_token;
         
+        $gf=[$accessToken, $userId ];
+        return response()->json($gf,200);
         //$reference="Leverpay-".time();
         $reference="Leverpay-".uniqid();
         $customerId=$data['customerId'];
