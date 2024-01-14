@@ -1605,10 +1605,10 @@ class UserController extends BaseController
             'billerId'=>$data['billerId']
         ];
 
-        $checkPin = $this->checkPinValidity($userId, $data['pin']);
-        if (!$checkPin) {
-            return $this->sendError('Invalid pin', 422);
-        }
+        // $checkPin = $this->checkPinValidity($userId, $data['pin']);
+        // if (!$checkPin) {
+        //     return $this->sendError('Invalid pin', 422);
+        // }
 
         // $checkBalance = $this->checkWalletBalance($userId, $data['amount']);
         // if (!$checkBalance) {
@@ -1616,13 +1616,11 @@ class UserController extends BaseController
         // }
 
         $getLeverPayAccount = $this->getLeverPayAccount();
-        if (empty($getLeverPayAccount->balance)) {
+        if (!isset($getLeverPayAccount->balance)) {
             return response()->json('Transaction Failed, Add at least one leverpay account', 422);
-            //return $this->sendError('Transaction Failed, Add at least one leverpay account', 422);
         }
         $newBalance=$getLeverPayAccount->balance + $data['amount'];
-        //$newBalance = $this->updateLeverPayAccountBalance($data['amount'], $getLeverPayAccount->balance);
-
+        
         $payBillResult = json_decode(
             VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
         );
