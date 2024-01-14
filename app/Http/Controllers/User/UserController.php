@@ -1580,8 +1580,6 @@ class UserController extends BaseController
         $response=json_decode($response);
         $accessToken=$response->data->access_token;
         
-        $gf=[$accessToken, $userId ];
-        return response()->json($gf,200);
         //$reference="Leverpay-".time();
         $reference="Leverpay-".uniqid();
         $customerId=$data['customerId'];
@@ -1606,6 +1604,8 @@ class UserController extends BaseController
         {
             return $this->sendError('Invalid pin',422);
         }
+        $gf=[$accessToken, $userId,$checkPin ];
+        return response()->json($gf,200);
 
         $checkBalance = Wallet::where('user_id', $userId)->get(['withdrawable_amount','amount'])->first();
         if(!$checkBalance || $checkBalance->amount < $vData['amount'])
