@@ -1576,6 +1576,9 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
+        $getBB=Wallet::where('user_id', $userId)->get()->first();
+        return response()->json($getBB, 200);
+
         // $response=VfdService::generateAccessToken();
         // $response=json_decode($response);
         // $accessToken=$response->data->access_token;
@@ -1637,13 +1640,13 @@ class UserController extends BaseController
 
     protected function getLeverPayAccount()
     {
-        return DB::table('lever_pay_account_no')->where('id', 1)->first();
+        return DB::table('lever_pay_account_no')->where('id', 2)->first();
     }
 
     protected function updateLeverPayAccountBalance($amount, $currentBalance)
     {
         $newBalance = $currentBalance + $amount;
-        DB::table('lever_pay_account_no')->where('id', 1)->update(['balance' => $newBalance]);
+        DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
 
         return $newBalance;
     }
@@ -1653,7 +1656,7 @@ class UserController extends BaseController
         $extra=json_encode($nin);
         WalletService::subtractFromWallet($userId, $nin['amount'], 'naira');
 
-        DB::table('lever_pay_account_no')->where('id', 1)->update(['balance' => $newBalance]);
+        DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
 
         BillPaymentHistory::create([
             'user_id' => $userId,
