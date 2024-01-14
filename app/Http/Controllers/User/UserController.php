@@ -1605,8 +1605,8 @@ class UserController extends BaseController
         if (empty($getLeverPayAccount->balance)) {
             return $this->sendError('Transaction Failed, Add at least one leverpay account', 422);
         }
-
-        $newBalance = $this->updateLeverPayAccountBalance($data['amount'], $getLeverPayAccount->balance);
+        $newBalance=$getLeverPayAccount->balance + $data['amount'];
+        //$newBalance = $this->updateLeverPayAccountBalance($data['amount'], $getLeverPayAccount->balance);
 
         $payBillResult = json_decode(
             VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
@@ -1653,8 +1653,7 @@ class UserController extends BaseController
         $extra=json_encode($nin);
         WalletService::subtractFromWallet($userId, $nin['amount'], 'naira');
 
-        //$getLeverPayAccount->balance = $nin['amount'];
-        //$getLeverPayAccount->save();
+        DB::table('lever_pay_account_no')->where('id', 1)->update(['balance' => $newBalance]);
 
         BillPaymentHistory::create([
             'user_id' => $userId,
