@@ -1564,7 +1564,7 @@ class UserController extends BaseController
             'paymentItem' => 'required',
             'productId' => 'required',
             'billerId' => 'required',
-            'pin' => 'required|numeric',
+            //'pin' => 'required|numeric',
         ]);
 
         if ($validator->fails())
@@ -1576,18 +1576,18 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
-        $checkPinT=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->get()->first();
-        if(!$checkPinT)
-        {
-            return $this->sendError('Invalid pin',422);
-        }
+        // $checkPinT=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->get()->first();
+        // if(!$checkPinT)
+        // {
+        //     return $this->sendError('Invalid pin',422);
+        // }
 
         $response=VfdService::generateAccessToken();
         $response=json_decode($response);
         $accessToken=$response->data->access_token;
         
         //$reference="Leverpay-".time();
-        //$referenceNo="Leverpay-".uniqid();
+        $referenceNo="Leverpay-".uniqid();
         $customerId=$data['customerId'];
         $amount=$data['amount'];
         $division=$data['division'];
@@ -1595,8 +1595,8 @@ class UserController extends BaseController
         $productId=$data['productId'];
         $billerId=$data['billerId'];
 
-        $gf=[$accessToken, $userId];
-        return response()->json($gf,200);
+        // $gf=[$accessToken, $userId];
+        // return response()->json($gf,200);
 
         $vData=[
             'ref'=>$referenceNo,
