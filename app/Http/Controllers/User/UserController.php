@@ -1578,17 +1578,17 @@ class UserController extends BaseController
 
         //check wallet validity
         $getBB=Wallet::where('user_id', $userId)->get()->first();
-        if(empty($getBB) || $getBB->amount < $data['amount'])
+        if(empty($getBB->amount) || $getBB->amount < $data['amount'])
         {
             return response()->json('Insufficient wallet balance', 422);
         }
 
         $checkPinValidity=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
-        if(empty($checkPinValidity))
+        if(empty($checkPinValidity->id))
         {
             return response()->json('Invalid pin', 422);
         }
-        return response()->json($checkPinValidity, 422);
+        //return response()->json($checkPinValidity, 422);
 
         // $response=VfdService::generateAccessToken();
         // $response=json_decode($response);
@@ -1617,7 +1617,8 @@ class UserController extends BaseController
 
         $getLeverPayAccount = $this->getLeverPayAccount();
         if (empty($getLeverPayAccount->balance)) {
-            return $this->sendError('Transaction Failed, Add at least one leverpay account', 422);
+            return response()->json('Transaction Failed, Add at least one leverpay account', 422);
+            //return $this->sendError('Transaction Failed, Add at least one leverpay account', 422);
         }
         $newBalance=$getLeverPayAccount->balance + $data['amount'];
         //$newBalance = $this->updateLeverPayAccountBalance($data['amount'], $getLeverPayAccount->balance);
@@ -1627,13 +1628,17 @@ class UserController extends BaseController
         );
 
         if ($payBillResult->status != '00') {
-            return $this->sendError('Transaction Failed', 422);
+            return response()->json('Transaction Failed, Add at least one leverpay account', 422);
         }
 
         $this->performTransaction($userId, $nin, $newBalance);
 
-        $result = ['reference' => $nin['referenceNo'], 'product' => $data['paymentItem']];
-        return $this->successfulResponse($result, 'Transaction Successfully Completed');
+        $result = [
+            'message'=>'Transaction Successfully Completed',
+            'reference' => $nin['referenceNo'], 
+            'product' => $data['paymentItem']
+        ];
+        return response()->json($result, 200);
 
     }
 
