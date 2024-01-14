@@ -1580,16 +1580,16 @@ class UserController extends BaseController
         $getBB=Wallet::where('user_id', $userId)->get()->first();
         if(empty($getBB) || $getBB->amount < $data['amount'])
         {
-            return $this->sendError('Insufficient wallet balance', 422);
+            return response()->json('Insufficient wallet balance', 422);
         }
 
         $checkPinValidity=BillPaymentPin::where('user_id', $userId)->where('pin', $pin)->first();
         if(empty($checkPinValidity))
         {
-            return $this->sendError('Invalid pin', 422);
+            return response()->json('Invalid pin', 422);
         }
-        return $this->sendError($checkPinValidity, 422);
-        
+        return response()->json($checkPinValidity, 422);
+
         // $response=VfdService::generateAccessToken();
         // $response=json_decode($response);
         // $accessToken=$response->data->access_token;
