@@ -4419,7 +4419,8 @@
                                     "paymentItem",
                                     "productId",
                                     "billerId",
-                                    "pin"
+                                    "pin",
+                                    "reference_no"
                                 ],
                                 "properties": {
                                     "customerId": {
@@ -4448,6 +4449,10 @@
                                     },
                                     "pin": {
                                         "description": "bill payment pin",
+                                        "type": "string"
+                                    },
+                                    "reference_no": {
+                                        "description": "transaction reference no",
                                         "type": "string"
                                     }
                                 },

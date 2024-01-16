@@ -1496,9 +1496,11 @@ class UserController extends BaseController
         $response=json_decode($response);
         $accessToken=$response->data->access_token;
         
-
+        
         $getItems=VfdService::getBillerItems($accessToken,$billerId,$divisionId,$productId);
         $geBillerItems=json_decode($getItems);
+
+        $geBillerItems->reference_no=base64_encode("Leverpay-".uniqid());
 
         return $geBillerItems;
     }
@@ -1513,7 +1515,7 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"customerId","amount","division","paymentItem","productId","billerId","pin"},
+     *              required={"customerId","amount","division","paymentItem","productId","billerId","pin","reference_no"},
      *              @OA\Property( property="customerId", type="string", description="e.g Phone Number or Meter Token"),
      *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
      *              @OA\Property( property="division", type="string", description="This is returned from biller List and it should be hidden"),
@@ -1521,6 +1523,7 @@ class UserController extends BaseController
      *              @OA\Property( property="productId", type="string", description="This is returned from biller List and it should be hidden"),
      *              @OA\Property( property="billerId", type="string", description="This signifies the ID of the biller it is returned from the Biller List and it should be hidden"),
      *              @OA\Property( property="pin", type="string", description="bill payment pin"),
+     *              @OA\Property( property="reference_no", type="string", description="transaction reference no"),
      *          ),
      *      ),
      *   ),
@@ -1563,8 +1566,9 @@ class UserController extends BaseController
             'division' => 'required|string',
             'paymentItem' => 'required',
             'productId' => 'required',
-            'billerId' => 'required',
-            'pin' => 'required|numeric'
+            'billerId' => 'required', 
+            'pin' => 'required|numeric',
+            'reference_no' => 'required'
         ]);
 
         if ($validator->fails())
@@ -1588,16 +1592,21 @@ class UserController extends BaseController
         // {
         //     return response()->json('Invalid pin', 422);
         // }
-        
+
         //return response()->json($checkPinValidity, 422);
 
         // $response=VfdService::generateAccessToken();
         // $response=json_decode($response);
         // $accessToken=$response->data->access_token;
         $accessToken = json_decode(VfdService::generateAccessToken())->data->access_token;
-        
+        if(!$accessToken)
+        {
+            return response()->json('Invalid access token', 422);
+        }
+
         $nin=[
-            'referenceNo'=>"Leverpay-".uniqid(),
+            //'referenceNo'=>"Leverpay-".uniqid(),
+            'referenceNo'=>base64_decode($data['reference_no']),
             'customerId'=>$data['customerId'],
             'amount'=>$data['amount'],
             'division'=>$data['division'],
