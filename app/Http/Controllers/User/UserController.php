@@ -1628,15 +1628,22 @@ class UserController extends BaseController
             return response()->json('Transaction Failed', 422);
         }
 
-        $this->performTransaction($userId, $nin, $newBalance);
-
-        $result = [
-            'message'=>'Transaction Successfully Completed',
-            'reference' => $nin['referenceNo'], 
-            'product' => $data['paymentItem']
-        ];
-        return response()->json($result, 200);
-
+        // Start the database transaction
+        DB::beginTransaction();
+        try{
+            $this->performTransaction($userId, $nin, $newBalance);
+            DB::commit();
+            $result = [
+                'message'=>'Transaction Successfully Completed',
+                'reference' => $nin['referenceNo'], 
+                'product' => $data['paymentItem']
+            ];
+            return response()->json($result, 200);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            //throw $e;
+            return response()->json('Transaction Failed', 422);
+        }
     }
 
     protected function checkPinValidity($userId, $pin)
