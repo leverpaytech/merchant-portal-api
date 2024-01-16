@@ -1577,17 +1577,18 @@ class UserController extends BaseController
         $userId = Auth::user()->id;
 
         //check wallet validity
-        $getBB=Wallet::where('user_id', $userId)->get()->first();
-        if(empty($getBB->amount) || $getBB->amount < $data['amount'])
-        {
-            return response()->json('Insufficient wallet balance', 422);
-        }
+        // $getBB=Wallet::where('user_id', $userId)->get()->first();
+        // if(empty($getBB->amount) || $getBB->amount < $data['amount'])
+        // {
+        //     return response()->json('Insufficient wallet balance', 422);
+        // }
 
-        $checkPinValidity=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
-        if(empty($checkPinValidity->id))
-        {
-            return response()->json('Invalid pin', 422);
-        }
+        // $checkPinValidity=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
+        // if(empty($checkPinValidity->id))
+        // {
+        //     return response()->json('Invalid pin', 422);
+        // }
+        
         //return response()->json($checkPinValidity, 422);
 
         // $response=VfdService::generateAccessToken();
@@ -1605,20 +1606,22 @@ class UserController extends BaseController
             'billerId'=>$data['billerId']
         ];
 
-        // $checkPin = $this->checkPinValidity($userId, $data['pin']);
-        // if (!$checkPin) {
-        //     return $this->sendError('Invalid pin', 422);
-        // }
+        $checkPin = $this->checkPinValidity($userId, $data['pin']);
+        if (!$checkPin) {
+            return $this->sendError('Invalid pin', 422);
+        }
 
-        // $checkBalance = $this->checkWalletBalance($userId, $data['amount']);
-        // if (!$checkBalance) {
-        //     return $this->sendError('Insufficient wallet balance', 422);
-        // }
+        $checkBalance = $this->checkWalletBalance($userId, $data['amount']);
+        if (!$checkBalance) {
+            return $this->sendError('Insufficient wallet balance', 422);
+        }
 
         $getLeverPayAccount = $this->getLeverPayAccount();
-        if (!isset($getLeverPayAccount->balance)) {
+        
+        if (!$getLeverPayAccount->balance) {
             return response()->json('Transaction Failed, Add at least one leverpay account', 422);
         }
+        
         $newBalance=$getLeverPayAccount->balance + $data['amount'];
         
         $payBillResult = json_decode(
@@ -1626,7 +1629,7 @@ class UserController extends BaseController
         );
 
         if ($payBillResult->status != '00') {
-            return response()->json('Transaction Failed, Add at least one leverpay account', 422);
+            return response()->json('Transaction Failed', 422);
         }
 
         $this->performTransaction($userId, $nin, $newBalance);
