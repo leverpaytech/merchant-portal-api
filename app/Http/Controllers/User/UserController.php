@@ -1580,24 +1580,11 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
-        //check wallet validity
-        // $getBB=Wallet::where('user_id', $userId)->get()->first();
-        // if(empty($getBB->amount) || $getBB->amount < $data['amount'])
-        // {
-        //     return response()->json('Insufficient wallet balance', 422);
-        // }
-
-        // $checkPinValidity=BillPaymentPin::where('user_id', $userId)->where('pin', $data['pin'])->first();
-        // if(empty($checkPinValidity->id))
-        // {
-        //     return response()->json('Invalid pin', 422);
-        // }
-
-        //return response()->json($checkPinValidity, 422);
-
-        // $response=VfdService::generateAccessToken();
-        // $response=json_decode($response);
-        // $accessToken=$response->data->access_token;
+        $checkRefNo = $this->checkReferenceNoValidity($userId, $data['reference_no']);
+        if ($checkRefNo) {
+            return response()->json('Duplicate Transactions', 422);
+        }
+        
         $accessToken = json_decode(VfdService::generateAccessToken())->data->access_token;
         if(!$accessToken)
         {
@@ -1617,12 +1604,12 @@ class UserController extends BaseController
 
         $checkPin = $this->checkPinValidity($userId, $data['pin']);
         if (!$checkPin) {
-            return $this->sendError('Invalid pin', 422);
+            return response()->json('Invalid pin', 422);
         }
 
         $checkBalance = $this->checkWalletBalance($userId, $data['amount']);
         if (!$checkBalance) {
-            return $this->sendError('Insufficient wallet balance', 422);
+            return response()->json('Insufficient wallet balance', 422);
         }
 
         $getLeverPayAccount = $this->getLeverPayAccount();
@@ -1655,6 +1642,12 @@ class UserController extends BaseController
     protected function checkPinValidity($userId, $pin)
     {
         return BillPaymentPin::where('user_id', $userId)->where('pin', $pin)->first();
+    }
+
+    protected function checkReferenceNoValidity($reference_no)
+    {
+        $refNo=base64_decode($reference_no);
+        return BillPaymentHistory::where('transaction_reference', $refNo)->first();
     }
 
     protected function checkWalletBalance($userId, $amount)
