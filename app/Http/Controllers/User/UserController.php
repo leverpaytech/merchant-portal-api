@@ -1566,12 +1566,10 @@ class UserController extends BaseController
         $accessToken=$response->data->access_token;
         
         
-        $getItems=VfdService::validateCustomer($accessToken,$divisionId,$paymentItem,$customerId,$billerId);
-        $geBillerItems=json_decode($getItems);
+        $getDD=VfdService::validateCustomer($accessToken,$divisionId,$paymentItem,$customerId,$billerId);
+        $response=json_decode($getDD);
 
-        $geBillerItems->reference_no=base64_encode("Leverpay-".uniqid());
-
-        return $geBillerItems;
+        return $response;
     }
 
     /**
