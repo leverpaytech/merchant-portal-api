@@ -146,23 +146,21 @@ class InvoiceController extends BaseController
         $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        
+
         $message=[
-            'customer'=>$data['email'],
-            'merchant'=>$merchant_business_name,
+            'customer_name'=>$data['email'],
+            'merchant_name'=>$merchant_business_name,
             'product_name'=>$data['product_name'],
-            'product_description'=>$data['product_description'],
-            'price'=>$sym.$data['price'],
-            'fee'=>$data['fee'],
+            'description'=>$data['product_description'],
+            'amount'=>$sym.$data['price'],
+            'transaction_fee'=>$data['fee'],
             'total'=>$data['total'],
-            'url'=>$data['url'],
+            'view_invoice_link'=>$data['url'],
             'vat'=>$vat_cal
         ];
-        
-        ZeptomailService::payInvoiceMail("Invoice notification" ,$message, $data['email']);
-        
 
-
+        // ZeptomailService::payInvoiceMail("Invoice notification" ,$message, $data['email']);
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.d46e9be0-9b7d-11ee-a277-5254004d4100.18c6ee4949e" ,$message, $data['email']);
         return $this->successfulResponse($invoice,"Invoice successfully created");
 
     }
