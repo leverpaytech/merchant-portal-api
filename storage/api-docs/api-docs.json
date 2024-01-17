@@ -4364,27 +4364,27 @@
                     {
                         "name": "billerId",
                         "in": "path",
+                        "description": "This is returned from biller List",
                         "required": true,
                         "schema": {
-                            "description": "This is returned from biller List",
                             "type": "string"
                         }
                     },
                     {
                         "name": "divisionId",
                         "in": "path",
+                        "description": "This is returned from biller List",
                         "required": true,
                         "schema": {
-                            "description": "This is returned from biller List",
                             "type": "string"
                         }
                     },
                     {
                         "name": "productId",
                         "in": "path",
+                        "description": "This is returned from biller List",
                         "required": true,
                         "schema": {
-                            "description": "This is returned from biller List",
                             "type": "string"
                         }
                     }
@@ -4407,41 +4407,41 @@
                     "VFD Bill Payment"
                 ],
                 "summary": "Validate Customer",
-                "operationId": "Validate Customer",
+                "operationId": "validateCustomer",
                 "parameters": [
                     {
                         "name": "divisionId",
                         "in": "path",
+                        "description": "This is returned from biller List as division",
                         "required": true,
                         "schema": {
-                            "description": "This is returned from biller List as division",
                             "type": "string"
                         }
                     },
                     {
                         "name": "paymentItem",
                         "in": "path",
+                        "description": "This is returned from biller items as paymentCode",
                         "required": true,
                         "schema": {
-                            "description": "This is returned from biller items as paymentCode",
                             "type": "string"
                         }
                     },
                     {
                         "name": "customerId",
                         "in": "path",
+                        "description": "Customer Id i.e Meter Token",
                         "required": true,
                         "schema": {
-                            "description": "Customer Id i.e Meter Token",
                             "type": "string"
                         }
                     },
                     {
                         "name": "billerId",
                         "in": "path",
+                        "description": "This signifies the ID of the biller it is returned from the Biller List",
                         "required": true,
                         "schema": {
-                            "description": "This signifies the ID of the biller it is returned from the Biller List\t",
                             "type": "string"
                         }
                     }

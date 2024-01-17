@@ -1450,18 +1450,18 @@ class UserController extends BaseController
      *      name="billerId",
      *      in="path",
      *      required=true,
+     *      description="This is returned from biller List",
      *      @OA\Schema(
-     *           type="string",
-     *           description="This is returned from biller List"
+     *           type="string"
      *      )
      *   ),
      * * @OA\Parameter(
      *      name="divisionId",
      *      in="path",
      *      required=true,
+    *       description="This is returned from biller List",
      *      @OA\Schema(
-     *           type="string",
-     *           description="This is returned from biller List"
+     *           type="string"
      *      )
      *   ),
      *
@@ -1469,9 +1469,9 @@ class UserController extends BaseController
      *     name="productId",
      *     in="path",
      *     required=true,
+     *     description="This is returned from biller List",
      *     @OA\Schema(
-     *         type="string",
-     *         description="This is returned from biller List"
+     *         type="string"
      *     )
      * ),
      *
@@ -1507,60 +1507,54 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/user/vfd/validate-customer/{divisionId}/{paymentItem}/{customerId}/{billerId}",
-     *   tags={"VFD Bill Payment"},
-     *   summary="Validate Customer",
-     *   operationId="Validate Customer",
+     *     path="/api/v1/user/vfd/validate-customer/{divisionId}/{paymentItem}/{customerId}/{billerId}",
+     *     tags={"VFD Bill Payment"},
+     *     summary="Validate Customer",
+     *     operationId="validateCustomer",
      *
-     * * @OA\Parameter(
-     *      name="divisionId",
-     *      in="path",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string",
-     *           description="This is returned from biller List as division"
-     *      )
-     *   ),
-     * * @OA\Parameter(
-     *      name="paymentItem",
-     *      in="path",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string",
-     *           description="This is returned from biller items as paymentCode"
-     *      )
-     *   ),
-     *
-     * * @OA\Parameter(
-     *     name="customerId",
-     *     in="path",
-     *     required=true,
-     *     @OA\Schema(
-     *         type="string",
-     *         description="Customer Id i.e Meter Token"
-     *     )
-     * ),
-     *
-     * * @OA\Parameter(
-     *     name="billerId",
-     *     in="path",
-     *     required=true,
-     *     @OA\Schema(
-     *         type="string",
-     *         description="This signifies the ID of the biller it is returned from the Biller List	"
-     *     )
-     * ),
-     * 
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
+     *     @OA\Parameter(
+     *         name="divisionId",
+     *         in="path",
+     *         required=true,
+     *         description="This is returned from biller List as division",
+     *         @OA\Schema(type="string")
      *     ),
-     *     security={
-     *       {"bearer_token": {}}
-     *     }
      *
-     *)
+     *     @OA\Parameter(
+     *         name="paymentItem",
+     *         in="path",
+     *         required=true,
+     *         description="This is returned from biller items as paymentCode",
+     *         @OA\Schema(type="string")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="customerId",
+     *         in="path",
+     *         required=true,
+     *         description="Customer Id i.e Meter Token",
+     *         @OA\Schema(type="string")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="billerId",
+     *         in="path",
+     *         required=true,
+     *         description="This signifies the ID of the biller it is returned from the Biller List",
+     *         @OA\Schema(type="string")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success"
+     *     ),
+     *
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
      **/
+
     public function validateCustomer($divisionId,$paymentItem,$customerId,$billerId)
     {
         if(!Auth::user()->id)
