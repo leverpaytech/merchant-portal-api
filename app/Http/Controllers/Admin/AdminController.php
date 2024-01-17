@@ -861,6 +861,7 @@ class AdminController extends BaseController
             'account_name'=>'required'
         ]);
 
+
         DB::table('lever_pay_account_no')->insert($data);
 
         return $this->successfulResponse([], 'Bank created successfully');
@@ -1570,7 +1571,7 @@ class AdminController extends BaseController
      **/
     public function getMerchantAccount()
     {
-        $merchants=User::join('merchants', 'merchants.user_id','=','users.id')
+        $merchants = User::join('merchants', 'merchants.user_id', '=', 'users.id')
             ->join('wallets', 'wallets.user_id', '=', 'users.id')
             ->where('wallets.withdrawable_amount', '>', 0)
             ->get([
@@ -1585,97 +1586,42 @@ class AdminController extends BaseController
                 'wallets.withdrawable_amount'
             ]);
 
-        $merchants = $merchants->filter(function($merchant)
-        {
-            $total_invoice=Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
-            $amount_paid=Remittance::where('user_id', $merchant->id)->sum('amount');
-            $last_remmited=Remittance::where('user_id', $merchant->id)->latest()->get()->first();
+            $merchantsArray = $merchants->filter(function ($merchant) {
+                $total_invoice = Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
+                $amount_paid = Remittance::where('user_id', $merchant->id)->sum('amount');
+                $last_remmited = Remittance::where('user_id', $merchant->id)->latest()->first();
 
-            $getCurrency=Wallet::where('user_id', $merchant->id)->get(['amount','dollar'])->first();
+                $getCurrency = Wallet::where('user_id', $merchant->id)->get(['amount', 'dollar'])->first();
 
-            if(($total_invoice-$amount_paid) > 0)
-            {
-                $merchant['currency']=($getCurrency->amount > 0)?"naira":"dollar";
+                if (($total_invoice - $amount_paid) > 0) {
+                    $merchant->currency = ($getCurrency->amount > 0) ? "naira" : "dollar";
+                    $merchant->total_revenue = $total_invoice;
+                    $merchant->tota_remitted = $amount_paid;
+                    $merchant->last_remitted = isset($last_remmited->amount) ? $last_remmited->amount : 0;
+                    $merchant->total_unremitted = floatval($total_invoice - $amount_paid);
+                    $merchant->date = date('d/m/y');
 
-                $merchant['total_revenue']=$total_invoice;
-                $merchant['tota_remitted']=$amount_paid;
-                $merchant['last_remitted']=isset($last_remmited->amount)?$last_remmited->amount:0;
+                    return $merchant->toArray(); // Convert to array and include
+                } else {
+                    return false; // Exclude
+                }
+            });
 
-                $merchant['total_unremitted']=floatval($total_invoice-$amount_paid);
-                $merchant['date']=date('d/m/y');
+            $merchantsArray = array_values(array_filter($merchantsArray->toArray())); // Convert Collection to array before using array_filter
 
-                return true; // Include
-            }
-            else{
-                return false; // Exclude
-            }
+            // Modify the structure of the response
+            $response = [
+                'success' => true,
+                'data' => $merchantsArray,
+                'message' => 'Merchants list with account balance greater than zero successfully retrieved'
+            ];
 
-        });
+            return json_encode($response, JSON_PRETTY_PRINT);
 
-        return $this->successfulResponse($merchants, 'Machants list with account balance greater than zero successfully retrieved');
+
     }
 
-    /**
-     * @OA\Post(
-     ** path="/api/v1/admin/create-new-voucher",
-     *   tags={"Admin"},
-     *   summary="Create new voucher",
-     *   operationId="Create new voucher",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"code_no"},
-     *              @OA\Property( property="code_no", type="string")
-     *          ),
-     *      ),
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   }
-     *)
-     **/
-    public function createNewVocher(Request $request)
-    {
-        $data = $request->all();
 
-        $validator = Validator::make($data, [
-            'code_no' => 'required|unique:vouchers,code_no'
-        ]);
-
-        if($validator->fails())
-        {
-            return $this->sendError('Error',$validator->errors(),422);
-        }
-
-        $newVoucher=Voucher::create(['code_no'=>$data['code_no']]);
-
-        return $this->successfulResponse($newVoucher, 'new voucher successfully created');
-    }
 
     /**
      * @OA\Get(
@@ -1734,7 +1680,6 @@ class AdminController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"voucher_id","uuid","amount"},
-     *              @OA\Property( property="voucher_id", type="string"),
      *              @OA\Property( property="uuid", type="string"),
      *              @OA\Property( property="amount", type="string")
      *          ),
@@ -1774,7 +1719,6 @@ class AdminController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'voucher_id' => 'required',
             'uuid' => 'required',
             'amount' => 'required|numeric'
         ]);
@@ -1788,10 +1732,31 @@ class AdminController extends BaseController
 
         $account_no=sprintf('%010d', mt_rand(1111111111,99999999999));
 
+        $serchV=Voucher::where('status', 1)->get()->first();
+        $countAll=Voucher::count();
+        $newCode="LVP-".date('Y').sprintf('%04d',($countAll+1));
+
+        if(!empty($serchV->id))
+        {
+            $count=Remittance::where('voucher_id', $serchV->id)->count();
+            if($count < 50)
+            {
+                $voucher_id=$serchV->id;
+            }else{
+                Voucher::where('status', 1)->update(['status'=>0]);
+                $addNew=Voucher::create(['code_no'=>$newCode]);
+                $voucher_id=$addNew->id;
+            }
+        }
+        else{
+            Voucher::where('status', 1)->update(['status'=>0]);
+            $addNew=Voucher::create(['code_no'=>$newCode]);
+            $voucher_id=$addNew->id;
+        }
 
         $remittance=Remittance::create([
             'user_id'=>$getMerchant->id,
-            'voucher_id'=>$data['voucher_id'],
+            'voucher_id'=>$voucher_id,
             'amount'=>$data['amount'],
             'account_no'=>$account_no
         ]);
@@ -1802,13 +1767,13 @@ class AdminController extends BaseController
 
     /**
      * @OA\Get(
-     ** path="/api/v1/admin/get-payment-schedule-list/{codeno}",
+     ** path="/api/v1/admin/get-payment-schedule-list/{id}",
      *   tags={"Admin"},
-     *   summary="Get payment schedule list by voucher code no",
-     *   operationId="Get payment schedule list by voucher code no",
+     *   summary="Get payment schedule list by voucher id",
+     *   operationId="Get payment schedule list by voucher id",
      *
-     * * * @OA\Parameter(
-     *      name="code_no",
+     * *  @OA\Parameter(
+     *      name="id",
      *      in="path",
      *      required=true,
      *      @OA\Schema(
@@ -1826,19 +1791,17 @@ class AdminController extends BaseController
      *
      *)
      **/
-    public function getRemittanceByVoucherCode($code_no)
+    public function getRemittanceByVoucherCode($id)
     {
-        $checkpoint=Voucher::where('code_no',$code_no)->first();
+        $checkpoint=Voucher::where('id',$id)->first();
         if(!$checkpoint)
-            return $this->sendError("Invalid voucher codeno ".$code_no, [],400);
+            return $this->sendError("Invalid voucher id ".$id, [],400);
 
-        $results=Remittance::join('vouchers', 'vouchers.id', '=', 'remittances.voucher_id')
-            ->join('users', 'users.id', '=', 'remittances.user_id')
+        $results=Remittance::join('users', 'users.id', '=', 'remittances.user_id')
             ->join('merchants', 'merchants.user_id', '=', 'users.id')
-            ->where('code_no', $code_no)
+            ->where('remittances.voucher_id', $id)
             ->get([
                 'remittances.created_at',
-                'users.id',
                 'users.uuid',
                 'users.email',
                 'merchants.business_name',
@@ -1847,8 +1810,7 @@ class AdminController extends BaseController
                 'users.first_name as contact_person',
                 'users.phone as contact_person_phone',
                 'remittances.amount',
-                'remittances.currency',
-                'remittances.account_no',
+                'remittances.voucher_id',
                 'remittances.status'
             ]);
 
@@ -1858,7 +1820,7 @@ class AdminController extends BaseController
             return $result;
         });
 
-        return $this->successfulResponse($results, $code_no." payment schedule list successfully retrieved");
+        return $this->successfulResponse($results, " vourcher payment schedule list successfully retrieved");
     }
 
     /**
@@ -1871,8 +1833,8 @@ class AdminController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"user_id","voucher_id"},
-     *              @OA\Property(property="user_id", type="string", enum={"2","3","6"}),
+     *              required={"uuid","voucher_id"},
+     *              @OA\Property(property="uuid", type="string"),
      *              @OA\Property(property="voucher_id", type="string"),
      *          ),
      *      ),
@@ -1911,7 +1873,7 @@ class AdminController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'user_id'=>'required',
+            'uuid'=>'required',
             'voucher_id'=>'required'
         ]);
 
@@ -1920,8 +1882,10 @@ class AdminController extends BaseController
             return $this->sendError('Error',$validator->errors(),422);
         }
         //$data['user_id']=[3,3];
-        foreach($data['user_id'] as $userId)
+        foreach($data['uuid'] as $userUUId)
         {
+            $getUU=User::where('uuid', $userUUId)->get(['id'])->first();
+            $userId=$getUU->id;
             $user = User::join('merchants','merchants.user_id','=','users.id')
                 ->where('users.id', $userId)
                 ->get(['users.email','users.phone','merchants.business_name'])

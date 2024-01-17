@@ -31,13 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
     'vfd' => [
-        'consumerkey' => env('VFD_CONSUMER_KEY'),
-        'consumerSecretkey' => env('VFD_CONSUMER_SECRET'),
-        'accessToken' => env('VFD_ACCESS_TOKEN'),
-        'authurl' => env('VFD_AUTH_URL'),
-        'baseurl' => env('VFD_BASE_URL'),
-        'walletCredentials' => env('VFD_WALLET_CREDENTIALS'),
-        'onboarding' => env('VFD_ONBOARDING_URL')
+        'test_auth_url' => env('VFD_TEST_AUTH_URL'),
+        'live_auth_url' => env('VFD_LIVE_AUTH_URL'),
+        'test_base_url' => env('VFD_TEST_BASE_URL'),
+        'live_base_url' => env('VFD_LIVE_BASE_URL')
     ],
     'etherscan' => [
         'api_key' => env('ETHERSCAN_API_KEY'),

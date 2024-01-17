@@ -185,9 +185,24 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-data-details/{id}', [BillsController::class,'getDataDetails']);
                 Route::post('buy-data', [BillsController::class,'buyData']);
             });
+            
             Route::prefix('etherscan')->group(function () {
                 Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
             });
+
+            Route::prefix('vfd')->group(function () {
+                Route::get('check-transaction/{reference_no}', [UserController::class,'checkTransaction']);
+                Route::get('get-biller-categories', [UserController::class,'billerCategories']);
+                Route::get('get-biller-list/{categoryName}', [UserController::class,'billerList']);
+                Route::get('get-biller-items/{billerId}/{divisionId}/{productId}', [UserController::class,'billerItems']);
+                Route::post('submit-bill-payment', [UserController::class,'billPayment']);
+                Route::post('create-new-pin', [UserController::class,'createBillPaymentPin']);
+                Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
+                Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
+                Route::get('validate-customer', [UserController::class,'validateCustomer']);
+                
+            });
+            
 
         });
     });
@@ -251,11 +266,11 @@ Route::prefix('v1')->group( function(){
             //remittance endpoints
             Route::post('complete-remittance', [AdminController::class,'completeRemittance']);
             Route::get('get-merchants-for-remittance', [AdminController::class,'getMerchantAccount']);
-            Route::post('create-new-voucher', [AdminController::class,'createNewVocher']);
+            //Route::post('create-new-voucher', [AdminController::class,'createNewVocher']);
             Route::get('get-all-vouchers', [AdminController::class,'getAllVouchers']);
             Route::get('get-active-voucher', [AdminController::class,'getActiveVoucher']);
             Route::post('schedule-merchant-for-payment', [AdminController::class,'addToRemittance']);
-            Route::get('get-payment-schedule-list/{codeno}', [AdminController::class,'getRemittanceByVoucherCode']);
+            Route::get('/get-payment-schedule-list/{id}', [AdminController::class,'getRemittanceByVoucherCode']);
             Route::get('get-total-revenue-n-remittance', [AdminController::class,'getTotalRevenue']);
 
 
