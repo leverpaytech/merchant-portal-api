@@ -1506,6 +1506,81 @@ class UserController extends BaseController
     }
 
     /**
+     * @OA\Get(
+     ** path="/api/v1/user/vfd/validate-customer/{divisionId}/{paymentItem}/{customerId}/{billerId}",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Validate Customer",
+     *   operationId="Validate Customer",
+     *
+     * * @OA\Parameter(
+     *      name="divisionId",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *           description="This is returned from biller List as division"
+     *      )
+     *   ),
+     * * @OA\Parameter(
+     *      name="paymentItem",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *           description="This is returned from biller items as paymentCode"
+     *      )
+     *   ),
+     *
+     * * @OA\Parameter(
+     *     name="customerId",
+     *     in="path",
+     *     required=true,
+     *     @OA\Schema(
+     *         type="string",
+     *         description="Customer Id i.e Meter Token"
+     *     )
+     * ),
+     *
+     * * @OA\Parameter(
+     *     name="billerId",
+     *     in="path",
+     *     required=true,
+     *     @OA\Schema(
+     *         type="string",
+     *         description="This signifies the ID of the biller it is returned from the Biller List	"
+     *     )
+     * ),
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function validateCustomer($divisionId,$paymentItem,$customerId,$billerId)
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $response=VfdService::generateAccessToken();
+        $response=json_decode($response);
+        $accessToken=$response->data->access_token;
+        
+        
+        $getItems=VfdService::validateCustomer($accessToken,$divisionId,$paymentItem,$customerId,$billerId);
+        $geBillerItems=json_decode($getItems);
+
+        $geBillerItems->reference_no=base64_encode("Leverpay-".uniqid());
+
+        return $geBillerItems;
+    }
+
+    /**
      * @OA\Post(
      ** path="/api/v1/user/vfd/submit-bill-payment",
      *   tags={"VFD Bill Payment"},

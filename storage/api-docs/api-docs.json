@@ -4401,6 +4401,63 @@
                 ]
             }
         },
+        "/api/v1/user/vfd/validate-customer/{divisionId}/{paymentItem}/{customerId}/{billerId}": {
+            "get": {
+                "tags": [
+                    "VFD Bill Payment"
+                ],
+                "summary": "Validate Customer",
+                "operationId": "Validate Customer",
+                "parameters": [
+                    {
+                        "name": "divisionId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "description": "This is returned from biller List as division",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "paymentItem",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "description": "This is returned from biller items as paymentCode",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "customerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "description": "Customer Id i.e Meter Token",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "billerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "description": "This signifies the ID of the biller it is returned from the Biller List\t",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/vfd/submit-bill-payment": {
             "post": {
                 "tags": [

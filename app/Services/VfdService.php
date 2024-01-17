@@ -13,15 +13,6 @@ class VfdService
     public static $baseUrl='https://api-apps.vfdbank.systems/vtech-wallet/api/v1/billspaymentstore/';
     public static $authUrl='https://api-apps.vfdbank.systems/vfd-tech/baas-portal/v1/';
 
-    // public static $authUrl;
-    // public static $baseUrl;
-
-    // public function __construct()
-    // {
-    //     self::$authUrl = config('services.vfd.test_auth_url');
-    //     self::$baseUrl = config('services.vfd.test_base_url');
-    // }
-
     public static function generateAccessToken()
     {
         $url = self::$authUrl . 'baasauth/token';
@@ -194,6 +185,39 @@ class VfdService
     {
         $tReference=urlencode($tReference);
         $url = self::$baseUrl . "/transactionStatus?transactionId={$tReference}";
+        
+        $headers = [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'AccessToken: ' . $accessToken, // Include the actual access token
+        ];
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            return curl_error($ch);
+        }
+
+        curl_close($ch);
+        // Handle the response as needed
+        return $response;
+    }
+
+    //validate customer
+    public static function validateCustomer($accessToken,$divisionId,$paymentItem,$customerId,$billerId)
+    {
+        $divisionId=urlencode($divisionId);
+        $paymentItem=urlencode($paymentItem);
+        $customerId=urlencode($customerId);
+        $billerId=urlencode($billerId);
+        
+        $url = self::$baseUrl . "/customervalidate?divisionId={$divisionId}&paymentItem={$paymentItem}&customerId={$customerId}&billerId={$billerId}";
         
         $headers = [
             'Content-Type: application/json',
