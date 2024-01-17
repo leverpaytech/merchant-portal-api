@@ -155,28 +155,32 @@ class AuthController extends BaseController
         {
             return $this->sendError('Error',$validator->errors(),422);
         }
+        $referer=[];
+        if(!empty($data['referral_code'])){
+            $referer=User::where('referral_code', $data['referral_code'])->get(['id'])->first();
+            if(!$referer){
+                return $this->sendError('Invalid referral code',[],400);
+            }
+        }
+
 
         $verifyToken = rand(1000, 9999);
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
 
-        DB::transaction( function() use($data, $verifyToken)
-        {
+        try{
+            DB::beginTransaction();
             $user = User::create($data);
 
             ////add referrals
-            if(!empty($data['referral_code']))
-            {
-                $referer=User::where('referral_code', $data['referral_code'])->get(['id'])->first();
-                if($referer)
-                {
-                    UserReferral::create([
-                        'user_id'=>$user->id,
-                        'referral_id'=>$referer->id
-                    ]);
-                }
+            if($referer){
+                UserReferral::create([
+                    'user_id'=>$user->id,
+                    'referral_id'=>$referer->id
+                ]);
             }
+
 
             $data2['activity']="User Sign Up";
             $data2['user_id']=$user->id;
@@ -184,11 +188,48 @@ class AuthController extends BaseController
             ActivityLog::createActivity($data2);
 
             // send email
-            $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
-            //ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']);
+            // $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
+            $body = [
+                "name"=>$data['first_name']. ' '.$data['last_name'],
+                'otp'=>$verifyToken
+            ];
+            ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.acd1f420-b517-11ee-8d93-525400e3c1b1.18d16abdc62",$body,$data['email']);
 
             //SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
-        });
+
+            DB::commit();
+        }catch(\Exception $e){
+            DB::rollBack();
+            return $this->sendError($e->getMessage(),[],400);
+        }
+        // DB::transaction( function() use($data, $verifyToken)
+        // {
+        //     $user = User::create($data);
+
+        //     ////add referrals
+        //     if(!empty($data['referral_code']))
+        //     {
+        //         $referer=User::where('referral_code', $data['referral_code'])->get(['id'])->first();
+        //         if($referer)
+        //         {
+        //             UserReferral::create([
+        //                 'user_id'=>$user->id,
+        //                 'referral_id'=>$referer->id
+        //             ]);
+        //         }
+        //     }
+
+        //     $data2['activity']="User Sign Up";
+        //     $data2['user_id']=$user->id;
+
+        //     ActivityLog::createActivity($data2);
+
+        //     // send email
+        //     $message = "<p>Hello {$data['first_name']} {$data['last_name']}</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h2 style='margin-bottom: 8px'>{$verifyToken}</h2>";
+        //     //ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']);
+
+        //     //SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
+        // });
 
         $uDetails=User::where('email', $data['email'])->get()->first();
 

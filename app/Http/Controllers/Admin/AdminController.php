@@ -1222,6 +1222,12 @@ class AdminController extends BaseController
         $data2['user_id']=Auth::user()->id;
         ActivityLog::createActivity($data2);
 
+        $body = [
+            "name"=>$user['first_name']. ' '.$user['last_name'],
+        ];
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.5d9500e0-95a6-11ee-bc0c-5254000e3179.18c489be7ee",$body,$user['email']);
+
+
         return $this->successfulResponse([], 'Account successfully activated');
     }
 
@@ -1779,10 +1785,10 @@ class AdminController extends BaseController
         }
 
         $getMerchant=User::where('uuid',$data['uuid'])->get(['id'])->first();
-        
+
         $account_no=sprintf('%010d', mt_rand(1111111111,99999999999));
 
-        
+
         $remittance=Remittance::create([
             'user_id'=>$getMerchant->id,
             'voucher_id'=>$data['voucher_id'],
