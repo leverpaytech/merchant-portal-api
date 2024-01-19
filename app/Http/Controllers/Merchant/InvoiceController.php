@@ -365,7 +365,12 @@ class InvoiceController extends BaseController
         $curr = $invoice['currency'] == 'dollar'?'$':'₦';
         $content="A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
-        ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email);
+        // ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email);
+        $msg = [
+            'otp' => $otp,
+            'name'=>$invoice->user->first_name
+        ];
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.1e37fec0-b563-11ee-8d93-525400e3c1b1.18d189a48ac",$msg, $invoice->email);
 
         SmsService::sendSms("Dear {$invoice->user->first_name},A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$invoice->user->phone);
 

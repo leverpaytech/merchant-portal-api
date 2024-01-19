@@ -8,6 +8,7 @@ use App\Models\Investment;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Webhook;
+use App\Models\ExchangeRate;
 use App\Services\ProvidusService;
 use App\Services\SmsService;
 use App\Services\WalletService;
@@ -140,8 +141,10 @@ class WebhookController extends Controller
             SmsService::sendMail('', $html, 'Payment Receipt', $checkout['email']);
             SmsService::sendMail('', $html2, 'Payment Confirmation', $checkout->merchant->email);
         }else{
+            $rates = ExchangeRate::latest()->first();
             // #100 is the bank VAT fee
-            $t_amt = floatval($request['transactionAmount']) - 100;
+            // $t_amt = floatval($request['transactionAmount']) - 100;
+            $t_amt = floatval($request['transactionAmount']) - floatval($rates->funding_rate);
             WalletService::addToWallet($user->id, $t_amt);
             $trans->balance = floatval($user->wallet->withdrawable_amount) + floatval($t_amt);
         }
