@@ -1507,14 +1507,14 @@ class UserController extends BaseController
 
     /**
      * @OA\Get(
-     *     path="/api/v1/user/vfd/validate-customer/{divisionId}/{paymentItem}/{customerId}/{billerId}",
+     *     path="/api/v1/user/vfd/validate-customer",
      *     tags={"VFD Bill Payment"},
      *     summary="Validate Customer",
      *     operationId="validateCustomer",
      *
      *     @OA\Parameter(
      *         name="divisionId",
-     *         in="path",
+     *         in="query",
      *         required=true,
      *         description="This is returned from biller List as division",
      *         @OA\Schema(type="string")
@@ -1522,7 +1522,7 @@ class UserController extends BaseController
      *
      *     @OA\Parameter(
      *         name="paymentItem",
-     *         in="path",
+     *         in="query",
      *         required=true,
      *         description="This is returned from biller items as paymentCode",
      *         @OA\Schema(type="string")
@@ -1530,7 +1530,7 @@ class UserController extends BaseController
      *
      *     @OA\Parameter(
      *         name="customerId",
-     *         in="path",
+     *         in="query",
      *         required=true,
      *         description="Customer Id i.e Meter Token",
      *         @OA\Schema(type="string")
@@ -1538,7 +1538,7 @@ class UserController extends BaseController
      *
      *     @OA\Parameter(
      *         name="billerId",
-     *         in="path",
+     *         in="query",
      *         required=true,
      *         description="This signifies the ID of the biller it is returned from the Biller List",
      *         @OA\Schema(type="string")
@@ -1553,24 +1553,32 @@ class UserController extends BaseController
      *         {"bearer_token": {}}
      *     }
      * )
-     **/
+    **/
 
-    public function validateCustomer($divisionId,$paymentItem,$customerId,$billerId)
+    public function validateCustomer(Request $request)
     {
-        if(!Auth::user()->id)
-            return $this->sendError('Unauthorized Access',[],401);
+        if (!Auth::user()->id) {
+            return $this->sendError('Unauthorized Access', [], 401);
+        }
+
         $userId = Auth::user()->id;
-
-        $response=VfdService::generateAccessToken();
-        $response=json_decode($response);
-        $accessToken=$response->data->access_token;
         
-        
-        $getDD=VfdService::validateCustomer($accessToken,$divisionId,$paymentItem,$customerId,$billerId);
-        $response=json_decode($getDD);
 
-        return $response;
+        $divisionId = $request->query('divisionId');
+        $paymentItem = $request->query('paymentItem');
+        $customerId = $request->query('customerId');
+        $billerId = $request->query('billerId');
+
+    
+        $response = VfdService::generateAccessToken();
+        $response = json_decode($response);
+        $accessToken = $response->data->access_token;
+
+        return $getDD = VfdService::validateCustomer($accessToken, $divisionId, $paymentItem, $customerId, $billerId);
+        // $response = json_decode($getDD);
+        // return $response;
     }
+
 
     /**
      * @OA\Post(
