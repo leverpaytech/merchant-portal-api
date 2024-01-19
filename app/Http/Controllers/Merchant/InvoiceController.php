@@ -146,23 +146,21 @@ class InvoiceController extends BaseController
         $vat_cal=(($data['vat']/100)*$data['price']);
 
         //sent create invoice notification to user
-        
+
         $message=[
-            'customer'=>$data['email'],
-            'merchant'=>$merchant_business_name,
+            'customer_name'=>$data['email'],
+            'merchant_name'=>$merchant_business_name,
             'product_name'=>$data['product_name'],
-            'product_description'=>$data['product_description'],
-            'price'=>$sym.$data['price'],
-            'fee'=>$data['fee'],
+            'description'=>$data['product_description'],
+            'amount'=>$sym.$data['price'],
+            'transaction_fee'=>$data['fee'],
             'total'=>$data['total'],
-            'url'=>$data['url'],
+            'view_invoice_link'=>$data['url'],
             'vat'=>$vat_cal
         ];
-        
-        ZeptomailService::payInvoiceMail("Invoice notification" ,$message, $data['email']);
-        
 
-
+        // ZeptomailService::payInvoiceMail("Invoice notification" ,$message, $data['email']);
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.d46e9be0-9b7d-11ee-a277-5254004d4100.18c6ee4949e" ,$message, $data['email']);
         return $this->successfulResponse($invoice,"Invoice successfully created");
 
     }
@@ -367,7 +365,12 @@ class InvoiceController extends BaseController
         $curr = $invoice['currency'] == 'dollar'?'$':'₦';
         $content="A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your otp is: <br /> {$otp}";
 
-        ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email);
+        // ZeptomailService::sendMailZeptoMail("Dear {$invoice->user->first_name}," ,$content, $invoice->email);
+        $msg = [
+            'otp' => $otp,
+            'name'=>$invoice->user->first_name
+        ];
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.1e37fec0-b563-11ee-8d93-525400e3c1b1.18d189a48ac",$msg, $invoice->email);
 
         SmsService::sendSms("Dear {$invoice->user->first_name},A request to pay an invoice of  {$curr}{$invoice['total']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$invoice->user->phone);
 

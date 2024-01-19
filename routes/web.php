@@ -17,15 +17,19 @@ use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
 
 Route::get('/', function (){
-
-    $a = '22994004095959';
-    $a[0] = 3;
-    $a[1] = 4;
-    dd("hello {$a}");
-    // php artisan optimize:clear
-    // dd(\Doctrine\DBAL\Types\Type::getTypesMap());
-    $cd = CardPayment::find('5a5a3906-a8ae-44d7-aced-9f42334580d0');
-    dd($cd->card_paymentable->merchant);
+$ab = [
+    "a"=>'fjjf',
+    "b"=>'djdjjd'
+];
+dd(json_encode($ab));
+    // $a = '22994004095959';
+    // $a[0] = 3;
+    // $a[1] = 4;
+    // dd("hello {$a}");
+    // // php artisan optimize:clear
+    // // dd(\Doctrine\DBAL\Types\Type::getTypesMap());
+    // $cd = CardPayment::find('5a5a3906-a8ae-44d7-aced-9f42334580d0');
+    // dd($cd->card_paymentable->merchant);
     // dd(Carbon::now() < Carbon::parse('2023-11-21 11:36:47')->addMinutes(10));
     // dd(Carbon::now());
     // dd(Carbon::now()->addYears(3)->month .'/'.Carbon::now()->addYears(3)->year);

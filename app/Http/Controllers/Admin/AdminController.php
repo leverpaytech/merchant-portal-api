@@ -861,7 +861,7 @@ class AdminController extends BaseController
             'account_name'=>'required'
         ]);
 
-        
+
         DB::table('lever_pay_account_no')->insert($data);
 
         return $this->successfulResponse([], 'Bank created successfully');
@@ -1222,6 +1222,12 @@ class AdminController extends BaseController
         $data2['activity']="Account successfully activated";
         $data2['user_id']=Auth::user()->id;
         ActivityLog::createActivity($data2);
+
+        $body = [
+            "name"=>$user['first_name']. ' '.$user['last_name'],
+        ];
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.5d9500e0-95a6-11ee-bc0c-5254000e3179.18c489be7ee",$body,$user['email']);
+
 
         return $this->successfulResponse([], 'Account successfully activated');
     }
@@ -1584,9 +1590,9 @@ class AdminController extends BaseController
                 $total_invoice = Invoice::where('merchant_id', $merchant->id)->where('status', 1)->sum('total');
                 $amount_paid = Remittance::where('user_id', $merchant->id)->sum('amount');
                 $last_remmited = Remittance::where('user_id', $merchant->id)->latest()->first();
-            
+
                 $getCurrency = Wallet::where('user_id', $merchant->id)->get(['amount', 'dollar'])->first();
-            
+
                 if (($total_invoice - $amount_paid) > 0) {
                     $merchant->currency = ($getCurrency->amount > 0) ? "naira" : "dollar";
                     $merchant->total_revenue = $total_invoice;
@@ -1594,24 +1600,24 @@ class AdminController extends BaseController
                     $merchant->last_remitted = isset($last_remmited->amount) ? $last_remmited->amount : 0;
                     $merchant->total_unremitted = floatval($total_invoice - $amount_paid);
                     $merchant->date = date('d/m/y');
-            
+
                     return $merchant->toArray(); // Convert to array and include
                 } else {
                     return false; // Exclude
                 }
             });
-            
+
             $merchantsArray = array_values(array_filter($merchantsArray->toArray())); // Convert Collection to array before using array_filter
-            
+
             // Modify the structure of the response
             $response = [
                 'success' => true,
                 'data' => $merchantsArray,
                 'message' => 'Merchants list with account balance greater than zero successfully retrieved'
             ];
-            
+
             return json_encode($response, JSON_PRETTY_PRINT);
-            
+
 
     }
 
@@ -1723,7 +1729,7 @@ class AdminController extends BaseController
         }
 
         $getMerchant=User::where('uuid',$data['uuid'])->get(['id'])->first();
-        
+
         $account_no=sprintf('%010d', mt_rand(1111111111,99999999999));
 
         $serchV=Voucher::where('status', 1)->get()->first();
@@ -1747,7 +1753,7 @@ class AdminController extends BaseController
             $addNew=Voucher::create(['code_no'=>$newCode]);
             $voucher_id=$addNew->id;
         }
-        
+
         $remittance=Remittance::create([
             'user_id'=>$getMerchant->id,
             'voucher_id'=>$voucher_id,

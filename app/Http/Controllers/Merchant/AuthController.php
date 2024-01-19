@@ -169,6 +169,8 @@ class AuthController extends BaseController
                     'user_id'=>$user->id,
                     'referral_id'=>$referer->id
                 ]);
+            }else{
+                return $this->sendError('Invalid referral code',[],400);
             }
         }
 
@@ -214,9 +216,17 @@ class AuthController extends BaseController
         // send email
         // Mail::to($data['email'])->send(new SendEmailVerificationCode($data['first_name'].' '.$data['last_name'], $verifyToken));
 
-        $message = "<p>Hello {$data['first_name']} {$data['last_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
+        // $message = "<p>Hello {$data['first_name']} {$data['last_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
 
-        ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']);
+        // ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $data['email']);
+
+        $body = [
+            "name"=>$data['first_name']. ' '.$data['last_name'],
+            'otp'=>$verifyToken
+        ];
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.acd1f420-b517-11ee-8d93-525400e3c1b1.18d16abdc62",$body,$data['email']);
+
+
         SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
 
         return $user;

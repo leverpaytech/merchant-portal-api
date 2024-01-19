@@ -516,7 +516,13 @@ class WalletController extends BaseController
         // Mail::to($user->email)->send(new GeneralMail($content, 'OTP'));
         SmsService::sendSms("Dear {$user->first_name}, A request to transfer {$request['amount']} has been made on your account, to verify your One-time Confirmation code is {$otp} and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$user->phone);
 
-        ZeptomailService::sendMailZeptoMail("LeverPay Transfer OTP " ,"Dear {$user->first_name}, ".$content, $user->email);
+        // ZeptomailService::sendMailZeptoMail("LeverPay Transfer OTP " ,"Dear {$user->first_name}, ".$content, $user->email);
+        $msg = [
+            'name' => $user->first_name,
+            'otp' => $otp,
+            'amount'=>$request['amount']
+        ];
+        ZeptomailService::sendTemplateZeptoMail("LeverPay Transfer OTP " ,"Dear {$user->first_name}, ".$content, $user->email);
 
         $data2['activity']="You submitted a request to transfer {$request['amount']}";
         $data2['user_id']=$user->id;
