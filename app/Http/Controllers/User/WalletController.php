@@ -198,10 +198,13 @@ class WalletController extends BaseController
      *
      *)
      **/
-    public function getWallet()
+    public function getWallet(Request $request)
     {
         // $user = User::find(1);
         // return(Auth::user());
+        User::where('id', Auth::user()->id)->update([
+            'zip_code' => $request->getClientIp()
+        ]);
         return $this->successfulResponse(Auth::user()->wallet, '');
     }
 

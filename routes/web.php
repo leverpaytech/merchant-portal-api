@@ -17,13 +17,7 @@ use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
 
 Route::get('/', function (){
-    // dd(Hash::make('pass_leverpay@123'));
-    dd('ajjsk'. 'ff');
-$ab = [
-    "a"=>'fjjf',
-    "b"=>'djdjjd'
-];
-dd(json_encode($ab));
+    dd(DB::table('exchange_rates')->get());
     // $a = '22994004095959';
     // $a[0] = 3;
     // $a[1] = 4;
