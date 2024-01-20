@@ -484,9 +484,13 @@ class WalletController extends BaseController
 
     public function transfer(Request $request)
     {
+        $data2['activity']="Transfer Attempt - User: " . Auth::user()->id .'-'.Auth::user()->first_name. ' '. Auth::user()->first_name. ' Amount:'. $request['amount'];
+        $data2['user_id']=Auth::user()->id;
+
+        ActivityLog::createActivity($data2);
         $this->validate($request, [
             'email'=>'required|email',
-            'amount'=>'required|numeric|min:1'
+            'amount'=>'required|numeric|min:1000'
         ]);
 
         $user= Auth::user();
@@ -495,10 +499,7 @@ class WalletController extends BaseController
             'zip_code' => $request->getClientIp()
         ]);
 
-        $data2['activity']="Transfer Attempt - User: " . $user->id .'-'.$user->first_name.' Amount:'. $request['amount'];
-            $data2['user_id']=$user->id;
 
-            ActivityLog::createActivity($data2);
 
         $trans = User::where('email', $request['email'])->first();
         if(!$trans){
