@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
 
         'checkMerchantStatus' => \App\Http\Middleware\CheckMerchantStatus::class,
         'authorizationValidator' => \App\Http\Middleware\AuthorizationValidator::class,
+        'api.auth' => \App\Http\Middleware\CheckApiAuthentication::class,
     ];
 }

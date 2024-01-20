@@ -29,6 +29,7 @@ use \App\Http\Controllers\Admin\AdminLoginController as AdminAuthController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\External\CheckoutController as ExternalCheckout;
 use App\Http\Controllers\External\MerchantController as ExternalMerchant;
+use App\Http\Controllers\SwaggerUiController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -296,4 +297,10 @@ Route::prefix('v1/leverchain')->group(function() {
     Route::post('transaction/pay-with-transfer', [ExternalCheckout::class, 'payWithTransfer']);
     Route::post('transaction/pay-with-card', [ExternalCheckout::class, 'payWithCard']);
     Route::post('transaction/verify-card-otp', [ExternalCheckout::class, 'verifyCardOTP']);
+});
+
+Route::middleware(['auth:api'])->group(function () {
+    //Route::middleware('checkMerchantStatus')->group(function () {
+    Route::get('/api/documentation', [SwaggerUiController::class, 'index']);
+    // Add any other Swagger UI routes here
 });
