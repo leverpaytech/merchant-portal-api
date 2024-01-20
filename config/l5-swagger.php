@@ -22,7 +22,7 @@ return [
                  * Route for accessing api documentation interface
                 */
                 //'api' => 'api/documentation',
-                'api' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9',
+                'api' => 'ley10eXAOuJKV1QhgLCJhbGciMiJKUyI1PiR7',
             ],
             'paths' => [
                 /*
