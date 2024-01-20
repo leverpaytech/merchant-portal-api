@@ -137,6 +137,7 @@ class AuthController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
+            'bvn' => 'required|numeric',
             'first_name' => 'required',
             'last_name' => 'required',
             'other_name' => 'nullable',
