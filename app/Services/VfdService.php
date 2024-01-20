@@ -184,7 +184,7 @@ class VfdService
     public static function checkTransaction($accessToken,$tReference)
     {
         $tReference=urlencode($tReference);
-        $url = self::$baseUrl . "/transactionStatus?transactionId={$tReference}";
+        $url = self::$baseUrl . "transactionStatus?transactionId={$tReference}";
         
         $headers = [
             'Content-Type: application/json',
@@ -217,7 +217,8 @@ class VfdService
         $customerId=urlencode($customerId);
         $billerId=urlencode($billerId);
         
-        $url = self::$baseUrl . "/customervalidate?divisionId={$divisionId}&paymentItem={$paymentItem}&customerId={$customerId}&billerId={$billerId}";
+        
+        $url = self::$baseUrl . "customervalidate?divisionId={$divisionId}&paymentItem={$paymentItem}&customerId={$customerId}&billerId={$billerId}";
         
         $headers = [
             'Content-Type: application/json',

@@ -4401,7 +4401,7 @@
                 ]
             }
         },
-        "/api/v1/user/vfd/validate-customer/{divisionId}/{paymentItem}/{customerId}/{billerId}": {
+        "/api/v1/user/vfd/validate-customer": {
             "get": {
                 "tags": [
                     "VFD Bill Payment"
@@ -4411,7 +4411,7 @@
                 "parameters": [
                     {
                         "name": "divisionId",
-                        "in": "path",
+                        "in": "query",
                         "description": "This is returned from biller List as division",
                         "required": true,
                         "schema": {
@@ -4420,7 +4420,7 @@
                     },
                     {
                         "name": "paymentItem",
-                        "in": "path",
+                        "in": "query",
                         "description": "This is returned from biller items as paymentCode",
                         "required": true,
                         "schema": {
@@ -4429,7 +4429,7 @@
                     },
                     {
                         "name": "customerId",
-                        "in": "path",
+                        "in": "query",
                         "description": "Customer Id i.e Meter Token",
                         "required": true,
                         "schema": {
@@ -4438,7 +4438,7 @@
                     },
                     {
                         "name": "billerId",
-                        "in": "path",
+                        "in": "query",
                         "description": "This signifies the ID of the biller it is returned from the Biller List",
                         "required": true,
                         "schema": {
