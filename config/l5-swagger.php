@@ -21,7 +21,8 @@ return [
                 /*
                  * Route for accessing api documentation interface
                 */
-                'api' => 'api/documentation',
+                //'api' => 'api/documentation',
+                'api' => 'levey/docs/762815492636284',
             ],
             'paths' => [
                 /*
