@@ -276,7 +276,8 @@ class AdminController extends BaseController
      **/
 
 
-    public function approveTopupRequest(Request $request){
+    public function approveTopupRequest(Request $request)
+    {
         $this->validate($request, [
             'uuid'=>'required|string'
         ]);
