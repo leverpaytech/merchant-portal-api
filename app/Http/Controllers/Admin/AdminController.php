@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\{User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys, SubmitPayment,Remittance,Voucher};
+use App\Models\{BillPaymentPin, BillPaymentHistory, User,Kyc,ExchangeRate, ActivityLog, TopupReques, CardType, DocumentType, Country, Transaction, ContactUs, Invoice, MerchantKeys, SubmitPayment,Remittance,Voucher};
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Card;
@@ -1400,6 +1400,10 @@ class AdminController extends BaseController
         // SmsService::sendMail("Dear {$user->first_name},", $content, "Wallet Credit", $user->email);
         ZeptomailService::sendMailZeptoMail("Wallet Credit" ,$content, $user->email);
         $sms = SmsService::sendSms("Wallet Credit, $content", '234'.$user->phoneNumber);
+
+        $data2['activity']="Admin fund ".$user->first_name." ".$user->last_name. " with ".$sym .$request['amount'];
+        $data2['user_id']=$user->id;
+        ActivityLog::createActivity($data2);
         return $this->successfulResponse([], 'Wallet funded successfully');
     }
 
@@ -1547,8 +1551,14 @@ class AdminController extends BaseController
         UserBank::where('user_id', $user->id)->delete();
         Wallet::where('user_id', $user->id)->delete();
         ActivityLog::where('user_id', $user->id)->delete();
+        BillPaymentPin::where('user_id', $user->id)->delete();
+        BillPaymentHistory::where('user_id', $user->id)->delete();
 
         $user->delete();
+        $data2['activity']="Admin delete user". $user->first_name." ".$user->last_name ." Email: ".$user->email;
+        $data2['user_id']=$user->id;
+
+        ActivityLog::createActivity($data2);
         return $this->successfulResponse([], 'User deleted');
     }
 

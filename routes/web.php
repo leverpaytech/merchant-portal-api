@@ -17,6 +17,8 @@ use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
 
 Route::get('/', function (){
+    // dd(Hash::make('pass_leverpay@123'));
+    dd('ajjsk'. 'ff');
 $ab = [
     "a"=>'fjjf',
     "b"=>'djdjjd'
