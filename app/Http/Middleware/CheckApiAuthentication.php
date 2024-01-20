@@ -10,6 +10,8 @@ class CheckApiAuthentication
 {
     public function handle(Request $request, Closure $next)
     {
+        \Log::info('Middleware Executed');
+        
         if (Auth::guard('api')->check()) {
             return $next($request);
         }
