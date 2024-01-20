@@ -144,7 +144,7 @@ Route::prefix('v1')->group( function(){
             Route::get('get-currencies', [UserController::class, 'getCurrencies']);
             Route::get('/get-wallet', [WalletController::class, 'getWallet']);
 
-            Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
+            // Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
 
             // Route::post('/generate-card', [UserController::class, 'generateCard']);
             Route::get('/get-card', [CardController::class, 'getCard']);

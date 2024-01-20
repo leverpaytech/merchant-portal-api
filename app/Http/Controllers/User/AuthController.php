@@ -168,6 +168,7 @@ class AuthController extends BaseController
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
+        $data['zip_code'] = $request->getClientIp();
 
         try{
             DB::beginTransaction();
