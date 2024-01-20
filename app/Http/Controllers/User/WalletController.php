@@ -484,7 +484,7 @@ class WalletController extends BaseController
 
     public function transfer(Request $request)
     {
-        $data2['activity']="Transfer Attempt - User: " . Auth::user()->id .'-'.Auth::user()->first_name. ' '. Auth::user()->first_name. ' Amount:'. $request['amount'];
+        $data2['activity']="Transfer Attempt - User: " . Auth::user()->id .'-'.Auth::user()->first_name. ' '. Auth::user()->last_name. ' Amount: #'. $request['amount'];
         $data2['user_id']=Auth::user()->id;
 
         ActivityLog::createActivity($data2);

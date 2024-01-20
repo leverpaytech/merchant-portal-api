@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\WalletService;
+use App\Models\ActivityLog;
 
 class BillsController extends BaseController
 {
@@ -50,6 +51,11 @@ class BillsController extends BaseController
     }
 
     public function buyAirtime(Request $request){
+        $data2['activity']="Buy Airtime Attempt - User: " . Auth::user()->id .'-'.Auth::user()->first_name. ' '. Auth::user()->last_name. ' Amount:'. $request['amount'];
+        $data2['user_id']=Auth::user()->id;
+
+        ActivityLog::createActivity($data2);
+
         $this->validate($request, [
             'phone'=> 'required',
             'amount'=>'required|numeric|min:50|max:100',
