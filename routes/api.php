@@ -299,8 +299,4 @@ Route::prefix('v1/leverchain')->group(function() {
     Route::post('transaction/verify-card-otp', [ExternalCheckout::class, 'verifyCardOTP']);
 });
 
-Route::middleware(['auth:api'])->group(function () {
-    //Route::middleware('checkMerchantStatus')->group(function () {
-    Route::get('/api/documentation', [SwaggerUiController::class, 'index']);
-    // Add any other Swagger UI routes here
-});
+Route::get('/levey/docs/{token}', [SwaggerUiController::class, 'index'])->where('token', '762815492636284');
