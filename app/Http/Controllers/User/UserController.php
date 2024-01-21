@@ -1669,11 +1669,19 @@ class UserController extends BaseController
             return response()->json('Invalid access token', 422);
         }
 
+        $getCashBack=VfdDiscount::where('biller_id', $data['billerId'])->get(['percent'])->first();
+        $cashBack=0.00;
+        if($getCashBack)
+        {
+            $cashBack=($getCashBack->percent/100)*$nin['amount'];
+        }
+
         $nin=[
             //'referenceNo'=>"Leverpay-".uniqid(),
             'referenceNo'=>base64_decode($data['reference_no']),
             'customerId'=>$data['customerId'],
             'amount'=>$data['amount'],
+            'cash_back'=>$cashBack,
             'division'=>$data['division'],
             'paymentItem'=>$data['paymentItem'],
             'productId'=>$data['productId'],
@@ -1696,7 +1704,7 @@ class UserController extends BaseController
             return response()->json('Transaction Failed, Add at least one leverpay account', 422);
         }
         
-        $newBalance=$getLeverPayAccount->balance + $data['amount'];
+        $newBalance=($getLeverPayAccount->balance + $data['amount'])-$cashBack;
         
         // $payBillResult = json_decode(
         //     VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
@@ -1705,17 +1713,12 @@ class UserController extends BaseController
         if ($payBillResult->status != '00') {
             return response()->json('Transaction Failed', 422);
         }
-        $getCashBack=VfdDiscount::where('biller_id', $data['billerId'])->get(['percent'])->first();
         
-        if($getCashBack)
-        {
-
-        }
 
         // Start the database transaction
         DB::beginTransaction();
         try{
-            $this->performTransaction($userId, $nin, $newBalance);
+            $this->performTransaction($userId, $nin, $newBalance, $cashBack);
             DB::commit();
 
             $result = [
@@ -1762,10 +1765,11 @@ class UserController extends BaseController
         return $newBalance;
     }
 
-    protected function performTransaction($userId, $nin, $newBalance,$cashback)
+    protected function performTransaction($userId, $nin, $newBalance,$cashBack)
     {
         $extra=json_encode($nin);
-        WalletService::subtractFromWallet($userId, $nin['amount'], 'naira');
+        $wBal=$nin['amount']-$cashBack;
+        WalletService::subtractFromWallet($userId, $wBal, 'naira');
 
         DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
 
@@ -1775,7 +1779,7 @@ class UserController extends BaseController
             'unit_purchased' => 0,
             'price' => $nin['amount'],
             'amount' => $nin['amount'],
-            'cash_back'=>$cashback,
+            'cash_back'=>$cashBack,
             'category' => $nin['division'],
             'biller' => $nin['billerId'],
             'product' => $nin['productId'],
