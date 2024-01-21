@@ -180,11 +180,11 @@ Route::prefix('v1')->group( function(){
             Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
 
             Route::prefix('bills')->group(function () {
-                // Route::get('get-airtime', [BillsController::class,'getAirtime']);
-                // Route::post('buy-airtime', [BillsController::class,'buyAirtime']);
-                // Route::get('get-data', [BillsController::class,'getData']);
-                // Route::get('get-data-details/{id}', [BillsController::class,'getDataDetails']);
-                // Route::post('buy-data', [BillsController::class,'buyData']);
+                Route::get('get-airtime', [BillsController::class,'getAirtime']);
+                Route::post('buy-airtime', [BillsController::class,'buyAirtime']);
+                Route::get('get-data', [BillsController::class,'getData']);
+                Route::get('get-data-details/{id}', [BillsController::class,'getDataDetails']);
+                Route::post('buy-data', [BillsController::class,'buyData']);
             });
 
             Route::prefix('etherscan')->group(function () {
