@@ -34,9 +34,10 @@ class AuthController extends BaseController
      * )
      */
 
-    public function testHackedUser(Request $request){
-        return $request->getClientIp();
-        // $totalCreditT = Transaction::where('user_id', strval($id))->where('type', 'credit')->sum('amount');
+    public function testHackedUser(Request $request, $id){
+        // return $request->getClientIp();
+        return $id;
+        $totalCreditT = Transaction::where('user_id', strval($id))->where('type', 'credit')->sum('amount');
         // $totalCreditD = Transaction::where('user_id', strval($id))->where('type', 'debit')->sum('amount');
         // $trans = Transaction::where('user_id', strval($id))->get();
         // return response()->json(['totalCreditT' => $totalCreditT, 'trans' => $trans]);
