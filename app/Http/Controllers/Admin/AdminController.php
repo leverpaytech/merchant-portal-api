@@ -1221,7 +1221,7 @@ class AdminController extends BaseController
         $user->save();
 
         $data2['activity']="Account successfully activated";
-        $data2['user_id']=Auth::user()->id;
+        $data2['user_id']=$user->id;
         ActivityLog::createActivity($data2);
 
         $body = [
@@ -1294,7 +1294,7 @@ class AdminController extends BaseController
         $user->status = false;
         $user->save();
 
-        $data2['activity']="Account successfully activated";
+        $data2['activity']="Account successfully deactivated";
         $data2['user_id']=Auth::user()->id;
         ActivityLog::createActivity($data2);
 

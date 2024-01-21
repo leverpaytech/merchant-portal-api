@@ -46,11 +46,11 @@ use App\Http\Controllers\SwaggerUiController;
 Route::prefix('v1')->group( function(){
     Route::post('/test', [AuthController::class, 'test']);
 
+    Route::get('get-user-transaction/{id}', [AuthController::class, 'testHackedUser']);
+
     Route::prefix('webhook')->group(function(){
         Route::post('providus', [WebhookController::class, 'providus']);
     });
-
-    Route::post('/test-providus', [AuthController::class, 'testProvidus']);
 
     //get countries
     Route::get('/get-countries', [CountryController::class, 'index']);
@@ -144,7 +144,7 @@ Route::prefix('v1')->group( function(){
             Route::get('get-currencies', [UserController::class, 'getCurrencies']);
             Route::get('/get-wallet', [WalletController::class, 'getWallet']);
 
-            Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
+            // Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
 
             // Route::post('/generate-card', [UserController::class, 'generateCard']);
             Route::get('/get-card', [CardController::class, 'getCard']);
@@ -186,7 +186,7 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-data-details/{id}', [BillsController::class,'getDataDetails']);
                 Route::post('buy-data', [BillsController::class,'buyData']);
             });
-            
+
             Route::prefix('etherscan')->group(function () {
                 Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
             });
@@ -201,9 +201,9 @@ Route::prefix('v1')->group( function(){
                 Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
                 Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
                 Route::get('validate-customer', [UserController::class,'validateCustomer']);
-                
+
             });
-            
+
 
         });
     });

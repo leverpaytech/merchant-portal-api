@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\Ulid;
 use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Services\WalletService;
+use App\Models\ActivityLog;
 
 class BillsController extends BaseController
 {
@@ -49,12 +51,21 @@ class BillsController extends BaseController
     }
 
     public function buyAirtime(Request $request){
+        $data2['activity']="Buy Airtime Attempt - User: " . Auth::user()->id .'-'.Auth::user()->first_name. ' '. Auth::user()->last_name. ' Amount:'. $request['amount'];
+        $data2['user_id']=Auth::user()->id;
+
+        ActivityLog::createActivity($data2);
+
         $this->validate($request, [
             'phone'=> 'required',
-            'amount'=>'required|numeric|min:50',
+            'amount'=>'required|numeric|min:50|max:100',
             'bill_id'=>'required|numeric'
         ]);
+
         $user = Auth::user();
+        $ip = User::where('id', $user->id)->update([
+            'zip_code' => $request->getClientIp()
+        ]);
         if(!$user->wallet || $user->wallet->withdrawable_amount < $request['amount']){
             return $this->sendError("Insufficient wallet balance",[], 400);
         }

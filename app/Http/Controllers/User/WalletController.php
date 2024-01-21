@@ -198,10 +198,13 @@ class WalletController extends BaseController
      *
      *)
      **/
-    public function getWallet()
+    public function getWallet(Request $request)
     {
         // $user = User::find(1);
         // return(Auth::user());
+        User::where('id', Auth::user()->id)->update([
+            'zip_code' => $request->getClientIp()
+        ]);
         return $this->successfulResponse(Auth::user()->wallet, '');
     }
 
@@ -249,41 +252,41 @@ class WalletController extends BaseController
      *   }
      *)
      **/
-    public function fundWallet(Request $request){
-        $this->validate($request, [
-            'amount'=>'required|numeric'
-        ]);
+    // public function fundWallet(Request $request){
+    //     $this->validate($request, [
+    //         'amount'=>'required|numeric'
+    //     ]);
 
-        $amount = $request['amount'] * 100;
+    //     $amount = $request['amount'] * 100;
 
-        $user = Auth::user();
-        //$user = User::find(1);
-        $reference = Uuid::generate()->string;
+    //     $user = Auth::user();
+    //     //$user = User::find(1);
+    //     $reference = Uuid::generate()->string;
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer '.env('PAYSTACK_SECRET_TEST_KEY'),
-            'Cache-Control'=> 'no-cache',
-            'content-type'=>'application/json'
-        ])->post('https://api.paystack.co/transaction/initialize', [
-            'email' => $user->email,
-            'amount' => $amount,
-            'reference'=>$reference,
-            'callback_url'=>"https://ad2a-105-112-190-126.ngrok-free.app/api/v1/verify-transaction"
-        ]);
+    //     $response = Http::withHeaders([
+    //         'Authorization' => 'Bearer '.env('PAYSTACK_SECRET_TEST_KEY'),
+    //         'Cache-Control'=> 'no-cache',
+    //         'content-type'=>'application/json'
+    //     ])->post('https://api.paystack.co/transaction/initialize', [
+    //         'email' => $user->email,
+    //         'amount' => $amount,
+    //         'reference'=>$reference,
+    //         'callback_url'=>"https://ad2a-105-112-190-126.ngrok-free.app/api/v1/verify-transaction"
+    //     ]);
 
-        if(!$response['status']){
-            abort(400, $response['message']);
-        }
+    //     if(!$response['status']){
+    //         abort(400, $response['message']);
+    //     }
 
-        $trans = new Transaction();
-        $trans->user_id = $user->id;
-        $trans->amount = $request['amount'];
-        $trans->reference_no = $reference;
-        $trans->type = 'credit';
-        $trans->save();
+    //     $trans = new Transaction();
+    //     $trans->user_id = $user->id;
+    //     $trans->amount = $request['amount'];
+    //     $trans->reference_no = $reference;
+    //     $trans->type = 'credit';
+    //     $trans->save();
 
-        return $this->successfulResponse(['authorization_url'=> $response['data']['authorization_url']], '');
-    }
+    //     return $this->successfulResponse(['authorization_url'=> $response['data']['authorization_url']], '');
+    // }
 
     /**
      * @OA\Get(
@@ -481,11 +484,22 @@ class WalletController extends BaseController
 
     public function transfer(Request $request)
     {
+        $data2['activity']="Transfer Attempt - User: " . Auth::user()->id .'-'.Auth::user()->first_name. ' '. Auth::user()->last_name. ' Amount: #'. $request['amount'];
+        $data2['user_id']=Auth::user()->id;
+
+        ActivityLog::createActivity($data2);
         $this->validate($request, [
             'email'=>'required|email',
-            'amount'=>'required|numeric|min:1'
+            'amount'=>'required|numeric|min:1000'
         ]);
+
         $user= Auth::user();
+
+        User::where('id', $user->id)->update([
+            'zip_code' => $request->getClientIp()
+        ]);
+
+
 
         $trans = User::where('email', $request['email'])->first();
         if(!$trans){

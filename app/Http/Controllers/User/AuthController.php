@@ -137,6 +137,7 @@ class AuthController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
+            'bvn' => 'required|numeric',
             'first_name' => 'required',
             'last_name' => 'required',
             'other_name' => 'nullable',
@@ -168,6 +169,7 @@ class AuthController extends BaseController
         $data['verify_email_token'] = $verifyToken;
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
+        $data['zip_code'] = $request->getClientIp();
 
         try{
             DB::beginTransaction();

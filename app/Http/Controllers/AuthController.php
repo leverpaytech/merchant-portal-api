@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Models\{User,ActivityLog};
+use App\Models\{User,ActivityLog, Transaction};
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SendEmailVerificationCode;
@@ -25,8 +25,6 @@ use App\Services\ZeptomailService;
 
 class AuthController extends BaseController
 {
-    protected $userModel;
-
     /**
      * @OA\SecurityScheme(
      *     type="apiKey",
@@ -35,8 +33,13 @@ class AuthController extends BaseController
      *     name="Authorization"
      * )
      */
-    public function __construct(User $user) {
-        $this->userModel = $user;
+
+    public function testHackedUser(Request $request){
+        return $request->getClientIp();
+        // $totalCreditT = Transaction::where('user_id', strval($id))->where('type', 'credit')->sum('amount');
+        // $totalCreditD = Transaction::where('user_id', strval($id))->where('type', 'debit')->sum('amount');
+        // $trans = Transaction::where('user_id', strval($id))->get();
+        // return response()->json(['totalCreditT' => $totalCreditT, 'trans' => $trans]);
     }
 
     /*public function testZeptoMail()
@@ -48,23 +51,14 @@ class AuthController extends BaseController
         return $response;
     }*/
 
-    public function testProvidus(Request $request){
-        // return env('TERMII_API_KEY').'/PiPCreateDynamicAccountNumber';
-        $req = ProvidusService::generateDynamicAccount('Timi Adekunle');
-        if($req['requestSuccessful']){
-            return $req;
-        }else{
-            return $req['responseMessage'];
-        }
-
-    }
-
     public function test(Request $request){
         $t = '0002';
         $sms = SmsService::sendSms("Dear User, Your Leverpay One-time Confirmation code is 4567 and it will expire in 10 minutes. Please do not share For enquiry: contact@leverpay.io", '234'.$request['phoneNumber']);
         // $sms = SmsService::sendMail("Hello Lekan, Welcome to LeverPay", "Testing LeverPay Mail", 'ilelaboyealekan@gmail.com');
         return $sms;
     }
+
+
 
     public function verifyTransferTransaction(Request $request){
         $this->validate($request, [
