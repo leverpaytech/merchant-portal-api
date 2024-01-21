@@ -17,6 +17,7 @@ class BillPaymentHistory extends Model
         'unit_purchased',
         'price',
         'amount',
+        'cash_back',
         'category',
         'biller',
         'product',

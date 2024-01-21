@@ -1599,6 +1599,7 @@ class UserController extends BaseController
      *              @OA\Property( property="billerId", type="string", description="This signifies the ID of the biller it is returned from the Biller List and it should be hidden"),
      *              @OA\Property( property="pin", type="string", description="bill payment pin"),
      *              @OA\Property( property="reference_no", type="string", description="transaction reference no"),
+     *              @OA\Property( property="email", type="string", description="enter email if any"),
      *          ),
      *      ),
      *   ),
@@ -1631,95 +1632,103 @@ class UserController extends BaseController
      *   }
      *)
      **/
-    public function billPayment(Request $request)
-    {
-        $data = $request->all();
+    // public function billPayment(Request $request)
+    // {
+    //     $data = $request->all();
 
-        $validator = Validator::make($data, [
-            'customerId' => 'required|string',
-            'amount' => 'required|numeric',
-            'division' => 'required|string',
-            'paymentItem' => 'required',
-            'productId' => 'required',
-            'billerId' => 'required', 
-            'pin' => 'required|numeric',
-            'reference_no' => 'required'
-        ]);
+    //     $validator = Validator::make($data, [
+    //         'customerId' => 'required|string',
+    //         'amount' => 'required|numeric',
+    //         'division' => 'required|string',
+    //         'paymentItem' => 'required',
+    //         'productId' => 'required',
+    //         'billerId' => 'required', 
+    //         'pin' => 'required|numeric',
+    //         'reference_no' => 'required',
+    //         'email' => 'nullable'
+    //     ]);
 
-        if ($validator->fails())
-        {
-            return $this->sendError('Error',$validator->errors(),422);
-        }
+    //     if ($validator->fails())
+    //     {
+    //         return $this->sendError('Error',$validator->errors(),422);
+    //     }
 
-        if(!Auth::user()->id)
-            return $this->sendError('Unauthorized Access',[],401);
-        $userId = Auth::user()->id;
+    //     if(!Auth::user()->id)
+    //         return $this->sendError('Unauthorized Access',[],401);
+    //     $userId = Auth::user()->id;
 
-        $checkRefNo = $this->checkReferenceNoValidity($userId, $data['reference_no']);
-        if ($checkRefNo) {
-            return response()->json('Duplicate Transactions', 422);
-        }
+    //     $checkRefNo = $this->checkReferenceNoValidity($userId, $data['reference_no']);
+    //     if ($checkRefNo) {
+    //         return response()->json('Duplicate Transactions', 422);
+    //     }
         
-        $accessToken = json_decode(VfdService::generateAccessToken())->data->access_token;
-        if(!$accessToken)
-        {
-            return response()->json('Invalid access token', 422);
-        }
+    //     $accessToken = json_decode(VfdService::generateAccessToken())->data->access_token;
+    //     if(!$accessToken)
+    //     {
+    //         return response()->json('Invalid access token', 422);
+    //     }
 
-        $nin=[
-            //'referenceNo'=>"Leverpay-".uniqid(),
-            'referenceNo'=>base64_decode($data['reference_no']),
-            'customerId'=>$data['customerId'],
-            'amount'=>$data['amount'],
-            'division'=>$data['division'],
-            'paymentItem'=>$data['paymentItem'],
-            'productId'=>$data['productId'],
-            'billerId'=>$data['billerId']
-        ];
+    //     $nin=[
+    //         //'referenceNo'=>"Leverpay-".uniqid(),
+    //         'referenceNo'=>base64_decode($data['reference_no']),
+    //         'customerId'=>$data['customerId'],
+    //         'amount'=>$data['amount'],
+    //         'division'=>$data['division'],
+    //         'paymentItem'=>$data['paymentItem'],
+    //         'productId'=>$data['productId'],
+    //         'billerId'=>$data['billerId']
+    //     ];
 
-        $checkPin = $this->checkPinValidity($userId, $data['pin']);
-        if (!$checkPin) {
-            return response()->json('Invalid pin', 422);
-        }
+    //     $checkPin = $this->checkPinValidity($userId, $data['pin']);
+    //     if (!$checkPin) {
+    //         return response()->json('Invalid pin', 422);
+    //     }
 
-        $checkBalance = $this->checkWalletBalance($userId, $data['amount']);
-        if (!$checkBalance) {
-            return response()->json('Insufficient wallet balance', 422);
-        }
+    //     $checkBalance = $this->checkWalletBalance($userId, $data['amount']);
+    //     if (!$checkBalance) {
+    //         return response()->json('Insufficient wallet balance', 422);
+    //     }
 
-        $getLeverPayAccount = $this->getLeverPayAccount();
+    //     $getLeverPayAccount = $this->getLeverPayAccount();
         
-        if (!$getLeverPayAccount->balance) {
-            return response()->json('Transaction Failed, Add at least one leverpay account', 422);
-        }
+    //     if (!$getLeverPayAccount->balance) {
+    //         return response()->json('Transaction Failed, Add at least one leverpay account', 422);
+    //     }
         
-        $newBalance=$getLeverPayAccount->balance + $data['amount'];
+    //     $newBalance=$getLeverPayAccount->balance + $data['amount'];
         
-        $payBillResult = json_decode(
-            VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
-        );
+    //     $payBillResult = json_decode(
+    //         VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
+    //     );
 
-        if ($payBillResult->status != '00') {
-            return response()->json('Transaction Failed', 422);
-        }
+    //     if ($payBillResult->status != '00') {
+    //         return response()->json('Transaction Failed', 422);
+    //     }
+    //     $getCashBack=VfdDiscount::where('biller_id', $data['billerId'])->get(['percent'])->first();
+        
+    //     if($getCashBack)
+    //     {
 
-        // Start the database transaction
-        DB::beginTransaction();
-        try{
-            $this->performTransaction($userId, $nin, $newBalance);
-            DB::commit();
-            $result = [
-                'message'=>'Transaction Successfully Completed',
-                'reference' => $nin['referenceNo'], 
-                'product' => $data['paymentItem']
-            ];
-            return response()->json($result, 200);
-        }catch (\Exception $e) {
-            DB::rollBack();
-            //throw $e;
-            return response()->json('Transaction Failed', 422);
-        }
-    }
+    //     }
+
+    //     // Start the database transaction
+    //     DB::beginTransaction();
+    //     try{
+    //         $this->performTransaction($userId, $nin, $newBalance);
+    //         DB::commit();
+
+    //         $result = [
+    //             'message'=>'Transaction Successfully Completed',
+    //             'reference' => $nin['referenceNo'], 
+    //             'product' => $data['paymentItem']
+    //         ];
+    //         return response()->json($result, 200);
+    //     }catch (\Exception $e) {
+    //         DB::rollBack();
+    //         //throw $e;
+    //         return response()->json('Transaction Failed', 422);
+    //     }
+    // }
 
     protected function checkPinValidity($userId, $pin)
     {
@@ -1752,7 +1761,7 @@ class UserController extends BaseController
         return $newBalance;
     }
 
-    protected function performTransaction($userId, $nin, $newBalance)
+    protected function performTransaction($userId, $nin, $newBalance,$cashback)
     {
         $extra=json_encode($nin);
         WalletService::subtractFromWallet($userId, $nin['amount'], 'naira');
@@ -1765,6 +1774,7 @@ class UserController extends BaseController
             'unit_purchased' => 0,
             'price' => $nin['amount'],
             'amount' => $nin['amount'],
+            'cash_back'=>$cashback,
             'category' => $nin['division'],
             'biller' => $nin['billerId'],
             'product' => $nin['productId'],

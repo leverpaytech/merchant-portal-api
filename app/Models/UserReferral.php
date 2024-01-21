@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class UserReferral extends Model
 {
     use HasFactory;
-    use HasFactory;
     protected $fillable = [
         'id',
         'user_id',

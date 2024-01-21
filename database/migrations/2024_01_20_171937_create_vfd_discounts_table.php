@@ -17,8 +17,10 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->string('category')->comment('category name');
-            $table->string('cat_id');
+            $table->string('biller');
+            $table->string('biller_id');
             $table->string('percent');
+            $table->boolean('status')->default(true);
             $table->timestamps();
         });
     }
