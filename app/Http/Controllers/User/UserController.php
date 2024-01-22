@@ -1634,7 +1634,7 @@ class UserController extends BaseController
      **/
     public function billPayment(Request $request)
     {
-        return response()->json('Access denied', 422);
+        //return response()->json('Access denied', 422);
         $data = $request->all();
 
         $validator = Validator::make($data, [
@@ -1706,9 +1706,9 @@ class UserController extends BaseController
         
         $newBalance=($getLeverPayAccount->balance + $data['amount'])-$cashBack;
         
-        // $payBillResult = json_decode(
-        //     VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
-        // );
+        $payBillResult = json_decode(
+            VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo'])
+        );
 
         if ($payBillResult->status != '00') {
             return response()->json('Transaction Failed', 422);
@@ -1720,9 +1720,15 @@ class UserController extends BaseController
         try{
             $this->performTransaction($userId, $nin, $newBalance, $cashBack);
             DB::commit();
-
+            if($cashBack > 0)
+            {
+                $msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
+            }
+            else{
+                $msg="Your transaction was successful";
+            }
             $result = [
-                'message'=>'Transaction Successfully Completed',
+                'message'=>$msg,
                 'reference' => $nin['referenceNo'], 
                 'product' => $data['paymentItem']
             ];

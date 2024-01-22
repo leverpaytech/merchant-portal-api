@@ -191,18 +191,18 @@ Route::prefix('v1')->group( function(){
                 Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
             });
 
-            // Route::prefix('vfd')->group(function () {
-            //     Route::get('check-transaction/{reference_no}', [UserController::class,'checkTransaction']);
-            //     Route::get('get-biller-categories', [UserController::class,'billerCategories']);
-            //     Route::get('get-biller-list/{categoryName}', [UserController::class,'billerList']);
-            //     Route::get('get-biller-items/{billerId}/{divisionId}/{productId}', [UserController::class,'billerItems']);
-            //     Route::post('submit-bill-payment', [UserController::class,'billPayment']);
-            //     Route::post('create-new-pin', [UserController::class,'createBillPaymentPin']);
-            //     Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
-            //     Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
-            //     Route::get('validate-customer', [UserController::class,'validateCustomer']);
+            Route::prefix('vfd')->group(function () {
+                Route::get('check-transaction/{reference_no}', [UserController::class,'checkTransaction']);
+                Route::get('get-biller-categories', [UserController::class,'billerCategories']);
+                Route::get('get-biller-list/{categoryName}', [UserController::class,'billerList']);
+                Route::get('get-biller-items/{billerId}/{divisionId}/{productId}', [UserController::class,'billerItems']);
+                Route::post('submit-bill-payment', [UserController::class,'billPayment']);
+                Route::post('create-new-pin', [UserController::class,'createBillPaymentPin']);
+                Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
+                Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
+                Route::get('validate-customer', [UserController::class,'validateCustomer']);
 
-            // });
+            });
 
 
         });

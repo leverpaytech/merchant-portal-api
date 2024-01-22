@@ -4511,6 +4511,10 @@
                                     "reference_no": {
                                         "description": "transaction reference no",
                                         "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "enter email if any",
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"
@@ -4775,57 +4779,6 @@
                 "responses": {
                     "200": {
                         "description": "Success"
-                    }
-                },
-                "security": [
-                    {
-                        "api_key": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/user/fund-wallet": {
-            "post": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "Fund wallet",
-                "operationId": "Fund wallet",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "amount"
-                                ],
-                                "properties": {
-                                    "amount": {
-                                        "type": "number"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
                     }
                 },
                 "security": [
