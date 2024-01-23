@@ -1817,6 +1817,14 @@ class UserController extends BaseController
             'status' => 1,
             'transaction_details' => json_encode($details)
         ]);
+
+        $activity=array(
+            'activity' => "vfd bill payment of ".$nin['paymentItem']." for N".$nin['amount'],
+            'user_id' => $userId
+        );
+
+        ActivityLog::createActivity($activity);
+
     }
 
     /**
