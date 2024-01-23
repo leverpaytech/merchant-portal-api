@@ -4682,6 +4682,25 @@
                 ]
             }
         },
+        "/api/v1/user/vfd/get-cashback-rate": {
+            "get": {
+                "tags": [
+                    "VFD Bill Payment"
+                ],
+                "summary": "Get VFD cash back rate",
+                "operationId": "Get VFD cash back rate",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/get-all-topup-requests": {
             "get": {
                 "tags": [

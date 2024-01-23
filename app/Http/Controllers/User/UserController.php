@@ -9,7 +9,7 @@ use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice,creptoFundingHistory};
-use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,LeverPayAccountNo};
+use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,LeverPayAccountNo,VfdDiscount};
 use App\Services\{SmsService,WalletService};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1982,4 +1982,38 @@ class UserController extends BaseController
 
         return $this->successfulResponse($history, 'Bill payment history');   
     }
+
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/vfd/get-cashback-rate",
+     *   tags={"VFD Bill Payment"},
+     *   summary="Get VFD cash back rate",
+     *   operationId="Get VFD cash back rate",
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function vfdDiscount()
+    {
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+
+        $discount=VfdDiscount::get([
+            'uuid',
+            'category',
+            'biller',
+            'biller_id',
+            'percent'
+        ]);
+
+        return $this->successfulResponse($discount, 'VFD cash back rate');   
+    }
+    
 }

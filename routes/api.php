@@ -201,7 +201,7 @@ Route::prefix('v1')->group( function(){
                 Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
                 Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
                 Route::get('validate-customer', [UserController::class,'validateCustomer']);
-
+                Route::get('get-cashback-rate', [UserController::class,'vfdDiscount']);
             });
 
 
