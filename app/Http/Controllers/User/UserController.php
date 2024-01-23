@@ -1654,9 +1654,11 @@ class UserController extends BaseController
             return $this->sendError('Error',$validator->errors(),422);
         }
 
-        if(!Auth::user()->id)
+        $user = Auth::user();
+        if(!$user->id)
             return $this->sendError('Unauthorized Access',[],401);
-        $userId = Auth::user()->id;
+        
+        $userId = $user->id;
 
         $checkRefNo = $this->checkReferenceNoValidity($userId, $data['reference_no']);
         if ($checkRefNo) {
@@ -1718,7 +1720,7 @@ class UserController extends BaseController
         // Start the database transaction
         DB::beginTransaction();
         try{
-            $this->performTransaction($userId, $nin, $newBalance, $cashBack);
+            $this->performTransaction($user, $nin, $newBalance, $cashBack);
             DB::commit();
             if($cashBack > 0)
             {
@@ -1756,7 +1758,7 @@ class UserController extends BaseController
     {
         $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
 
-        return $checkBalance && $checkBalance->amount >= $amount;
+        return $checkBalance && $checkBalance->withdrawable_amount >= $amount;
     }
 
     protected function getLeverPayAccount()
@@ -1772,14 +1774,15 @@ class UserController extends BaseController
         return $newBalance;
     }
 
-    protected function performTransaction($userId, $nin, $newBalance,$cashBack)
+    protected function performTransaction($user, $nin, $newBalance,$cashBack)
     {
+        $userId=$user->id;
         $extra=json_encode($nin);
         $wBal=$nin['amount']-$cashBack;
         WalletService::subtractFromWallet($userId, $wBal, 'naira');
 
         DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
-
+        
         BillPaymentHistory::create([
             'user_id' => $userId,
             'customerId' => $nin['customerId'],
@@ -1794,6 +1797,25 @@ class UserController extends BaseController
             'extra' => $extra,
             'provider_name' => 'VFD',
             'transaction_reference' => $nin['referenceNo'],
+        ]);
+
+        $details = [
+            "bill_phone"=>$nin['customerId'],
+            "bill_id"=>$nin['billerId'],
+            "data_id"=>$nin['paymentItem'],
+            "bill_provider"=>"vfd bank"
+        ];
+
+        Transaction::create([
+            'user_id' =>  $userId,
+            'reference_no' => $nin['referenceNo'],
+            'tnx_reference_no' => $nin['referenceNo'],
+            'amount' => $nin['amount'],
+            'balance' => floatval($user->wallet->withdrawable_amount) - floatval($wBal),
+            'type' => 'debit',
+            'merchant' => $nin['paymentItem'],
+            'status' => 1,
+            'transaction_details' => json_encode($details)
         ]);
     }
 
