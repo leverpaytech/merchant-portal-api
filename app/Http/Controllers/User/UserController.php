@@ -1673,7 +1673,7 @@ class UserController extends BaseController
         $cashBack=0.00;
         if($getCashBack)
         {
-            $cashBack=($getCashBack->percent/100)*$nin['amount'];
+            $cashBack=($getCashBack->percent/100)*$data['amount'];
         }
 
         $nin=[
@@ -1730,7 +1730,8 @@ class UserController extends BaseController
             $result = [
                 'message'=>$msg,
                 'reference' => $nin['referenceNo'], 
-                'product' => $data['paymentItem']
+                'product' => $data['paymentItem'],
+                'cashback'=>$cashBack
             ];
             return response()->json($result, 200);
         }catch (\Exception $e) {
