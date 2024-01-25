@@ -1774,6 +1774,192 @@
                 ]
             }
         },
+        "/api/v1/user/bills/get-airtime": {
+            "get": {
+                "tags": [
+                    "Providus Bill Payment"
+                ],
+                "summary": "Get Airtime",
+                "operationId": "Get Airtime",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/bills/buy-airtime": {
+            "post": {
+                "tags": [
+                    "Providus Bill Payment"
+                ],
+                "summary": "Buy Airtime",
+                "operationId": "Buy Airtime",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "amount",
+                                    "bill_id"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "description": "amount to acquire service",
+                                        "type": "string"
+                                    },
+                                    "bill_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/bills/get-data-details/{bill_id}": {
+            "get": {
+                "tags": [
+                    "Providus Bill Payment"
+                ],
+                "summary": "Get Data Details",
+                "operationId": "Get Data Details",
+                "parameters": [
+                    {
+                        "name": "bill_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/bills/get-data": {
+            "get": {
+                "tags": [
+                    "Providus Bill Payment"
+                ],
+                "summary": "Get Data",
+                "operationId": "Get Data",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/bills/buy-data": {
+            "post": {
+                "tags": [
+                    "Providus Bill Payment"
+                ],
+                "summary": "Buy Data",
+                "operationId": "Buy Data",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "data_id",
+                                    "bill_id"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string"
+                                    },
+                                    "data_id": {
+                                        "type": "string"
+                                    },
+                                    "bill_id": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/get-cities": {
             "post": {
                 "tags": [

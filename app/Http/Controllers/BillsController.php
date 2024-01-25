@@ -14,7 +14,25 @@ use App\Services\ProvidusService;
 
 class BillsController extends BaseController
 {
-    public function getAirtime(){
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/bills/get-airtime",
+     *   tags={"Providus Bill Payment"},
+     *   summary="Get Airtime",
+     *   operationId="Get Airtime",
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getAirtime()
+    {
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => env('PROVIDUS_BILLS_BASEURL')."/provipay/webapi/bill/assigned/byCategoryId/1",
@@ -51,7 +69,54 @@ class BillsController extends BaseController
         }
     }
 
-    public function buyAirtime(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/bills/buy-airtime",
+     *   tags={"Providus Bill Payment"},
+     *   summary="Buy Airtime",
+     *   operationId="Buy Airtime",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"phone","amount","bill_id"},
+     *              @OA\Property( property="phone", type="string"),
+     *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
+     *              @OA\Property( property="bill_id", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function buyAirtime(Request $request)
+    {
         $data2['activity']="Buy Airtime Attempt - User: " . Auth::user()->id .'-'.Auth::user()->first_name. ' '. Auth::user()->last_name. ' Amount:'. $request['amount'];
         $data2['user_id']=Auth::user()->id;
 
@@ -163,7 +228,34 @@ class BillsController extends BaseController
         }
     }
 
-    public function getDataDetails($bill_id){
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/bills/get-data-details/{bill_id}",
+     *   tags={"Providus Bill Payment"},
+     *   summary="Get Data Details",
+     *   operationId="Get Data Details",
+     *
+     * * @OA\Parameter(
+     *      name="bill_id",
+     *      in="path",
+     *      required=true,
+     *      @OA\Schema(
+     *           type="string",
+     *      )
+     *   ),
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
+    public function getDataDetails($bill_id)
+    {
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => env('PROVIDUS_BILLS_BASEURL')."/provipay/webapi/field/assigned/byBillId/{$bill_id}",
@@ -207,6 +299,23 @@ class BillsController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     ** path="/api/v1/user/bills/get-data",
+     *   tags={"Providus Bill Payment"},
+     *   summary="Get Data",
+     *   operationId="Get Data",
+     * 
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *     ),
+     *     security={
+     *       {"bearer_token": {}}
+     *     }
+     *
+     *)
+     **/
     public function getData(){
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -237,7 +346,54 @@ class BillsController extends BaseController
         }
     }
 
-    public function buyData(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/bills/buy-data",
+     *   tags={"Providus Bill Payment"},
+     *   summary="Buy Data",
+     *   operationId="Buy Data",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"phone","data_id","bill_id"},
+     *              @OA\Property( property="phone", type="string"),
+     *              @OA\Property( property="data_id", type="string"),
+     *              @OA\Property( property="bill_id", type="string")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function buyData(Request $request)
+    {
         $this->validate($request, [
             'phone'=> 'required',
             'bill_id'=> 'required|numeric|min:1',
