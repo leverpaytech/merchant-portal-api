@@ -20,7 +20,7 @@ class BillsController extends BaseController
      *   tags={"Providus Bill Payment"},
      *   summary="Get Airtime",
      *   operationId="Get Airtime",
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -243,7 +243,7 @@ class BillsController extends BaseController
      *           type="string",
      *      )
      *   ),
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -305,7 +305,7 @@ class BillsController extends BaseController
      *   tags={"Providus Bill Payment"},
      *   summary="Get Data",
      *   operationId="Get Data",
-     * 
+     *
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -498,6 +498,38 @@ class BillsController extends BaseController
         }catch(\Exception $e){
             DB::rollBack();
             return $this->sendError($e->getMessage(),[],400);
+        }
+    }
+
+    public function getCable()
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('PROVIDUS_BILLS_BASEURL')."/provipay/webapi/bill/assigned/byCategoryId/2",
+            CURLOPT_USERPWD => env('PROVIDUS_BILLS_USERNAME') . ':'. env('PROVIDUS_BILLS_PASSWORD'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30000,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Accept:application/json",
+                "accept-language: en-US,en;q=0.8",
+                "Content-Type: application/json",
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+        $response = json_decode($response);
+
+        if ($err) {
+            return $this->sendError($err,[], 400);
+        } else {
+            return $this->successfulResponse($response,'');
         }
     }
 }
