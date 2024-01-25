@@ -10,6 +10,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Services\WalletService;
 use App\Models\ActivityLog;
+use App\Services\ProvidusService;
 
 class BillsController extends BaseController
 {
@@ -57,7 +58,7 @@ class BillsController extends BaseController
         ActivityLog::createActivity($data2);
 
         $this->validate($request, [
-            'phone'=> 'required',
+            'phoneNumber'=> 'required',
             'amount'=>'required|numeric|min:50|max:100',
             'bill_id'=>'required|numeric'
         ]);
@@ -68,6 +69,19 @@ class BillsController extends BaseController
         ]);
         if(!$user->wallet || $user->wallet->withdrawable_amount < $request['amount']){
             return $this->sendError("Insufficient wallet balance",[], 400);
+        }
+
+        $field = ProvidusService::getBillsField($request->bill_id);
+
+        if(!$field['status']){
+            return $this->sendError($field['message'],[], 400);
+        }
+
+        $serviceType = '';
+        foreach($field['data']->fields as $value){
+            if($value->key == 'serviceCode'){
+                $serviceType = $value->list->items[0]->id;
+            }
         }
 
 
@@ -86,7 +100,7 @@ class BillsController extends BaseController
             $transaction->status = 1;
 
             $details = [
-                "bill_phone"=>$request['phone'],
+                "bill_phone"=>$request['phoneNumber'],
                 "bill_id"=>$request['bill_id'],
                 "bill_provider"=>"providus bank"
             ];
@@ -98,7 +112,7 @@ class BillsController extends BaseController
             $requestData=array(
                 "inputs"=>[
                     [
-                        "value"=> $request->phone,
+                        "value"=> $request->phoneNumber,
                         "key"=>"customerId"
                     ],
                     [
@@ -113,7 +127,7 @@ class BillsController extends BaseController
             $postData= json_encode($requestData);
             $curl = curl_init();
             curl_setopt_array($curl, array(
-                CURLOPT_URL => env('PROVIDUS_BILLS_BASEURL')."/provipay/webapi/validate/{$request['bill_id']}/customer",
+                CURLOPT_URL => env('PROVIDUS_BILLS_BASEURL')."/provipay/webapi/makepayment/{$request['bill_id']}/customer",
                 CURLOPT_USERPWD => env('PROVIDUS_BILLS_USERNAME') . ':'. env('PROVIDUS_BILLS_PASSWORD'),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",

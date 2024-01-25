@@ -185,6 +185,7 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-data', [BillsController::class,'getData']);
                 Route::get('get-data-details/{id}', [BillsController::class,'getDataDetails']);
                 Route::post('buy-data', [BillsController::class,'buyData']);
+                Route::get('get-cable', [BillsController::class,'getCable']);
             });
 
             Route::prefix('etherscan')->group(function () {

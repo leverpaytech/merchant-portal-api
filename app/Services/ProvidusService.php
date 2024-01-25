@@ -103,4 +103,38 @@ class ProvidusService
             return(json_decode($response));
         }
     }
+
+    public static function getBillsField($id){
+        $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => env('PROVIDUS_BILLS_BASEURL')."/provipay/webapi/field/assigned/byBillId/{$id}",
+                CURLOPT_USERPWD => env('PROVIDUS_BILLS_USERNAME') . ':'. env('PROVIDUS_BILLS_PASSWORD'),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30000,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    "Accept:*/*",
+                    "accept-language: en-US,en;q=0.8",
+                    "Content-Type: application/json",
+                ),
+            ));
+
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+
+            curl_close($curl);
+
+            if ($err) {
+                return ['status' =>false, 'message' =>$err];
+            } else {
+                $decode=json_decode($response);
+                if($decode->bill_id == 0){
+                    return ['status' =>false, 'message' =>"Invalid bill identifier"];
+                }
+                return ['status' =>true, 'data'=>$decode];
+            }
+    }
 }
