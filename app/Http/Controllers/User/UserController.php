@@ -1634,7 +1634,7 @@ class UserController extends BaseController
      **/
     public function billPayment(Request $request)
     {
-        //return response()->json('Access denied', 422);
+        
         $data = $request->all();
 
         $validator = Validator::make($data, [
@@ -1659,6 +1659,9 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         
         $userId = $user->id;
+
+        $excCshBk=BillPaymentHistory::where('user_id', $userId)->get();
+        return response()->json($excCshBk, 422);
 
         $checkRefNo = $this->checkReferenceNoValidity($userId, $data['reference_no']);
         if ($checkRefNo) {
@@ -1821,10 +1824,8 @@ class UserController extends BaseController
             'transaction_details' => $details
         ]);
 
-        $activity=array(
-            'activity' => "vfd bill payment of ".$nin['paymentItem']." for N".$nin['amount'],
-            'user_id' => $userId
-        );
+        $activity['activity']="vfd bill payment of ".$nin['paymentItem']." for N".$nin['amount'];
+        $activity['user_id']=$userId;
 
         ActivityLog::createActivity($activity);
 
