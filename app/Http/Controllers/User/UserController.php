@@ -1708,7 +1708,7 @@ class UserController extends BaseController
         
         $newBalance=($getLeverPayAccount->balance + $data['amount'])-$cashBack;
         
-        $payBillResult =VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo']);
+        return $payBillResult =VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo']);
         
         $payBillResult=json_decode($payBillResult);
 
