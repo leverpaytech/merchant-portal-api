@@ -1719,7 +1719,7 @@ class UserController extends BaseController
             return response()->json('Transaction Failed, '.$payBillResult->message, 422);
         }
         $payToken=isset($payBillResult->token)?$payBillResult->token:'';
-        
+        $nin['token']=$payToken;
         // Start the database transaction
         DB::beginTransaction();
         try{
@@ -1810,7 +1810,8 @@ class UserController extends BaseController
             "bill_phone"=>$nin['customerId'],
             "bill_id"=>$nin['billerId'],
             "data_id"=>$nin['paymentItem'],
-            "bill_provider"=>"vfd bank"
+            "bill_provider"=>"vfd bank",
+            "token"=>$nin['token']
         ]);
 
         Transaction::create([
