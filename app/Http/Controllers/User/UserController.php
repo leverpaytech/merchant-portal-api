@@ -1719,7 +1719,7 @@ class UserController extends BaseController
         // Start the database transaction
         DB::beginTransaction();
         try{
-            $this->performTransaction($user, $nin, $newBalance, $cashBack);
+            $this->performTransaction($userId, $nin, $newBalance, $cashBack);
             DB::commit();
             if($cashBack > 0)
             {
@@ -1774,11 +1774,14 @@ class UserController extends BaseController
         return $newBalance;
     }
 
-    protected function performTransaction($user, $nin, $newBalance,$cashBack)
+    protected function performTransaction($userId, $nin, $newBalance,$cashBack)
     {
-        $userId=$user->id;
+        //$userId=$user->id;
+        $getOldBal=Wallet::where('user_id', $userId)->get(['withdrawable_amount', 'amount'])->first();
+        
         $extra=json_encode($nin);
         $wBal=$nin['amount']-$cashBack;
+        $new_user_wall=$getOldBal->withdrawable_amount-$wBal;
         WalletService::subtractFromWallet($userId, $wBal, 'naira');
 
         DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
@@ -1799,23 +1802,23 @@ class UserController extends BaseController
             'transaction_reference' => $nin['referenceNo'],
         ]);
 
-        $details = [
+        $details = json_encode([
             "bill_phone"=>$nin['customerId'],
             "bill_id"=>$nin['billerId'],
             "data_id"=>$nin['paymentItem'],
             "bill_provider"=>"vfd bank"
-        ];
+        ]);
 
         Transaction::create([
             'user_id' =>  $userId,
             'reference_no' => $nin['referenceNo'],
             'tnx_reference_no' => $nin['referenceNo'],
             'amount' => $nin['amount'],
-            'balance' => floatval($user->wallet->withdrawable_amount) - floatval($wBal),
+            'balance' => $new_user_wall,
             'type' => 'debit',
             'merchant' => $nin['paymentItem'],
             'status' => 1,
-            'transaction_details' => json_encode($details)
+            'transaction_details' => $details
         ]);
 
         $activity=array(
