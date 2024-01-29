@@ -1711,15 +1711,15 @@ class UserController extends BaseController
         
         $newBalance=($getLeverPayAccount->balance + $data['amount'])-$cashBack;
         
-        // $payBillResult =VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo']);
+        $payBillResult =VfdService::payBill($accessToken, $data['customerId'], $data['amount'], $data['division'], $data['paymentItem'], $data['productId'], $data['billerId'], $nin['referenceNo']);
         
-        // $payBillResult=json_decode($payBillResult);
+        $payBillResult=json_decode($payBillResult);
 
-        // if ($payBillResult->status != '00') {
-        //     return response()->json('Transaction Failed, '.$payBillResult->message, 422);
-        // }
-        //$payToken=$payBillResult->token;
-        $payToken="0022";
+        if ($payBillResult->status != '00') {
+            return response()->json('Transaction Failed, '.$payBillResult->message, 422);
+        }
+        $payToken=isset($payBillResult->token)?$payBillResult->token:'';
+        
         // Start the database transaction
         DB::beginTransaction();
         try{
@@ -1743,7 +1743,7 @@ class UserController extends BaseController
         }catch (\Exception $e) {
             DB::rollBack();
             //throw $e;
-            return response()->json('Transaction Failed '.$e, 422);
+            return response()->json('Transaction Failed ', 422);
         }
     }
 
