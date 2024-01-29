@@ -1660,8 +1660,8 @@ class UserController extends BaseController
         
         $userId = $user->id;
 
-        $excCshBk=BillPaymentHistory::where('user_id', $userId)->get();
-        return response()->json($excCshBk, 422);
+        // $excCshBk=BillPaymentHistory::where('user_id', $userId)->get();
+        // return response()->json($excCshBk, 422);
 
         $checkRefNo = $this->checkReferenceNoValidity($userId, $data['reference_no']);
         if ($checkRefNo) {
