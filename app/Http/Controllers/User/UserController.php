@@ -1500,14 +1500,15 @@ class UserController extends BaseController
         $getItems=VfdService::getBillerItems($accessToken,$billerId,$divisionId,$productId);
         $geBillerItems=json_decode($getItems);
 
+        //return $geBillerItems;
         /*
             this was temporary done to resolve the issue electricity bills purchase failure
             it will remove once VFD make update from their end
         */
-        $categoryid=$geBillerItems->data->paymentitems['categoryid'];
+        $categoryid=$geBillerItems->data->paymentitems[0]->categoryid;
         if($categoryid==2)
         {
-            $geBillerItems->data->paymentitems['paymentitemname']=$geBillerItems->data->paymentitems['paymentCode'];
+            $geBillerItems->data->paymentitems[0]->paymentitemname=$geBillerItems->data->paymentitems[0]->paymentCode;
         }
         $geBillerItems->reference_no=base64_encode("Leverpay-".uniqid());
 
