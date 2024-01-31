@@ -1500,6 +1500,11 @@ class UserController extends BaseController
         $getItems=VfdService::getBillerItems($accessToken,$billerId,$divisionId,$productId);
         $geBillerItems=json_decode($getItems);
 
+        $categoryid=$geBillerItems->data->paymentitems->categoryid;
+        if($categoryid==2)
+        {
+            $geBillerItems->data->paymentitems->paymentitemname=$geBillerItems->data->paymentitems->paymentCode;
+        }
         $geBillerItems->reference_no=base64_encode("Leverpay-".uniqid());
 
         return $geBillerItems;
