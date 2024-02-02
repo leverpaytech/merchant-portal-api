@@ -1506,7 +1506,8 @@ class UserController extends BaseController
             it will remove once VFD make update from their end
         */
         $categoryid=$geBillerItems->data->paymentitems[0]->categoryid;
-        if($categoryid==2)
+        $billerid=$geBillerItems->data->paymentitems[0]->billerid;
+        if($categoryid==2 || $billerid=='GLO_VBANK' || $billerid=='GLO_VBANK_DATA')
         {
             $geBillerItems->data->paymentitems[0]->paymentitemname=$geBillerItems->data->paymentitems[0]->paymentCode;
         }
