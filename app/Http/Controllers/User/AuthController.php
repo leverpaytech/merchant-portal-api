@@ -84,11 +84,12 @@ class AuthController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"gender","dob","email","password", "first_name", "last_name","phone"},
+     *              required={"gender","dob","email","password", "first_name", "last_name","phone","bvn"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="other_name", type="string"),
      *              @OA\Property( property="gender", type="string"),
+     *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="dob", type="string", format="date"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="phone", type="string"),
@@ -131,9 +132,6 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
-        //$nEmail="abdilkura".time()."@gmail.com";
-        //User::where('email','abdilkura@gmail.com')->update(['email'=>$nEmail]);
-        //User::where('phone','08136908764')->update(['phone'=>'08136908000']);
         $data = $request->all();
 
         $validator = Validator::make($data, [
