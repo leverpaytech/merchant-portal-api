@@ -16,7 +16,7 @@ class SwaggerUiController extends Controller
         //$user = Auth::user();
 
         //return view('swagger.index', ['user' => $user]);
-        return view('swagger.index');
+        return view('merchant_swagger_documentation');
     }
 }
 

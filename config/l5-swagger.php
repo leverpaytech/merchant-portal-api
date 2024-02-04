@@ -15,7 +15,7 @@ return [
                 \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class,
                 'auth',
             ],
-            
+
 
             'routes' => [
                 /*

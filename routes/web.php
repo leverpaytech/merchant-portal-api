@@ -20,19 +20,19 @@ use Carbon\Carbon;
 
 // });
 
-Route::get('/kycDetails', [KycController::class, 'getKycDocument'])->name('kycDetails');
+// Route::get('/kycDetails', [KycController::class, 'getKycDocument'])->name('kycDetails');
 
-Route::get('upload', function(){
-    return view('upload');
-});
+// Route::get('upload', function(){
+//     return view('upload');
+// });
 
-Route::get('custom-clear-cache', function(){
-    \Artisan::call('route:cache');
-    \Artisan::call('config:cache');
-    \Artisan::call('cache:clear');
-    \Artisan::call('view:clear');
-    \Artisan::call('optimize:clear');
-    dd('done');
-});
+// Route::get('custom-clear-cache', function(){
+//     \Artisan::call('route:cache');
+//     \Artisan::call('config:cache');
+//     \Artisan::call('cache:clear');
+//     \Artisan::call('view:clear');
+//     \Artisan::call('optimize:clear');
+//     dd('done');
+// });
 
-Route::post('/addKyc', [KycController::class, 'addKyc'])->name('addKyc');
+// Route::post('/addKyc', [KycController::class, 'addKyc'])->name('addKyc');
