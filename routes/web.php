@@ -18,7 +18,8 @@ use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
 
 Route::get('/', function (){
-    $a = WalletService::subtractFromWallet(63, 1200);
+    // $a = WalletService::subtractFromWallet(63, 1200);
+    $a = str_contains("mammon2233@gmail.com","mammon");
     dd($a);
 });
 
