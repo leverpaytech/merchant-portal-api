@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ExchangeRate;
+use App\Services\WalletService;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
@@ -16,9 +17,10 @@ use Symfony\Component\Uid\Ulid;
 use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
 
-// Route::get('/', function (){
-
-// });
+Route::get('/', function (){
+    $a = WalletService::subtractFromWallet(63, 1200);
+    dd($a);
+});
 
 // Route::get('/kycDetails', [KycController::class, 'getKycDocument'])->name('kycDetails');
 
