@@ -177,6 +177,7 @@ class AuthController extends BaseController
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
         $data['zip_code'] = $request->getClientIp();
+        $data['bvn'] = $request->bvn;
 
         try{
             DB::beginTransaction();
