@@ -24,6 +24,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'bvn',
         'email',
         'other_email',
         'primary_email',
@@ -155,7 +156,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MerchantKeys::class, 'id','user_id');
     }
-    
+
     public function kyc()
     {
         return $this->hasOne(Kyc::class);
