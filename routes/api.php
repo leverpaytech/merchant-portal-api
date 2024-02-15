@@ -125,59 +125,84 @@ Route::prefix('v1')->group( function(){
 
         Route::middleware('auth:api')->group(function () {
             Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
-            Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
-            Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
 
-            Route::get('/get-document-type', [UserController::class,'getDocumentType']);
 
-            Route::post('/upgrade-to-gold-card-kyc', [UserController::class, 'goldUpgradeKyc']);
-            Route::get('/gold-kyc-upgrade-details', [UserController::class, 'goldKycUpgradeDetails']);
+            Route::middleware('restrictInactiveUser')->group(function () {
+                Route::get('/get-user-profile', [UserController::class, 'getUserProfile'])->name('user.get');
+                Route::post('/update-user-profile', [UserController::class, 'updateUserProfile'])->name('user.update');
+                Route::get('/get-document-type', [UserController::class,'getDocumentType']);
 
-            Route::post('/upgrade-to-diamond-card-kyc', [UserController::class, 'diamondUpgradeKyc']);
-            Route::get('/diamond-kyc-upgrade-details', [UserController::class, 'diamondKycUpgradeDetails']);
+                Route::post('/upgrade-to-gold-card-kyc', [UserController::class, 'goldUpgradeKyc']);
+                Route::get('/gold-kyc-upgrade-details', [UserController::class, 'goldKycUpgradeDetails']);
 
-            Route::post('/upgrade-to-enterprise-card-kyc', [UserController::class, 'enterpriseUpgradeKyc']);
-            Route::get('/enterprise-kyc-upgrade-details', [UserController::class, 'enterpriseKycUpgradeDetails']);
+                Route::post('/upgrade-to-diamond-card-kyc', [UserController::class, 'diamondUpgradeKyc']);
+                Route::get('/diamond-kyc-upgrade-details', [UserController::class, 'diamondKycUpgradeDetails']);
 
-            Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
-            Route::post('/add-currencies', [UserController::class, 'addCurrencies']);
-            Route::get('get-currencies', [UserController::class, 'getCurrencies']);
-            Route::get('/get-wallet', [WalletController::class, 'getWallet']);
+                Route::post('/upgrade-to-enterprise-card-kyc', [UserController::class, 'enterpriseUpgradeKyc']);
+                Route::get('/enterprise-kyc-upgrade-details', [UserController::class, 'enterpriseKycUpgradeDetails']);
+
+                Route::get('/get-user-currencies', [UserController::class, 'getUserCurrencies']);
+                Route::post('/add-currencies', [UserController::class, 'addCurrencies']);
+                Route::get('get-currencies', [UserController::class, 'getCurrencies']);
+                Route::get('/get-wallet', [WalletController::class, 'getWallet']);
+
+                // Route::post('/generate-card', [UserController::class, 'generateCard']);
+                Route::get('/get-card', [CardController::class, 'getCard']);
+                Route::post('/set-pin', [CardController::class, 'setPin']);
+                // Route::post('/upgrade-card', [CardController::class, 'upgradeCard']);
+                Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
+
+                Route::post('search-user', [UserController::class, 'searchUser']);
+
+                Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
+
+
+                Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
+                Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
+
+                Route::get('get-exchange-rates', [UserController::class, 'getExchangeRates']);
+
+                Route::get('get-invoices', [InvoiceController::class, 'getInvoices']);
+                Route::post('pay-invoice', [InvoiceController::class, 'payInvoice']);
+                Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
+
+
+                Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
+                Route::get('get-referrals', [UserController::class, 'getReferrals']);
+
+
+                Route::post('transfer', [WalletController::class, 'transfer']);
+                Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
+
+                Route::prefix('etherscan')->group(function () {
+                    Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
+                });
+
+                Route::prefix('vfd')->group(function () {
+                    Route::get('check-transaction/{reference_no}', [UserController::class,'checkTransaction']);
+                    Route::get('get-biller-categories', [UserController::class,'billerCategories']);
+                    Route::get('get-biller-list/{categoryName}', [UserController::class,'billerList']);
+                    Route::get('get-biller-items/{billerId}/{divisionId}/{productId}', [UserController::class,'billerItems']);
+                    Route::post('submit-bill-payment', [UserController::class,'billPayment']);
+                    Route::post('create-new-pin', [UserController::class,'createBillPaymentPin']);
+                    Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
+                    Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
+                    Route::get('validate-customer', [UserController::class,'validateCustomer']);
+                    Route::get('get-cashback-rate', [UserController::class,'vfdDiscount']);
+                });
+
+            });
+
+
 
             // Route::post('/fund-wallet',[WalletController::class, 'fundWallet']);
 
-            // Route::post('/generate-card', [UserController::class, 'generateCard']);
-            Route::get('/get-card', [CardController::class, 'getCard']);
-            Route::post('/set-pin', [CardController::class, 'setPin']);
-            // Route::post('/upgrade-card', [CardController::class, 'upgradeCard']);
-            Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
-
-            Route::post('search-user', [UserController::class, 'searchUser']);
-
-            Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
-
             Route::post('submit-topup-request', [WalletController::class, 'submitTopupRequest']);
             Route::get('get-all-topup-requests', [WalletController::class, 'getAllTopupRequests']);
-
-
-            Route::post('add-bank-account', [UserController::class, 'addBankAccount']);
-            Route::get('get-user-bank-account', [UserController::class, 'getUserBankAccount']);
-
-            Route::get('get-exchange-rates', [UserController::class, 'getExchangeRates']);
-
-            Route::get('get-invoices', [InvoiceController::class, 'getInvoices']);
-            Route::post('pay-invoice', [InvoiceController::class, 'payInvoice']);
-            Route::post('verify-invoices-otp', [InvoiceController::class, 'verifyInvoiceOTP']);
             Route::get('get-account-numbers', [WalletController::class, 'getAccountNos']);
 
             Route::post('generate-account', [WalletController::class, 'generateAccount']);
-
-            Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
-            Route::get('get-referrals', [UserController::class, 'getReferrals']);
-
-
-            Route::post('transfer', [WalletController::class, 'transfer']);
-            Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
+            Route::get('/get-wallet', [WalletController::class, 'getWallet']);
 
             Route::prefix('bills')->group(function () {
                 Route::get('get-airtime', [BillsController::class,'getAirtime']);
@@ -188,22 +213,7 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-cable', [BillsController::class,'getCable']);
             });
 
-            Route::prefix('etherscan')->group(function () {
-                Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
-            });
 
-            Route::prefix('vfd')->group(function () {
-                Route::get('check-transaction/{reference_no}', [UserController::class,'checkTransaction']);
-                Route::get('get-biller-categories', [UserController::class,'billerCategories']);
-                Route::get('get-biller-list/{categoryName}', [UserController::class,'billerList']);
-                Route::get('get-biller-items/{billerId}/{divisionId}/{productId}', [UserController::class,'billerItems']);
-                Route::post('submit-bill-payment', [UserController::class,'billPayment']);
-                Route::post('create-new-pin', [UserController::class,'createBillPaymentPin']);
-                Route::post('reset-billpayment-pin', [UserController::class,'resetBillPaymentPin']);
-                Route::get('get-billpayments-history', [UserController::class,'viewBillPaymentHistory']);
-                Route::get('validate-customer', [UserController::class,'validateCustomer']);
-                Route::get('get-cashback-rate', [UserController::class,'vfdDiscount']);
-            });
 
 
         });

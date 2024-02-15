@@ -18,9 +18,58 @@ use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
 
 Route::get('/', function (){
-    // $a = WalletService::subtractFromWallet(63, 1200);
-    $a = str_contains("mammon2233@gmail.com","mammon");
-    dd($a);
+    $users=User::where('role_id', '1')->paginate(12, ['first_name']);
+    dd($users);
+    $file = public_path('bsmp.csv');
+    $data=[];
+    $header = null;
+    if (($handle = fopen($file, 'r')) !== false)
+    {
+        while (($row = fgetcsv($handle, 1000, ',')) !== false)
+        {
+            if (!$header)
+                $header = $row;
+            else
+                $data[] = array_combine($header, $row);
+        }
+        fclose($handle);
+    }
+    // dd($data);
+    $unique = [];
+    $double = [];
+    $unknown = [];
+    foreach ($data as $key => $value){
+        if(array_key_exists($value['DESTINATION ACCOUNT NUMBER'], $unique)){
+            $unique[$value['DESTINATION ACCOUNT NUMBER']]['count'] += 1;
+            array_push($unique[$value['DESTINATION ACCOUNT NUMBER']]['transactions'], $value);
+        }else{
+            $unique[$value['DESTINATION ACCOUNT NUMBER']]['transactions'] = [];
+            $unique[$value['DESTINATION ACCOUNT NUMBER']]['count'] = 1;
+            array_push($unique[$value['DESTINATION ACCOUNT NUMBER']]['transactions'], $value);
+
+            // array_push($unique, $value);
+        }
+    }
+    // dd($unique);
+
+    foreach($unique as $key => $value){
+        $sup = DB::table('suppliers')->where('suppliers.account_number', $key)
+        ->join('company', 'suppliers.company_id', '=', 'company.id')
+        ->select('company.company_name', 'suppliers.name', 'suppliers.phone', 'suppliers.email', 'suppliers.account_name', 'suppliers.account_number')
+        ->get();
+
+        $unique[$key]['companyCount'] = count($sup);
+        if($unique[$key]['companyCount'] < 1){
+            $unknown[$key] = $value;
+        }
+        if($unique[$key]['companyCount'] > 1){
+            $double[$key] = $sup;
+            // array_push($double[$key],$sup);
+        }
+        $unique[$key]['company'] = $sup;
+    }
+
+    dd($unknown);
 });
 
 // Route::get('/kycDetails', [KycController::class, 'getKycDocument'])->name('kycDetails');

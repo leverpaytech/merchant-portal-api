@@ -135,14 +135,14 @@ class AdminController extends BaseController
         {
             return $this->sendError("Authourized user",[], 401);
         }
-        // $users=User::where('role_id', '1')->with('kyc')->with('wallet')->get();
+
         $users=User::where('role_id', '1');
         $mode = strval($request->query('mode'));
         //mode == 0 means those that haven't submit kyc
         //mode == 1 means those that submit kyc and havs been approved
         //mode == 2 means those that haven submit kyc but hasn't been approved
         if($mode == 1){
-            $users = $users->where('kyc_status', 1)->with('kyc')->with('wallet')->get();
+            $users = $users->where('kyc_status', 1)->with('kyc')->with('wallet')->paginate(12);
             $users->transform(function($user){
                 if($user->kyc !==NULL)
                 {
@@ -160,13 +160,13 @@ class AdminController extends BaseController
                 return $user;
             });
         }elseif($mode == 0){
-            $users = $users->where('kyc_status', 0)->doesntHave('kyc')->with('wallet')->get();
+            $users = $users->where('kyc_status', 0)->doesntHave('kyc')->with('wallet')->paginate(12);
         }elseif($mode == 2){
             $users = $users->whereHas('kyc', function ($query) {
                 $query->where('status', 0);
             })->with('kyc')->get();
         }else {
-            $users = $users->with('kyc')->with('wallet')->get();
+            $users = $users->with('kyc')->with('wallet')->paginate(12);
         }
         return $this->successfulResponse($users, 'Merchants list');
 
@@ -212,11 +212,11 @@ class AdminController extends BaseController
         $filter = strval($request->query('status'));
 
         if($filter == 'pending'){
-            $topup = TopupRequest::where('status', 0)->orderBy('created_at', 'desc')->with('user')->get();
+            $topup = TopupRequest::where('status', 0)->orderBy('created_at', 'desc')->with('user')->paginate(12);
         }else if($filter == 'approved'){
-            $topup = TopupRequest::where('status', 1)->orderBy('created_at', 'desc')->with('user')->get();
+            $topup = TopupRequest::where('status', 1)->orderBy('created_at', 'desc')->with('user')->paginate(12);
         }else{
-            $topup = TopupRequest::orderBy('created_at', 'desc')->with('user')->get();
+            $topup = TopupRequest::orderBy('created_at', 'desc')->with('user')->paginate(12);
         }
 
         return $this->successfulResponse($topup, 'Topup requests');
@@ -426,7 +426,7 @@ class AdminController extends BaseController
             return $this->sendError("Authourized user",[], 401);
         }
 
-        $users=User::where('role_id','0')->with('kyc')->get();
+        $users=User::where('role_id','0')->with('kyc')->paginate(12);
         $users->transform(function($user){
             if($user->kyc !==NULL)
             {
@@ -471,7 +471,7 @@ class AdminController extends BaseController
             ->with('user')
             ->with('country')
             ->with('documentType')
-            ->get();
+            ->paginate(12);
 
         return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
 
@@ -504,7 +504,7 @@ class AdminController extends BaseController
             ->with('country')
             ->with('documentType')
             ->select('kycs.*')
-            ->paginate(20);
+            ->paginate(12);
 
         return $this->successfulResponse($kycs, 'Merchants kyc details successfully retrieved');
 
@@ -645,7 +645,7 @@ class AdminController extends BaseController
 
     public function getExchangeRatesHistory()
     {
-        $rates=ExchangeRate::latest()->get();
+        $rates=ExchangeRate::latest()->paginate(12);
 
         return $this->successfulResponse($rates, 'all exchange rate successfully retrieved');
 
@@ -670,7 +670,7 @@ class AdminController extends BaseController
      **/
 
     public function getTransactions(){
-        $transactions = Transaction::latest()->with('user')->get();
+        $transactions = Transaction::latest()->with('user')->paginate(20);
         return $this->successfulResponse($transactions, '');
     }
 
@@ -886,7 +886,7 @@ class AdminController extends BaseController
      **/
 
     public function getAccountNos(){
-        $acc = DB::table('lever_pay_account_no')->get();
+        $acc = DB::table('lever_pay_account_no')->paginate(12);
         return $this->successfulResponse($acc, 'Bank created successfully');
     }
 
@@ -1002,7 +1002,7 @@ class AdminController extends BaseController
      **/
 
      public function getInvoices(Request $request){
-        $invoices = Invoice::with('user')->with('merchant')->get();
+        $invoices = Invoice::with('user')->with('merchant')->paginate(12);
 
         return $this->successfulResponse($invoices, '');
     }
@@ -1218,6 +1218,7 @@ class AdminController extends BaseController
         }
 
         $user->kyc_status = 1;
+        $user->status = 1;
         $user->save();
 
         $data2['activity']="Account successfully activated";
@@ -1291,7 +1292,7 @@ class AdminController extends BaseController
         if(!$user)
             return $this->sendError("Account not found",[],400);
 
-        $user->status = false;
+        $user->status = 2;
         $user->save();
 
         $data2['activity']="Account successfully deactivated";
@@ -1481,50 +1482,50 @@ class AdminController extends BaseController
         return $this->successfulResponse($contact, 'Message successfully sent');
     }
 
-    /**
-     * @OA\Post(
-     ** path="/api/v1/admin/total-delete",
-     *   tags={"Admin"},
-     *   summary="Total delete",
-     *   operationId="Total delete",
-     *
-     *    @OA\RequestBody(
-     *      @OA\MediaType( mediaType="multipart/form-data",
-     *          @OA\Schema(
-     *              required={"email"},
-     *              @OA\Property( property="email", type="string")
-     *          ),
-     *      ),
-     *   ),
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *      @OA\MediaType(
-     *           mediaType="application/json",
-     *      )
-     *   ),
-     *   @OA\Response(
-     *      response=401,
-     *       description="Unauthenticated"
-     *   ),
-     *   @OA\Response(
-     *      response=400,
-     *      description="Bad Request"
-     *   ),
-     *   @OA\Response(
-     *      response=404,
-     *      description="not found"
-     *   ),
-     *   @OA\Response(
-     *      response=403,
-     *      description="Forbidden"
-     *   ),
-     *   security={
-     *       {"bearer_token": {}}
-     *   }
-     *)
-    **/
+    // /**
+    //  * @OA\Post(
+    //  ** path="/api/v1/admin/total-delete",
+    //  *   tags={"Admin"},
+    //  *   summary="Total delete",
+    //  *   operationId="Total delete",
+    //  *
+    //  *    @OA\RequestBody(
+    //  *      @OA\MediaType( mediaType="multipart/form-data",
+    //  *          @OA\Schema(
+    //  *              required={"email"},
+    //  *              @OA\Property( property="email", type="string")
+    //  *          ),
+    //  *      ),
+    //  *   ),
+    //  *
+    //  *   @OA\Response(
+    //  *      response=200,
+    //  *       description="Success",
+    //  *      @OA\MediaType(
+    //  *           mediaType="application/json",
+    //  *      )
+    //  *   ),
+    //  *   @OA\Response(
+    //  *      response=401,
+    //  *       description="Unauthenticated"
+    //  *   ),
+    //  *   @OA\Response(
+    //  *      response=400,
+    //  *      description="Bad Request"
+    //  *   ),
+    //  *   @OA\Response(
+    //  *      response=404,
+    //  *      description="not found"
+    //  *   ),
+    //  *   @OA\Response(
+    //  *      response=403,
+    //  *      description="Forbidden"
+    //  *   ),
+    //  *   security={
+    //  *       {"bearer_token": {}}
+    //  *   }
+    //  *)
+    // **/
     public function totalDelete(Request $request)
     {
         $this->validate($request,[
@@ -1585,7 +1586,7 @@ class AdminController extends BaseController
         $merchants = User::join('merchants', 'merchants.user_id', '=', 'users.id')
             ->join('wallets', 'wallets.user_id', '=', 'users.id')
             ->where('wallets.withdrawable_amount', '>', 0)
-            ->get([
+            ->paginate(12, [
                 'users.id',
                 'users.uuid',
                 'users.email',
@@ -1653,7 +1654,7 @@ class AdminController extends BaseController
      **/
     public function getAllVouchers()
     {
-        $all=Voucher::all();
+        $all=Voucher::paginate(12);
         return $this->successfulResponse($all, 'Voucher list successfully retrieved');
     }
 
@@ -1676,7 +1677,7 @@ class AdminController extends BaseController
      **/
     public function getActiveVoucher()
     {
-        $active=Voucher::where('status', 1)->get(['id','code_no']);
+        $active=Voucher::where('status', 1)->paginate(12, ['id','code_no']);
         return $this->successfulResponse($active, 'Voucher list successfully retrieved');
     }
 
