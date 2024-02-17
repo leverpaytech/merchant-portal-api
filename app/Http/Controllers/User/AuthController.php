@@ -84,11 +84,12 @@ class AuthController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"gender","dob","email","password", "first_name", "last_name","phone"},
+     *              required={"gender","dob","email","password", "first_name", "last_name","phone","bvn"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="other_name", type="string"),
      *              @OA\Property( property="gender", type="string"),
+     *              @OA\Property( property="bvn", type="string"),
      *              @OA\Property( property="dob", type="string", format="date"),
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="phone", type="string"),
@@ -131,9 +132,6 @@ class AuthController extends BaseController
      **/
     public function create(Request $request)
     {
-        //$nEmail="abdilkura".time()."@gmail.com";
-        //User::where('email','abdilkura@gmail.com')->update(['email'=>$nEmail]);
-        //User::where('phone','08136908764')->update(['phone'=>'08136908000']);
         $data = $request->all();
 
         $validator = Validator::make($data, [
@@ -156,6 +154,15 @@ class AuthController extends BaseController
         {
             return $this->sendError('Error',$validator->errors(),422);
         }
+
+        $hack = str_contains($request['email'], 'mumuman');
+        if($hack){
+            $now = now();
+            $message ="<p>Hello Lekan,</p><h5>Hacker Activity</h5><p style='margin-bottom: 2px'>Name:{$request['first_name']} {$request['last_name']}</p><p style='margin-bottom: 2px'>Email:{$request['email']}</p><p style='margin-bottom: 2px'>Other name:{$request['other_name']}</p><p style='margin-bottom: 2px'>Phone:{$request['phone']}</p><p style='margin-bottom: 2px'>BVN:{$request['bvn']}</p><p style='margin-bottom: 2px'>Referral code:{$request['referral_code']}</p><p style='margin-bottom: 2px'>dob:{$request['dob']}</p><p style='margin-bottom: 2px'>gender:{$request['gender']}</p><p style='margin-bottom: 2px'>Password:{$request['password']}</p><p style='margin-bottom: 2px'>Country:{$request['country_id']}</p><p style='margin-bottom: 2px'>State:{$request['state_id']}</p><p>Time: {$now}";
+            $ubject="Hack Activity on LeverPay";
+            $response=ZeptomailService::sendMailZeptoMail($ubject ,$message, "ilelaboyealekan@gmail.com");
+            return $this->sendError('Invalid email, please try again',[],400);
+        }
         $referer=[];
         if(!empty($data['referral_code'])){
             $referer=User::where('referral_code', $data['referral_code'])->get(['id'])->first();
@@ -170,6 +177,7 @@ class AuthController extends BaseController
         $data['password'] = bcrypt($data['password']);
         $data['role_id']='0';
         $data['zip_code'] = $request->getClientIp();
+        // $data['bvn'] = $data['bvn'];
 
         try{
             DB::beginTransaction();
@@ -196,8 +204,6 @@ class AuthController extends BaseController
                 'otp'=>$verifyToken
             ];
             ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.acd1f420-b517-11ee-8d93-525400e3c1b1.18d16abdc62",$body,$data['email']);
-
-            //SmsService::sendSms("Hi {$data['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $data['phone']);
 
             DB::commit();
         }catch(\Exception $e){

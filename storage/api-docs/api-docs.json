@@ -11,7 +11,10 @@
     "servers": [
         {
             "url": "https://leverpay-api.azurewebsites.net",
-            "description": "Test server"
+            "description": "Leverpay_API_Documentation"
+        },
+        {
+            "url": "https://leverpay-api.azurewebsites.net"
         }
     ],
     "paths": {
@@ -3750,7 +3753,8 @@
                                     "password",
                                     "first_name",
                                     "last_name",
-                                    "phone"
+                                    "phone",
+                                    "bvn"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -3763,6 +3767,9 @@
                                         "type": "string"
                                     },
                                     "gender": {
+                                        "type": "string"
+                                    },
+                                    "bvn": {
                                         "type": "string"
                                     },
                                     "dob": {
@@ -5320,9 +5327,9 @@
                 "scheme": "https",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "https://leverpay-api.azurewebsites.net/oauth/authorize",
-                        "tokenUrl": "https://leverpay-api.azurewebsites.net/oauth/token",
-                        "refreshUrl": "https://leverpay-api.azurewebsites.net/token/refresh",
+                        "authorizationUrl": "http://localhost/oauth/authorize",
+                        "tokenUrl": "http://localhost/oauth/token",
+                        "refreshUrl": "http://localhost/token/refresh",
                         "scopes": []
                     }
                 }

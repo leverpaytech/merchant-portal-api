@@ -532,4 +532,49 @@ class BillsController extends BaseController
             return $this->successfulResponse($response,'');
         }
     }
+
+    public function getCableDetails($bill_id)
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('PROVIDUS_BILLS_BASEURL')."/provipay/webapi/field/assigned/byBillId/{$bill_id}",
+            CURLOPT_USERPWD => env('PROVIDUS_BILLS_USERNAME') . ':'. env('PROVIDUS_BILLS_PASSWORD'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30000,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Accept:application/json",
+                "accept-language: en-US,en;q=0.8",
+                "Content-Type: application/json",
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+        $response = json_decode($response);
+
+        if ($err) {
+            return $this->sendError($err,[], 400);
+        } else {
+            $list = [];
+            if(property_exists($response, 'fields')){
+                foreach ($response->fields as $value) {
+                    if($value->key == 'bouquet'){
+                        $list = $value;
+                    }
+                }
+                if(is_array($list) && count($list) < 1){
+                    return $this->sendError('Invalid data subscription',[], 400);
+                }
+                return $this->successfulResponse($list->list->items,'');
+            }else{
+                return $this->sendError('Invalid data subscription',[], 400);
+            }
+        }
+    }
 }
