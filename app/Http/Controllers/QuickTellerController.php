@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,ActivityLog,Transaction};
 
 class QuickTellerController extends BaseController
 {
@@ -249,12 +250,12 @@ class QuickTellerController extends BaseController
 
     if ($validator->fails())
     {
-        return $this->sendError('Error',$validator->errors(),422);
+      return $this->sendError('Error',$validator->errors(),422);
     }
 
     $user = Auth::user();
     if(!$user->id)
-        return $this->sendError('Unauthorized Access',[],401);
+      return $this->sendError('Unauthorized Access',[],401);
     
     $userId = $user->id;
 
@@ -271,6 +272,22 @@ class QuickTellerController extends BaseController
     $amount=$data['amount'];
     $refrenceNo=base64_decode($data['refrenceNo']);
 
+    $checkPin = $this->checkPinValidity($userId, $data['pin']);
+    if (!$checkPin) {
+      return response()->json('Invalid pin', 422);
+    }
+
+    $checkBalance = $this->checkWalletBalance($userId, $amount);
+    if (!$checkBalance) {
+      return response()->json('Insufficient wallet balance', 422);
+    }
+
+    $getLeverPayAccount = $this->getLeverPayAccount(); 
+    if (!$getLeverPayAccount->balance) {
+      return response()->json('Transaction Failed, Add at least one leverpay account', 422);
+    }
+        
+
     $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo);
 
     return $jsonData;
@@ -278,7 +295,7 @@ class QuickTellerController extends BaseController
 
   protected function checkPinValidity($userId, $pin)
   {
-      return BillPaymentPin::where('user_id', $userId)->where('pin', $pin)->first();
+    return BillPaymentPin::where('user_id', $userId)->where('pin', $pin)->first();
   }
 
   protected function checkReferenceNoValidity($reference_no)
@@ -286,7 +303,7 @@ class QuickTellerController extends BaseController
       $refNo=base64_decode($reference_no);
       return BillPaymentHistory::where('transaction_reference', $refNo)->first();
   }
-
+  
   protected function checkWalletBalance($userId, $amount)
   {
       $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);

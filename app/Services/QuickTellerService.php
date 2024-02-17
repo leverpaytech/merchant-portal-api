@@ -117,46 +117,46 @@ class QuickTellerService
 
     public static function  sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo)
     {
-        $curl = curl_init();
+        // $curl = curl_init();
 
-        $data = [
-            'PaymentCode' => $paymentCode,
-            'CustomerId' => $customerId,
-            'CustomerEmail' => $customerEmail,
-            'CustomerMobile' => $customerMobile,
-            'Amount' => $amount,
-            'requestReference' => $refrenceNo
-        ];
+        // $data = [
+        //     'PaymentCode' => $paymentCode,
+        //     'CustomerId' => $customerId,
+        //     'CustomerEmail' => $customerEmail,
+        //     'CustomerMobile' => $customerMobile,
+        //     'Amount' => $amount,
+        //     'requestReference' => $refrenceNo
+        // ];
 
-        curl_setopt_array($curl, [
-        CURLOPT_URL => "https://qa.interswitchng.com/quicktellerservice/api/v5/Transactions",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "POST",
-        CURLOPT_POSTFIELDS => json_encode($data),
-        CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer ".$accessToken,
-            "Content-Type: application/json",
-            "Terminalid: 3pbl0001",
-            "accept: application/json"
-        ],
-        ]);
+        // curl_setopt_array($curl, [
+        // CURLOPT_URL => "https://qa.interswitchng.com/quicktellerservice/api/v5/Transactions",
+        // CURLOPT_RETURNTRANSFER => true,
+        // CURLOPT_ENCODING => "",
+        // CURLOPT_MAXREDIRS => 10,
+        // CURLOPT_TIMEOUT => 30,
+        // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        // CURLOPT_CUSTOMREQUEST => "POST",
+        // CURLOPT_POSTFIELDS => json_encode($data),
+        // CURLOPT_HTTPHEADER => [
+        //     "Authorization: Bearer ".$accessToken,
+        //     "Content-Type: application/json",
+        //     "Terminalid: 3pbl0001",
+        //     "accept: application/json"
+        // ],
+        // ]);
 
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
+        // $response = curl_exec($curl);
+        // $err = curl_error($curl);
 
-        curl_close($curl);
+        // curl_close($curl);
 
-        if ($err) {
-            return $err;
-        } else {
-            return $response;
-        }
+        // if ($err) {
+        //     return $err;
+        // } else {
+        //     return $response;
+        // }
 
-        /*$curlInit = curl_init();
+        $curlInit = curl_init();
         curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authentication: ' . 'Bearer ' . $accessToken,
@@ -181,6 +181,6 @@ class QuickTellerService
 
         $response = curl_exec($curlInit);
         curl_close($curlInit);
-        return $response;*/
+        return $response;
     }
 }
