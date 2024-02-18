@@ -11,10 +11,7 @@
     "servers": [
         {
             "url": "https://leverpay-api.azurewebsites.net",
-            "description": "Leverpay_API_Documentation"
-        },
-        {
-            "url": "https://leverpay-api.azurewebsites.net"
+            "description": "Test server"
         }
     ],
     "paths": {
@@ -950,57 +947,6 @@
                                         "type": "string"
                                     },
                                     "message": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/admin/total-delete": {
-            "post": {
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Total delete",
-                "operationId": "Total delete",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "email"
-                                ],
-                                "properties": {
-                                    "email": {
                                         "type": "string"
                                     }
                                 },
@@ -3602,11 +3548,11 @@
                                         "type": "string"
                                     },
                                     "customerEmail": {
-                                        "description": "It should be hidden",
+                                        "description": "Customer Email",
                                         "type": "string"
                                     },
                                     "customerMobile": {
-                                        "description": "It should be hidden",
+                                        "description": "Customer Phone Number",
                                         "type": "string"
                                     },
                                     "refrenceNo": {
@@ -5327,9 +5273,9 @@
                 "scheme": "https",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://localhost/oauth/authorize",
-                        "tokenUrl": "http://localhost/oauth/token",
-                        "refreshUrl": "http://localhost/token/refresh",
+                        "authorizationUrl": "https://leverpay-api.azurewebsites.net/oauth/authorize",
+                        "tokenUrl": "https://leverpay-api.azurewebsites.net/oauth/token",
+                        "refreshUrl": "https://leverpay-api.azurewebsites.net/token/refresh",
                         "scopes": []
                     }
                 }
