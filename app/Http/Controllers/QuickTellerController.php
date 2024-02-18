@@ -127,9 +127,9 @@ class QuickTellerController extends BaseController
     $data = json_decode($jsonData, true);
     // Access the Category
     $category = $data['BillerList']['Category'];
-    $categoryJson = json_encode($category);
+    //$categoryJson = json_encode($category);
 
-    return $categoryJson;
+    return $category;
   }
 
   /**
