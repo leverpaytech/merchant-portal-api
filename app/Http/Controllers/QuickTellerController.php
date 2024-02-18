@@ -179,9 +179,9 @@ class QuickTellerController extends BaseController
     $data['PaymentItems']['ReferenceNo'] = base64_encode("Leverpay-".uniqid());;
 
     // Convert back to JSON
-    $json_with_reference = json_encode($data);
+    //$json_with_reference = json_encode($data);
 
-    return $json_with_reference;
+    return $data;
   }
 
   /**
