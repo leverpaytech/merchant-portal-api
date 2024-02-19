@@ -117,55 +117,7 @@ class QuickTellerService
 
     public static function  sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo)
     {
-        // $curl = curl_init();
-
-        // $data = [
-        //     'PaymentCode' => $paymentCode,
-        //     'CustomerId' => $customerId,
-        //     'CustomerEmail' => $customerEmail,
-        //     'CustomerMobile' => $customerMobile,
-        //     'Amount' => $amount,
-        //     'requestReference' => $refrenceNo
-        // ];
-
-        // curl_setopt_array($curl, [
-        // CURLOPT_URL => "https://qa.interswitchng.com/quicktellerservice/api/v5/Transactions",
-        // CURLOPT_RETURNTRANSFER => true,
-        // CURLOPT_ENCODING => "",
-        // CURLOPT_MAXREDIRS => 10,
-        // CURLOPT_TIMEOUT => 30,
-        // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        // CURLOPT_CUSTOMREQUEST => "POST",
-        // CURLOPT_POSTFIELDS => json_encode($data),
-        // CURLOPT_HTTPHEADER => [
-        //     "Authorization: Bearer ".$accessToken,
-        //     "Content-Type: application/json",
-        //     "Terminalid: 3pbl0001",
-        //     "accept: application/json"
-        // ],
-        // ]);
-
-        // $response = curl_exec($curl);
-        // $err = curl_error($curl);
-
-        // curl_close($curl);
-
-        // if ($err) {
-        //     return $err;
-        // } else {
-        //     return $response;
-        // }
-
-        $curlInit = curl_init();
-        curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'Authentication: ' . 'Bearer ' . $accessToken,
-            'TerminalId: 3pbl0001' 
-
-        ));
-
-        curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlInit, CURLOPT_URL, 'https://qa.interswitchng.com/quicktellerservice/api/v5/Transactions');
+        $curl = curl_init();
 
         $fieldsString = json_encode(array(
             'customerId' => $customerId,
@@ -175,12 +127,36 @@ class QuickTellerService
             'paymentCode' => $paymentCode,
             'requestReference' => $refrenceNo
         ));
- 
-        curl_setopt($curlInit, CURLOPT_POST, true);
-        curl_setopt($curlInit, CURLOPT_POSTFIELDS, $fieldsString);
 
-        $response = curl_exec($curlInit);
-        curl_close($curlInit);
+        /*{
+            "PaymentCode": "48001",
+            "CustomerId": "0000000001",
+            "CustomerEmail": "iswtester2@yahoo.com",
+            "CustomerMobile": "2348056731575",
+            "Amount": "1460000",
+            "requestReference": "LI3100762G67W844U3U0J"
+        }*/
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://qa.interswitchng.com/quicktellerservice/api/v5/Transactions/',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => $fieldsString,
+        CURLOPT_HTTPHEADER => array(
+            'terminalId: 3pbl0001',
+            'Authorization: Bearer '.$accessToken,
+            'Content-Type: application/json',
+        ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
         return $response;
+        
     }
 }

@@ -277,7 +277,7 @@ class QuickTellerController extends BaseController
       return response()->json('Invalid pin', 422);
     }
 
-    $checkBalance = $this->checkWalletBalance($userId, $amount);
+    /*$checkBalance = $this->checkWalletBalance($userId, $amount);
     if (!$checkBalance) {
       return response()->json('Insufficient wallet balance', 422);
     }
@@ -285,7 +285,7 @@ class QuickTellerController extends BaseController
     $getLeverPayAccount = $this->getLeverPayAccount(); 
     if (!$getLeverPayAccount->balance) {
       return response()->json('Transaction Failed, Add at least one leverpay account', 422);
-    }
+    }*/
         
 
     $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo);
