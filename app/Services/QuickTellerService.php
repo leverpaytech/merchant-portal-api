@@ -10,15 +10,15 @@ class QuickTellerService
 {
     public static function generateAccessToken()
     {
-        $clientId1 = 'IKIA72C65D005F93F30E573EFEAC04FA6DD9E4D344B1';
-        $clientSecret1 = 'YZMqZezsltpSPNb4+49PGeP7lYkzKn1a5SaVSyzKOiI=';
+        $clientId = env('QUICKTELLER_CLIENT_ID');
+        $clientSecret = env('QUICKTELLER_CLIENT_SECRET');
         
-        $credentials = base64_encode($clientId1 . ":" . $clientSecret1);
+        $credentials = base64_encode($clientId . ":" . $clientSecret);
 
         $response = Http::asForm()->withHeaders([
             'Authorization' => 'Basic ' . $credentials,
             'Content-Type' => 'application/x-www-form-urlencoded',
-        ])->post('https://passport.k8.isw.la/passport/oauth/token', [
+        ])->post(env('QUICKTELLER_AUTH_URL'), [
             'grant_type' => 'client_credentials',
             'scope' => 'profile'
         ]);
@@ -47,7 +47,7 @@ class QuickTellerService
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlInit, CURLOPT_URL, 'https://qa.interswitchng.com/quicktellerservice/api/v5/services');
+        curl_setopt($curlInit, CURLOPT_URL, env('QUICKTELLER_BASE_URL').'/services');
 
         $response = curl_exec($curlInit);
         curl_close($curlInit);
@@ -67,7 +67,7 @@ class QuickTellerService
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlInit, CURLOPT_URL, 'https://qa.interswitchng.com/quicktellerservice/api/v5/services/categories');
+        curl_setopt($curlInit, CURLOPT_URL, env('QUICKTELLER_BASE_URL').'/services/categories');
 
         $response = curl_exec($curlInit);
         curl_close($curlInit);
@@ -87,7 +87,7 @@ class QuickTellerService
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlInit, CURLOPT_URL, "https://qa.interswitchng.com/quicktellerservice/api/v5/services/?categoryId=".$categoryId);
+        curl_setopt($curlInit, CURLOPT_URL, env('QUICKTELLER_BASE_URL')."/services/?categoryId=".$categoryId);
 
         $response = curl_exec($curlInit);
         curl_close($curlInit);
@@ -107,7 +107,7 @@ class QuickTellerService
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curlInit, CURLOPT_URL, "https://qa.interswitchng.com/quicktellerservice/api/v5/services/options?serviceid=".$serviceId);
+        curl_setopt($curlInit, CURLOPT_URL, env('QUICKTELLER_BASE_URL')."/services/options?serviceid=".$serviceId);
 
         $response = curl_exec($curlInit);
         curl_close($curlInit);
@@ -138,7 +138,7 @@ class QuickTellerService
         }*/
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://qa.interswitchng.com/quicktellerservice/api/v5/Transactions/',
+        CURLOPT_URL => env('QUICKTELLER_BASE_URL').'/Transactions/',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -158,5 +158,46 @@ class QuickTellerService
         curl_close($curl);
         return $response;
         
+    }
+
+    public static function validateCustomer($accessToken,$paymentCode,$customerId)
+    {
+
+        $curl = curl_init();
+        //"0488051528", "08124888436"
+        $fields = array(
+            "customers" => array(
+                array(
+                    "PaymentCode" => $paymentCode,
+                    "CustomerId" => $customerId
+                )
+            ),
+            "TerminalId" => "3pbl"
+        );
+
+        $fieldsString = json_encode($fields);
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => env('QUICKTELLER_BASE_URL').'/Transactions/validatecustomers',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $fieldsString,
+            CURLOPT_HTTPHEADER => array(
+                'TerminalId: 3pbl0001', // Replace <your_terminal_id> with your actual terminal ID
+                'Authorization: Bearer ' . $accessToken,
+                'Content-Type: application/json',
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        return $response;
+
     }
 }

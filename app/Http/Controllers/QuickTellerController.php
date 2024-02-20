@@ -185,6 +185,79 @@ class QuickTellerController extends BaseController
   }
 
   /**
+ * @OA\Post(
+ ** path="/api/v1/user/quickteller/validate-customer",
+  *   tags={"Quick Teller"},
+  *   summary="Validate Customer",
+  *   operationId="Validate Customer",
+  *
+  *    @OA\RequestBody(
+  *      @OA\MediaType( mediaType="multipart/form-data",
+  *          @OA\Schema(
+  *              required={"customerId","paymentCode"},
+  *              @OA\Property( property="customerId", type="string"),
+  *              @OA\Property( property="paymentCode", type="string"),
+  *          ),
+  *      ),
+  *   ),
+  *
+  *   @OA\Response(
+  *      response=200,
+  *       description="Success",
+  *      @OA\MediaType(
+  *           mediaType="application/json",
+  *      )
+  *   ),
+  *   @OA\Response(
+  *      response=401,
+  *       description="Unauthenticated"
+  *   ),
+  *   @OA\Response(
+  *      response=400,
+  *      description="Bad Request"
+  *   ),
+  *   @OA\Response(
+  *      response=404,
+  *      description="not found"
+  *   ),
+  *   @OA\Response(
+  *      response=403,
+  *      description="Forbidden"
+  *   ),
+  *   security={
+  *       {"bearer_token": {}}
+  *   }
+  *)
+  **/
+  public function validateCustomer(Request $request)
+  {
+    $data = $request->all();
+
+    $validator = Validator::make($data, [
+        'customerId' => 'required|string',
+        'paymentCode' => 'required|numeric'
+    ]);
+
+    if ($validator->fails())
+    {
+        return $this->sendError('Error',$validator->errors(),422);
+    }
+    if (!Auth::user()->id) {
+      return $this->sendError('Unauthorized Access', [], 401);
+    }
+
+    $billerId = $request->query('billerId');
+
+    $accessToken=QuickTellerService::generateAccessToken();
+    if(empty($accessToken))
+    {
+      return response()->json('No token generated', 422);
+    }
+    
+    $result=QuickTellerService::validateCustomer($accessToken,$data['paymentCode'],$data['customerId']);
+    return json_decode($result);
+  }
+  /**
    * @OA\Post(
    ** path="/api/v1/user/quickteller/submit-bill-payment",
     *   tags={"Quick Teller"},

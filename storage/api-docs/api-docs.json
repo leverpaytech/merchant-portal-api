@@ -3514,6 +3514,61 @@
                 ]
             }
         },
+        "/api/v1/user/quickteller/validate-customer": {
+            "post": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Validate Customer",
+                "operationId": "Validate Customer",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "customerId",
+                                    "paymentCode"
+                                ],
+                                "properties": {
+                                    "customerId": {
+                                        "type": "string"
+                                    },
+                                    "paymentCode": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/quickteller/submit-bill-payment": {
             "post": {
                 "tags": [
