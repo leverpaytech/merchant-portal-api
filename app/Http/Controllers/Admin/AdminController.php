@@ -135,12 +135,24 @@ class AdminController extends BaseController
         {
             return $this->sendError("Authourized user",[], 401);
         }
-
-        $users=User::where('role_id', '1');
-        $mode = strval($request->query('mode'));
         //mode == 0 means those that haven't submit kyc
         //mode == 1 means those that submit kyc and havs been approved
         //mode == 2 means those that haven submit kyc but hasn't been approved
+
+        //status == 'all' means get all users
+        //status == 1 means get only active user
+        //status == 2 means get suspended users
+
+        $users=User::where('role_id', '1');
+        $mode = strval($request->query('mode'));
+        $status = strval($request->query('status'));
+
+        if($status == 1){
+            $users = $users->where('status', 1);
+        }elseif($status == 2){
+            $users = $users->where('status', 2);
+        }
+
         if($mode == 1){
             $users = $users->where('kyc_status', 1)->with('kyc')->with('wallet')->paginate(12);
             $users->transform(function($user){
@@ -419,14 +431,26 @@ class AdminController extends BaseController
      *
      *)
      **/
-    public function getAllUsers()
+    public function getAllUsers(Request $request)
     {
+        //mode == 'all' means get all users
+        //mode == 1 means get only active user
+        //mode == 2 means get suspended users
+
         if(!Auth::user()->id)
         {
             return $this->sendError("Authourized user",[], 401);
         }
+        $mode = strval($request->query('mode'));
 
-        $users=User::where('role_id','0')->with('kyc')->paginate(12);
+        $users=User::where('role_id','0')->with('kyc');
+        if($mode == 1){
+            $users = $users->where('status', 1)->paginate(12);
+        }elseif($mode == 2){
+            $users = $users->where('status', 2)->paginate(12);
+        }else{
+            $users = $users->paginate(12);
+        }
         $users->transform(function($user){
             if($user->kyc !==NULL)
             {

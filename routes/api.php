@@ -153,7 +153,7 @@ Route::prefix('v1')->group( function(){
                 Route::get('/get-user-transactions', [WalletController::class, 'getUserTransaction']);
 
                 Route::post('search-user', [UserController::class, 'searchUser']);
-
+                Route::post('transfer', [WalletController::class, 'transfer']);
                 Route::post('verify-transfer', [WalletController::class, 'verifyTransfer']);
 
 
@@ -170,8 +170,6 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
                 Route::get('get-referrals', [UserController::class, 'getReferrals']);
 
-
-                Route::post('transfer', [WalletController::class, 'transfer']);
                 Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
 
                 Route::prefix('etherscan')->group(function () {
