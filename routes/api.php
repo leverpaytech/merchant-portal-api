@@ -30,6 +30,8 @@ use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\External\CheckoutController as ExternalCheckout;
 use App\Http\Controllers\External\MerchantController as ExternalMerchant;
 use App\Http\Controllers\SwaggerUiController;
+use App\Http\Controllers\QuickTellerController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -213,6 +215,15 @@ Route::prefix('v1')->group( function(){
 
 
 
+            Route::prefix('quickteller')->group(function () {
+                Route::get('get-billers', [QuickTellerController::class,'getBillers']);
+                Route::get('get-billers-categories', [QuickTellerController::class,'getBillersCategories']);
+                Route::get('get-billers-by-category-id', [QuickTellerController::class,'getBillersCategoryId']);
+                Route::get('get-biller-payment-items', [QuickTellerController::class,'getBillerPaymentItems']);
+                Route::post('submit-bill-payment', [QuickTellerController::class,'sendBillPayment']);
+                Route::post('validate-customer', [QuickTellerController::class,'validateCustomer']); 
+            });
+            
 
         });
     });

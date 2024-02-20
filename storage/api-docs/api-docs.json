@@ -11,10 +11,7 @@
     "servers": [
         {
             "url": "https://leverpay-api.azurewebsites.net",
-            "description": "Leverpay_API_Documentation"
-        },
-        {
-            "url": "https://leverpay-api.azurewebsites.net"
+            "description": "Test server"
         }
     ],
     "paths": {
@@ -950,57 +947,6 @@
                                         "type": "string"
                                     },
                                     "message": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {}
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "not found"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/admin/total-delete": {
-            "post": {
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Total delete",
-                "operationId": "Total delete",
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "email"
-                                ],
-                                "properties": {
-                                    "email": {
                                         "type": "string"
                                     }
                                 },
@@ -3470,6 +3416,241 @@
                 ]
             }
         },
+        "/api/v1/user/quickteller/get-billers": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Get billers",
+                "operationId": "Get billers",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/quickteller/get-billers-categories": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Get billers categories",
+                "operationId": "Get billers categories",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/quickteller/get-billers-by-category-id": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Get billers by category id",
+                "operationId": "Get billers by category id",
+                "parameters": [
+                    {
+                        "name": "categoryId",
+                        "in": "query",
+                        "description": "This is returned from get-billers-categories as Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/quickteller/get-biller-payment-items": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Get biller payment items",
+                "operationId": "Get biller payment items",
+                "parameters": [
+                    {
+                        "name": "billerId",
+                        "in": "query",
+                        "description": "This is returned from get-billers-by-category-id as Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/quickteller/validate-customer": {
+            "post": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Validate Customer",
+                "operationId": "Validate Customer",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "customerId",
+                                    "paymentCode"
+                                ],
+                                "properties": {
+                                    "customerId": {
+                                        "type": "string"
+                                    },
+                                    "paymentCode": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/quickteller/submit-bill-payment": {
+            "post": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Submit Bill Payment Advice",
+                "operationId": "Submit Bill Payment Advice",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "customerId",
+                                    "amount",
+                                    "paymentCode",
+                                    "customerEmail",
+                                    "customerMobile",
+                                    "refrenceNo",
+                                    "pin"
+                                ],
+                                "properties": {
+                                    "customerId": {
+                                        "description": "e.g Phone Number or Meter Token",
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "description": "amount to acquire service",
+                                        "type": "string"
+                                    },
+                                    "paymentCode": {
+                                        "description": "This is returned from get-biller-payment-items and it should be hidden",
+                                        "type": "string"
+                                    },
+                                    "customerEmail": {
+                                        "description": "Customer Email",
+                                        "type": "string"
+                                    },
+                                    "customerMobile": {
+                                        "description": "Customer Phone Number",
+                                        "type": "string"
+                                    },
+                                    "refrenceNo": {
+                                        "description": "This is returned from get-biller-payment-items and it is returned from the get-biller-payment-items and it should be hidden",
+                                        "type": "string"
+                                    },
+                                    "pin": {
+                                        "description": "bill payment pin",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/get-states": {
             "post": {
                 "tags": [
@@ -5147,9 +5328,9 @@
                 "scheme": "https",
                 "flows": {
                     "password": {
-                        "authorizationUrl": "http://localhost/oauth/authorize",
-                        "tokenUrl": "http://localhost/oauth/token",
-                        "refreshUrl": "http://localhost/token/refresh",
+                        "authorizationUrl": "https://leverpay-api.azurewebsites.net/oauth/authorize",
+                        "tokenUrl": "https://leverpay-api.azurewebsites.net/oauth/token",
+                        "refreshUrl": "https://leverpay-api.azurewebsites.net/token/refresh",
                         "scopes": []
                     }
                 }
