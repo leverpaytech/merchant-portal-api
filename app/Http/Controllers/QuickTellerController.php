@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Services\QuickTellerService;
+use App\Services\{QuickTellerService,WalletService};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -273,7 +273,7 @@ class QuickTellerController extends BaseController
     *              @OA\Property( property="paymentCode", type="string", description="This is returned from get-biller-payment-items and it should be hidden"),
     *              @OA\Property( property="customerEmail", type="string", description="Customer Email"),
     *              @OA\Property( property="customerMobile", type="string", description="Customer Phone Number"),
-    *              @OA\Property( property="refrenceNo", type="string", description="This is returned from get-biller-payment-items and it is returned from the get-biller-payment-items and it should be hidden"),
+    *              @OA\Property( property="refrenceNo", type="string", description="This is returned from get-biller-payment-items and it should be hidden"),
     *              @OA\Property( property="pin", type="string", description="bill payment pin"),
     *          ),
     *      ),
@@ -321,7 +321,7 @@ class QuickTellerController extends BaseController
         'pin' => 'required|numeric'
     ]);
 
-    if ($validator->fails())
+    if($validator->fails())
     {
       return $this->sendError('Error',$validator->errors(),422);
     }
@@ -350,7 +350,12 @@ class QuickTellerController extends BaseController
       return response()->json('Invalid pin', 422);
     }
 
-    /*$checkBalance = $this->checkWalletBalance($userId, $amount);
+    $checkRefNo = $this->checkReferenceNoValidity($refrenceNo);
+    if ($checkRefNo) {
+        return response()->json('Duplicate Transactions', 422);
+    }
+
+    $checkBalance = $this->checkWalletBalance($userId, $amount);
     if (!$checkBalance) {
       return response()->json('Insufficient wallet balance', 422);
     }
@@ -358,12 +363,54 @@ class QuickTellerController extends BaseController
     $getLeverPayAccount = $this->getLeverPayAccount(); 
     if (!$getLeverPayAccount->balance) {
       return response()->json('Transaction Failed, Add at least one leverpay account', 422);
-    }*/
-        
+    }
+
+    $cashBack=0;
+
+    $newBalance=($getLeverPayAccount->balance + $amount)-$cashBack;
 
     $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo);
+    $responseData = json_decode($jsonData, TRUE);
+    if($responseData['ResponseDescription'] !="Success")
+    {
+      return response()->json('Transaction Failed, '.$responseData['ResponseDescription'], 422);
+    }
 
-    return $jsonData;
+    $nin=[
+      'referenceNo'=>$refrenceNo,
+      'customerId'=>$customerId,
+      'amount'=>$amount,
+      'cash_back'=>$cashBack,
+      'paymentCode'=>$paymentCode,
+      'customerEmail'=>$customerEmail,
+      'customerMobile'=>$customerMobile,
+      'msg' => $responseData['ResponseDescription']
+    ];
+    DB::beginTransaction();
+    try{
+
+      $this->performTransaction($userId, $nin, $newBalance, $cashBack);
+      DB::commit();
+      if($cashBack > 0)
+      {
+        //$msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
+        $msg="Your transaction was successful";
+      }
+      else{
+          $msg="Your transaction was successful";
+      }
+      $result = [
+          'message'=>$msg,
+          'reference' => $nin['referenceNo'], 
+          'cashback'=>$cashBack,
+          'code'=>$nin['msg']
+      ];
+      return response()->json($result, 200);
+    }catch (\Exception $e) {
+        DB::rollBack();
+        //throw $e;
+        return response()->json('Transaction Failed ', 422);
+    }
   }
 
   protected function checkPinValidity($userId, $pin)
@@ -373,82 +420,83 @@ class QuickTellerController extends BaseController
 
   protected function checkReferenceNoValidity($reference_no)
   {
-      $refNo=base64_decode($reference_no);
-      return BillPaymentHistory::where('transaction_reference', $refNo)->first();
+    return BillPaymentHistory::where('transaction_reference', $reference_no)->first();
   }
   
   protected function checkWalletBalance($userId, $amount)
   {
-      $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
+    $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
 
-      return $checkBalance && $checkBalance->withdrawable_amount >= $amount;
+    return $checkBalance && $checkBalance->withdrawable_amount >= $amount;
   }
 
   protected function getLeverPayAccount()
   {
-      return DB::table('lever_pay_account_no')->where('id', 2)->first();
+    return DB::table('lever_pay_account_no')->where('id', 2)->first();
   }
 
   protected function updateLeverPayAccountBalance($amount, $currentBalance)
   {
-      $newBalance = $currentBalance + $amount;
-      DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
+    $newBalance = $currentBalance + $amount;
+    DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
 
-      return $newBalance;
+    return $newBalance;
   }
 
   protected function performTransaction($userId, $nin, $newBalance,$cashBack)
   {
-      //$userId=$user->id;
-      $getOldBal=Wallet::where('user_id', $userId)->get(['withdrawable_amount', 'amount'])->first();
-      
-      $extra=json_encode($nin);
-      $wBal=$nin['amount']-$cashBack;
-      $new_user_wall=$getOldBal->withdrawable_amount-$wBal;
-      WalletService::subtractFromWallet($userId, $wBal, 'naira');
+    //$userId=$user->id;
+    $getOldBal=Wallet::where('user_id', $userId)->get(['withdrawable_amount', 'amount'])->first();
+    
+    $extra=json_encode($nin);
+    $wBal=$nin['amount']-$cashBack;
+    $new_user_wall=$getOldBal->withdrawable_amount-$wBal;
+    WalletService::subtractFromWallet($userId, $wBal, 'naira');
 
-      DB::table('lever_pay_account_no')->where('id', 2)->update(['balance' => $newBalance]);
-      
-      BillPaymentHistory::create([
-          'user_id' => $userId,
-          'customerId' => $nin['customerId'],
-          'unit_purchased' => 0,
-          'price' => $nin['amount'],
-          'amount' => $nin['amount'],
-          'cash_back'=>$cashBack,
-          'category' => $nin['division'],
-          'biller' => $nin['billerId'],
-          'product' => $nin['productId'],
-          'item' => $nin['paymentItem'],
-          'extra' => $extra,
-          'provider_name' => 'VFD',
-          'transaction_reference' => $nin['referenceNo'],
-      ]);
+    DB::table('lever_pay_account_no')->where('id', 3)->update(['balance' => $newBalance]);
+    
+    BillPaymentHistory::create([
+        'user_id' => $userId,
+        'customerId' => $nin['customerId'],
+        'unit_purchased' => 0,
+        'price' => $nin['amount'],
+        'amount' => $nin['amount'],
+        'cash_back'=>$cashBack,
+        'category' => $nin['paymentCode'],
+        'biller' => '-',
+        'product' => '-',
+        'item' => $nin['paymentCode'],
+        'extra' => $extra,
+        'provider_name' => 'QUICK TELLER',
+        'transaction_reference' => $nin['referenceNo'],
+    ]);
 
-      $details = json_encode([
-          "bill_phone"=>$nin['customerId'],
-          "bill_id"=>$nin['billerId'],
-          "data_id"=>$nin['paymentItem'],
-          "bill_provider"=>"vfd bank",
-          "token"=>$nin['token']
-      ]);
+    $details = json_encode([
+        "customerId"=>$nin['customerId'],
+        "customerMobile"=>$nin['customerMobile'],
+        "customerEmail"=>$nin['customerEmail'],
+        "amount"=>$nin['amount'],
+        "category"=>$nin['paymentCode'],
+        "provider"=>"Quick Teller",
+        "token"=>$nin['msg']
+    ]);
 
-      Transaction::create([
-          'user_id' =>  $userId,
-          'reference_no' => $nin['referenceNo'],
-          'tnx_reference_no' => $nin['referenceNo'],
-          'amount' => $nin['amount'],
-          'balance' => $new_user_wall,
-          'type' => 'debit',
-          'merchant' => $nin['paymentItem'],
-          'status' => 1,
-          'transaction_details' => $details
-      ]);
+    Transaction::create([
+        'user_id' =>  $userId,
+        'reference_no' => $nin['referenceNo'],
+        'tnx_reference_no' => $nin['referenceNo'],
+        'amount' => $nin['amount'],
+        'balance' => $new_user_wall,
+        'type' => 'debit',
+        'merchant' => 'Quick Teller',
+        'status' => 1,
+        'transaction_details' => $details
+    ]);
 
-      $activity['activity']="vfd bill payment of ".$nin['paymentItem']." for N".$nin['amount'];
-      $activity['user_id']=$userId;
+    $activity['activity']="Quick Teller bill payment of ".$nin['paymentCode']." for N".$nin['amount'];
+    $activity['user_id']=$userId;
 
-      ActivityLog::createActivity($activity);
+    ActivityLog::createActivity($activity);
 
   }
 }
