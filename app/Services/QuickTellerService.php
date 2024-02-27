@@ -80,7 +80,7 @@ class QuickTellerService
 
         $curlInit = curl_init();
 
-         curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
+        curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authorization: ' . 'Bearer ' . $accessToken,
             'TerminalID: 3pbl0001'
@@ -99,8 +99,7 @@ class QuickTellerService
     {
 
         $curlInit = curl_init();
-
-         curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
+        curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authorization: ' . 'Bearer ' . $accessToken,
             'TerminalID: 3pbl0001'
@@ -118,7 +117,6 @@ class QuickTellerService
     public static function  sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo)
     {
         $curl = curl_init();
-
         $fieldsString = json_encode(array(
             'customerId' => $customerId,
             'customerMobile' => $customerMobile,
@@ -199,5 +197,23 @@ class QuickTellerService
 
         return $response;
 
+    }
+
+    public static function getTransaction($accessToken,$transRef)
+    {
+        $curlInit = curl_init();
+        curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Authorization: ' . 'Bearer ' . $accessToken,
+            'TerminalID: 3pbl0001'
+        ));
+
+        curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curlInit, CURLOPT_URL, env('QUICKTELLER_BASE_URL')."/Transactions?requestRef=".$transRef);
+
+        $response = curl_exec($curlInit);
+        curl_close($curlInit);
+        
+        return $response;
     }
 }

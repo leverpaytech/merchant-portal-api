@@ -3651,6 +3651,36 @@
                 ]
             }
         },
+        "/api/v1/user/quickteller/get-customer-transaction": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Get customer transaction by refNo",
+                "operationId": "Get customer transaction by refNo",
+                "parameters": [
+                    {
+                        "name": "requestRef",
+                        "in": "query",
+                        "description": "transaction reference no",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/get-states": {
             "post": {
                 "tags": [

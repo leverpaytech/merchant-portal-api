@@ -175,7 +175,7 @@ class QuickTellerController extends BaseController
 
     $data = json_decode($jsonData, true);
 
-    // Add referenceNo at the top
+    // Add referenceNo at the top getTransaction
     $data['PaymentItems']['ReferenceNo'] = base64_encode("Leverpay-".uniqid());;
 
     // Convert back to JSON
@@ -498,5 +498,51 @@ class QuickTellerController extends BaseController
 
     ActivityLog::createActivity($activity);
 
+  }
+
+  /**
+   * @OA\Get(
+   *     path="/api/v1/user/quickteller/get-customer-transaction",
+   *     tags={"Quick Teller"},
+   *     summary="Get customer transaction by refNo",
+   *     operationId="Get customer transaction by refNo",
+   *
+   *     @OA\Parameter(
+   *         name="requestRef",
+   *         in="query",
+   *         required=true,
+   *         description="transaction reference no",
+   *         @OA\Schema(type="string")
+   *     ),
+   *
+   *     @OA\Response(
+   *         response=200,
+   *         description="Success"
+   *     ),
+   *
+   *     security={
+   *         {"bearer_token": {}}
+   *     }
+   * )
+  **/
+  public function getTransaction(Request $request)
+  {
+    if (!Auth::user()->id) {
+      return $this->sendError('Unauthorized Access', [], 401);
+    }
+
+    $requestRef = $request->query('requestRef');
+
+    $accessToken=QuickTellerService::generateAccessToken();
+    if(empty($accessToken))
+    {
+      return response()->json('No token generated', 422);
+    }
+
+    $jsonData=QuickTellerService::getTransaction($accessToken,$requestRef);
+
+    $data = json_decode($jsonData, true);
+
+    return $data;
   }
 }
