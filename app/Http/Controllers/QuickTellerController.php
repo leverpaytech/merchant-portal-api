@@ -72,7 +72,7 @@ class QuickTellerController extends BaseController
 
     // Filter the "BillerCategories" array based on category names
     $filteredCategories = array_filter($data['BillerCategories'], function($category) {
-        $allowedCategories = ["Utility Bills", "Cable TV Bills", "Mobile/Recharge", "Subscriptions", "Airlines", "Transport","Event Tickets"];
+        $allowedCategories = ["Utilities", "Cable TV", "Airtime and Data", "Mobile Recharge", "Internet Services", "Travel and Hotel","Airtel Data","Airtime Top-up","Event Tickets","Transport and Toll Payments"];
         return in_array($category['Name'], $allowedCategories);
     });
     
