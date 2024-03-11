@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use App\Services\ZeptomailService;
 
 class WebhookController extends Controller
 {
@@ -184,6 +185,12 @@ class WebhookController extends Controller
                 <p> Leverpay </p>
             ";
             SmsService::sendMail('', $html, 'Wallet Credit', $user->email);
+            $body = [
+                "customer_name"=>$user['first_name'],
+                "date"=>$request['tranDateTime'],
+                "transaction_ref"=>''
+            ];
+            ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.dd2f04e0-b563-11ee-8d93-525400e3c1b1.18d189f2c2e",$body,$user['email']);
         }
 
         $account->save();
