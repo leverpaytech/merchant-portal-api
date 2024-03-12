@@ -177,7 +177,7 @@ class QuickTellerService
                     "CustomerId" => $customerId
                 )
             ),
-            "TerminalId" => "3pbl"
+            "TerminalId" => "3LCN0001" //3pbl
         );
 
         $fieldsString = json_encode($fields);
