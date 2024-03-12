@@ -43,7 +43,7 @@ class QuickTellerService
          curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authorization: ' . 'Bearer ' . $accessToken,
-            'TerminalID: 3pbl0001'
+            'TerminalID: 2LCN0001'//3pbl0001
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
@@ -57,13 +57,12 @@ class QuickTellerService
 
     public static function billersCategories($accessToken)
     {
-
         $curlInit = curl_init();
 
          curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authorization: ' . 'Bearer ' . $accessToken,
-            'TerminalID: 3pbl0001'
+            'TerminalID: 3LCN0001' // 3pbl0001
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
@@ -80,10 +79,10 @@ class QuickTellerService
 
         $curlInit = curl_init();
 
-         curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
+        curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authorization: ' . 'Bearer ' . $accessToken,
-            'TerminalID: 3pbl0001'
+            'TerminalID: 3LCN0001'
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
@@ -99,11 +98,10 @@ class QuickTellerService
     {
 
         $curlInit = curl_init();
-
-         curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
+        curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
             'Authorization: ' . 'Bearer ' . $accessToken,
-            'TerminalID: 3pbl0001'
+            'TerminalID: 3LCN0001'
         ));
 
         curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
@@ -118,7 +116,6 @@ class QuickTellerService
     public static function  sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo)
     {
         $curl = curl_init();
-
         $fieldsString = json_encode(array(
             'customerId' => $customerId,
             'customerMobile' => $customerMobile,
@@ -147,7 +144,7 @@ class QuickTellerService
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS => $fieldsString,
         CURLOPT_HTTPHEADER => array(
-            'terminalId: 3pbl0001',
+            'terminalId: 3LCN0001',
             'Authorization: Bearer '.$accessToken,
             'Content-Type: application/json',
         ),
@@ -163,8 +160,16 @@ class QuickTellerService
     public static function validateCustomer($accessToken,$paymentCode,$customerId)
     {
 
-        $curl = curl_init();
-        //"0488051528", "08124888436"
+        $curl = curl_init(); 
+        // $fields = array(
+        //     "customers" => array(
+        //         array(
+        //             "PaymentCode" => "0488051528",
+        //             "CustomerId" => "08124888436"
+        //         )
+        //     ),
+        //     "TerminalId" => "3pbl"
+        // );
         $fields = array(
             "customers" => array(
                 array(
@@ -187,7 +192,7 @@ class QuickTellerService
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS => $fieldsString,
             CURLOPT_HTTPHEADER => array(
-                'TerminalId: 3pbl0001', // Replace <your_terminal_id> with your actual terminal ID
+                'TerminalId: 3LCN0001', // Replace <your_terminal_id> with your actual terminal ID
                 'Authorization: Bearer ' . $accessToken,
                 'Content-Type: application/json',
             ),
@@ -199,5 +204,23 @@ class QuickTellerService
 
         return $response;
 
+    }
+
+    public static function getTransaction($accessToken,$transRef)
+    {
+        $curlInit = curl_init();
+        curl_setopt($curlInit, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Authorization: ' . 'Bearer ' . $accessToken,
+            'TerminalID: 3LCN0001'
+        ));
+
+        curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curlInit, CURLOPT_URL, env('QUICKTELLER_BASE_URL')."/Transactions?requestRef=".$transRef);
+
+        $response = curl_exec($curlInit);
+        curl_close($curlInit);
+        
+        return $response;
     }
 }

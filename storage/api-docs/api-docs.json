@@ -3611,7 +3611,7 @@
                                         "type": "string"
                                     },
                                     "refrenceNo": {
-                                        "description": "This is returned from get-biller-payment-items and it is returned from the get-biller-payment-items and it should be hidden",
+                                        "description": "This is returned from get-biller-payment-items and it should be hidden",
                                         "type": "string"
                                     },
                                     "pin": {
@@ -3642,6 +3642,36 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/quickteller/get-customer-transaction": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Get customer transaction by refNo",
+                "operationId": "Get customer transaction by refNo",
+                "parameters": [
+                    {
+                        "name": "requestRef",
+                        "in": "query",
+                        "description": "transaction reference no",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
                     }
                 },
                 "security": [

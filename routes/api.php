@@ -220,9 +220,10 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-billers-categories', [QuickTellerController::class,'getBillersCategories']);
                 Route::get('get-billers-by-category-id', [QuickTellerController::class,'getBillersCategoryId']);
                 Route::get('get-biller-payment-items', [QuickTellerController::class,'getBillerPaymentItems']);
+                Route::get('get-customer-transaction', [QuickTellerController::class,'getTransaction']);
                 Route::post('submit-bill-payment', [QuickTellerController::class,'sendBillPayment']);
                 Route::post('validate-customer', [QuickTellerController::class,'validateCustomer']); 
-            });
+            }); 
             
 
         });
