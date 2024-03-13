@@ -176,7 +176,7 @@ class QuickTellerController extends BaseController
     $data = json_decode($jsonData, true);
 
     // Add referenceNo at the top getTransaction
-    $data['PaymentItems']['ReferenceNo'] = base64_encode("Leverpay-".uniqid());;
+    $data['PaymentItems']['ReferenceNo'] = base64_encode("2176-".uniqid());;
 
     // Convert back to JSON
     //$json_with_reference = json_encode($data);
