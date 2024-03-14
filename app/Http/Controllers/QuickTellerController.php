@@ -342,7 +342,8 @@ class QuickTellerController extends BaseController
     $customerId=$data['customerId'];
     $customerEmail=$data['customerEmail'];
     $customerMobile=$data['customerMobile'];
-    $amount=$data['amount']*100;
+    $amount=$data['amount'];
+    $amount2=$amount*100;
     $refrenceNo=base64_decode($data['refrenceNo']);
 
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
@@ -369,7 +370,7 @@ class QuickTellerController extends BaseController
 
     $newBalance=($getLeverPayAccount->balance + $amount)-$cashBack;
 
-    $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount,$refrenceNo);
+    $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount2,$refrenceNo);
     $responseData = json_decode($jsonData, TRUE);
     if($responseData['ResponseDescription'] !="Success")
     {
