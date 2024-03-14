@@ -373,8 +373,8 @@ class QuickTellerController extends BaseController
     $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount2,$refrenceNo);
     $responseData = json_decode($jsonData, TRUE);
 
-    return $responseData;
-    if($responseData['ResponseDescription'] !="Success")
+    //return $responseData;
+    if($responseData['ResponseCodeGrouping'] !="SUCCESSFUL")
     {
       return response()->json('Transaction Failed, '.$responseData['ResponseDescription'], 422);
     }
