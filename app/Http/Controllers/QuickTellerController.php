@@ -405,11 +405,12 @@ class QuickTellerController extends BaseController
 
       $message=[
         'date'=>date('d M, Y'),
-        'transaction_ref'=>$nin['referenceNo'],
-        'phone_number'=>$nin['customerId'],
         'amount'=>$nin['amount'],
-        'Successful'=>$nin['status'],
-        'user_firstname'=>$user->first_name
+        'user_firstname'=>$user->first_name,
+        'phone_number'=>$nin['customerId'],
+        'token number'=>$nin['msg'],
+        'Successful'=>'Successful',
+        'transaction_ref'=>$nin['referenceNo']
       ];
       //send mail
       ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.27b39400-ae24-11ee-a9af-525400103106.18ce91d9940" ,$message, $customerEmail);
@@ -418,7 +419,7 @@ class QuickTellerController extends BaseController
         'message'=>$msg,
         'reference' => $nin['referenceNo'], 
         'cashback'=>$cashBack,
-        'code'=>$nin['msg']
+        'token'=>$nin['msg']
       ];
       //$customerEmail
       return response()->json($result, 200);
