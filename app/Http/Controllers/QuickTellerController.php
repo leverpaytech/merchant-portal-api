@@ -374,7 +374,7 @@ class QuickTellerController extends BaseController
     $responseData = json_decode($jsonData, TRUE);
 
     //return $responseData;
-    if($responseData['ResponseCodeGrouping'] !="SUCCESSFUL")
+    if($responseData['ResponseCode'] !="90000")
     {
       return response()->json('Transaction Failed, '.$responseData['ResponseDescription'], 422);
     }
