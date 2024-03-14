@@ -343,7 +343,7 @@ class QuickTellerController extends BaseController
     $customerEmail=$data['customerEmail'];
     $customerMobile=$data['customerMobile'];
     $amount=$data['amount'];
-    $amount2=$amount*100;
+    $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
 
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
