@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use App\Services\{QuickTellerService,WalletService};
+use App\Services\{QuickTellerService,WalletService,ZeptomailService};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -370,7 +370,7 @@ class QuickTellerController extends BaseController
 
     $newBalance=($getLeverPayAccount->balance + $amount)-$cashBack;
 
-    $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,$customerEmail,$customerMobile,$amount2,$refrenceNo);
+    $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,'development@leverpay.io',$customerMobile,$amount2,$refrenceNo);
     $responseData = json_decode($jsonData, TRUE);
 
     //return $responseData;
@@ -400,15 +400,30 @@ class QuickTellerController extends BaseController
         $msg="Your transaction was successful";
       }
       else{
-          $msg="Your transaction was successful";
+        $msg="Your transaction was successful";
       }
-      $result = [
-          'message'=>$msg,
-          'reference' => $nin['referenceNo'], 
-          'cashback'=>$cashBack,
-          'code'=>$nin['msg']
+
+      $message=[
+        'date'=>date('d M, Y'),
+        'transaction_ref'=>$nin['referenceNo'],
+        'phone_number'=>$nin['customerId'],
+        'amount'=>$nin['amount'],
+        'Successful'=>$nin['status'],
+        'user_firstname'=>$user->first_name
       ];
+      //send mail
+      ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.27b39400-ae24-11ee-a9af-525400103106.18ce91d9940" ,$message, $customerEmail);
+
+      $result = [
+        'message'=>$msg,
+        'reference' => $nin['referenceNo'], 
+        'cashback'=>$cashBack,
+        'code'=>$nin['msg']
+      ];
+      //$customerEmail
       return response()->json($result, 200);
+
+
     }catch (\Exception $e) {
         DB::rollBack();
         //throw $e;
