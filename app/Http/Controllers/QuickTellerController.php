@@ -342,7 +342,7 @@ class QuickTellerController extends BaseController
     $customerId=$data['customerId'];
     $customerEmail=$data['customerEmail'];
     $customerMobile=$data['customerMobile'];
-    $amount=$data['amount'];
+    $amount=$data['amount']*100;
     $refrenceNo=base64_decode($data['refrenceNo']);
 
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
