@@ -100,9 +100,24 @@ class DatabaseSeeder extends Seeder
             ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'Startimes', 'biller_id'=>'startimes', 'percent'=>'1'],
             
             ['uuid' => Str::uuid()->toString(), 'category'=>'Internet Subscription', 'biller'=> 'IPNX', 'biller_id'=>'IPNX', 'percent'=>'1.7'],
-        
-            
-            
+        ]);
+        //Quick teller cashback
+        DB::table('quick_teller_discounts')->insert([
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'Airtel Data Bundles_Prepaid', 'percent'=>'1.4'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'Airtel Data Bundles Corporate/SME', 'percent'=>'1.4'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> '9mobile Data_Bundles', 'percent'=>'3'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> '9Mobile_Data_Bundles_VF', 'percent'=>'3'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'GLO Data Bundle', 'percent'=>'2'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'MTN HyNetflex Data_Plan', 'percent'=>'1.1'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'MTN Mobile Data_Plan', 'percent'=>'1.1'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> '9mobile Recharge (E-Top Up)', 'percent'=>'3'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'Airtel Mobile Top-up (Prepaid)', 'percent'=>'1.4'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'Airtel Top-up (Postpaid)', 'percent'=>'1.4'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'Airtel Voice, Data &amp; SMS Bundles', 'percent'=>'1.4'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'GLO QuickCharge (Top-up)', 'percent'=>'2'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'MTN Direct Top-up (Postpaid)', 'percent'=>'1.1'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'MTN Direct Top-up (Prepaid)', 'percent'=>'1.1'],
+            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'GLO QuickCharge (Top-up)', 'percent'=>'2'],
         ]);
     }
 }

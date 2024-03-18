@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
-use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,ActivityLog,Transaction};
+use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,ActivityLog,Transaction,QuickTellerDiscount};
 
 class QuickTellerController extends BaseController
 {
@@ -267,10 +267,13 @@ class QuickTellerController extends BaseController
     *    @OA\RequestBody(
     *      @OA\MediaType( mediaType="multipart/form-data",
     *          @OA\Schema(
-    *              required={"customerId","amount","paymentCode","customerEmail","customerMobile","refrenceNo","pin"},
+    *              required={"customerId","amount","paymentCode","billerName","itemName","customerEmail","customerMobile","refrenceNo","pin"},
     *              @OA\Property( property="customerId", type="string", description="e.g Phone Number or Meter Token"),
     *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
     *              @OA\Property( property="paymentCode", type="string", description="This is returned from get-biller-payment-items and it should be hidden"),
+    *              @OA\Property( property="itemName", type="string", description="This is returned from get-biller-payment-items as Name. The field should be hidden"),
+    *              @OA\Property( property="billerName", type="string", description="This is returned from get-biller-payment-items as BillerName  and it should be hidden"),
+    *              @OA\Property( property="billerCategoryId", type="string", description="This is returned from get-biller-payment-items as BillerCategoryId  and it should be hidden"),
     *              @OA\Property( property="customerEmail", type="string", description="Customer Email"),
     *              @OA\Property( property="customerMobile", type="string", description="Customer Phone Number"),
     *              @OA\Property( property="refrenceNo", type="string", description="This is returned from get-biller-payment-items and it should be hidden"),
@@ -317,6 +320,9 @@ class QuickTellerController extends BaseController
         'paymentCode' => 'required|string',
         'customerEmail' => 'required',
         'customerMobile' => 'required',
+        'itemName' => 'required',
+        'billerName' => 'required',
+        'billerCategoryId'=>'required',
         'refrenceNo' => 'required', 
         'pin' => 'required|numeric'
     ]);
@@ -342,6 +348,9 @@ class QuickTellerController extends BaseController
     $customerId=$data['customerId'];
     $customerEmail=$data['customerEmail'];
     $customerMobile=$data['customerMobile'];
+    $billerName=$data['billerName'];
+    $billerCategoryId=$data['billerCategoryId']; 
+    $itemName=$data['itemName']; 
     $amount=$data['amount'];
     $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
@@ -367,6 +376,12 @@ class QuickTellerController extends BaseController
     }
 
     $cashBack=0;
+    $sCshBk=QuickTellerDiscount::where('biller', $itemName)->get(['percent'])->first();
+    if($sCshBk)
+    {
+      $cashBack=round(($sCshBk->percent/(100))*$amount);
+    }
+    
 
     $newBalance=($getLeverPayAccount->balance + $amount)-$cashBack;
 
@@ -385,6 +400,9 @@ class QuickTellerController extends BaseController
       'amount'=>$amount,
       'cash_back'=>$cashBack,
       'paymentCode'=>$paymentCode,
+      'billerName' =>  $billerName,
+      'billerCategoryId'=>$billerCategoryId,
+      'itemName' =>  $itemName,
       'customerEmail'=>$customerEmail,
       'customerMobile'=>$customerMobile,
       'msg' => $responseData['ResponseDescription']
@@ -423,7 +441,6 @@ class QuickTellerController extends BaseController
       ];
       //$customerEmail
       return response()->json($result, 200);
-
 
     }catch (\Exception $e) {
         DB::rollBack();
@@ -481,10 +498,10 @@ class QuickTellerController extends BaseController
         'price' => $nin['amount'],
         'amount' => $nin['amount'],
         'cash_back'=>$cashBack,
-        'category' => $nin['paymentCode'],
+        'category' => $nin['billerName'],
         'biller' => '-',
         'product' => '-',
-        'item' => $nin['paymentCode'],
+        'item' => $nin['itemName'],
         'extra' => $extra,
         'provider_name' => 'QUICK TELLER',
         'transaction_reference' => $nin['referenceNo'],
@@ -495,7 +512,9 @@ class QuickTellerController extends BaseController
         "customerMobile"=>$nin['customerMobile'],
         "customerEmail"=>$nin['customerEmail'],
         "amount"=>$nin['amount'],
-        "category"=>$nin['paymentCode'],
+        "billerName"=>$nin['billerName'],
+        "itemName"=>$nin['itemName'],
+        "paymentCode"=>$nin['paymentCode'],
         "provider"=>"Quick Teller",
         "token"=>$nin['msg']
     ]);
@@ -512,7 +531,7 @@ class QuickTellerController extends BaseController
         'transaction_details' => $details
     ]);
 
-    $activity['activity']="Quick Teller bill payment of ".$nin['paymentCode']." for N".$nin['amount'];
+    $activity['activity']="Quick Teller bill payment of ".$nin['itemName']." for N".$nin['amount'];
     $activity['user_id']=$userId;
 
     ActivityLog::createActivity($activity);
