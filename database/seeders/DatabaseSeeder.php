@@ -68,39 +68,39 @@ class DatabaseSeeder extends Seeder
         //     ['bank'=>'VFD MFB', 'account_number'=> '1029073449', 'account_name'=>'Leverchain Technology Limited'],
         // ]);
 
-        DB::table('vfd_discounts')->insert([
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> '9MOBILE', 'biller_id'=>'9mobile', 'percent'=>'2'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'AIRTEL', 'biller_id'=>'airng', 'percent'=>'1.5'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'GLO', 'biller_id'=>'glong', 'percent'=>'2.2'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'MTN', 'biller_id'=>'mtnng', 'percent'=>'1.5'],
+        // DB::table('vfd_discounts')->insert([
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> '9MOBILE', 'biller_id'=>'9mobile', 'percent'=>'2'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'AIRTEL', 'biller_id'=>'airng', 'percent'=>'1.5'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'GLO', 'biller_id'=>'glong', 'percent'=>'2.2'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'MTN', 'biller_id'=>'mtnng', 'percent'=>'1.5'],
 
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> '9MOBILE', 'biller_id'=>'9mobile_data', 'percent'=>'2'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'AIRTEL', 'biller_id'=>'airtel_data', 'percent'=>'1.5'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'GLO', 'biller_id'=>'glo_data', 'percent'=>'2.2'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'MTN', 'biller_id'=>'MTN_NIGERIA_DATA', 'percent'=>'1.5'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> '9MOBILE', 'biller_id'=>'9mobile_data', 'percent'=>'2'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'AIRTEL', 'biller_id'=>'airtel_data', 'percent'=>'1.5'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'GLO', 'biller_id'=>'glo_data', 'percent'=>'2.2'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'MTN', 'biller_id'=>'MTN_NIGERIA_DATA', 'percent'=>'1.5'],
 
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Eko Postpaid', 'biller_id'=>'eko_electric_postpaid', 'percent'=>'0.5'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Eko Prepaid', 'biller_id'=>'eko_electric_prepaid', 'percent'=>'0.5'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Enugu Postpaid', 'biller_id'=>'enugu_electric_postpaid', 'percent'=>'0'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Enugu Prepaid', 'biller_id'=>'enugu_electric_prepaid', 'percent'=>'0'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ibadan Prepaid', 'biller_id'=>'ibadan_electric_prepaid', 'percent'=>'0.2'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ibadan Postpaid', 'biller_id'=>'ibadan_electric_postpaid', 'percent'=>'0.2'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ikeja Postpaid', 'biller_id'=>'ikeja_electric_postpaid', 'percent'=>'0.5'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ikeja Prepaid', 'biller_id'=>'ikeja_electric_prepaid', 'percent'=>'0.5'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Jos Postpaid', 'biller_id'=>'jos_electric_postpaid', 'percent'=>'0.2'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Jos Prepaid', 'biller_id'=>'jos_electric_prepaid', 'percent'=>'0.4'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Kaduna Prepaid', 'biller_id'=>'kaduna_electric_prepaid', 'percent'=>'0.4'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Kano Prepaid', 'biller_id'=>'kedco_electric_prepaid', 'percent'=>'0.4'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Port Harcourt Postpaid (Xpresspayments)', 'biller_id'=>'portharcourt_electric_postpaid', 'percent'=>'0.4'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Port Harcourt Prepaid (Xpresspayments)', 'biller_id'=>'portharcourt_electric_postpaid', 'percent'=>'0.4'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Eko Postpaid', 'biller_id'=>'eko_electric_postpaid', 'percent'=>'0.5'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Eko Prepaid', 'biller_id'=>'eko_electric_prepaid', 'percent'=>'0.5'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Enugu Postpaid', 'biller_id'=>'enugu_electric_postpaid', 'percent'=>'0'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Enugu Prepaid', 'biller_id'=>'enugu_electric_prepaid', 'percent'=>'0'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ibadan Prepaid', 'biller_id'=>'ibadan_electric_prepaid', 'percent'=>'0.2'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ibadan Postpaid', 'biller_id'=>'ibadan_electric_postpaid', 'percent'=>'0.2'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ikeja Postpaid', 'biller_id'=>'ikeja_electric_postpaid', 'percent'=>'0.5'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Ikeja Prepaid', 'biller_id'=>'ikeja_electric_prepaid', 'percent'=>'0.5'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Jos Postpaid', 'biller_id'=>'jos_electric_postpaid', 'percent'=>'0.2'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Jos Prepaid', 'biller_id'=>'jos_electric_prepaid', 'percent'=>'0.4'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Kaduna Prepaid', 'biller_id'=>'kaduna_electric_prepaid', 'percent'=>'0.4'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Kano Prepaid', 'biller_id'=>'kedco_electric_prepaid', 'percent'=>'0.4'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Port Harcourt Postpaid (Xpresspayments)', 'biller_id'=>'portharcourt_electric_postpaid', 'percent'=>'0.4'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Utility', 'biller'=> 'Port Harcourt Prepaid (Xpresspayments)', 'biller_id'=>'portharcourt_electric_postpaid', 'percent'=>'0.4'],
             
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'DSTV Subscription', 'biller_id'=>'dstv', 'percent'=>'0.7'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'GoTv', 'biller_id'=>'gotv', 'percent'=>'0.7'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'Showmax', 'biller_id'=>'SHOWMAX', 'percent'=>'1'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'Startimes', 'biller_id'=>'startimes', 'percent'=>'1'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'DSTV Subscription', 'biller_id'=>'dstv', 'percent'=>'0.7'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'GoTv', 'biller_id'=>'gotv', 'percent'=>'0.7'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'Showmax', 'biller_id'=>'SHOWMAX', 'percent'=>'1'],
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Cable TV', 'biller'=> 'Startimes', 'biller_id'=>'startimes', 'percent'=>'1'],
             
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Internet Subscription', 'biller'=> 'IPNX', 'biller_id'=>'IPNX', 'percent'=>'1.7'],
-        ]);
+        //     ['uuid' => Str::uuid()->toString(), 'category'=>'Internet Subscription', 'biller'=> 'IPNX', 'biller_id'=>'IPNX', 'percent'=>'1.7'],
+        // ]);
         //Quick teller cashback
         DB::table('quick_teller_discounts')->insert([
             ['uuid' => Str::uuid()->toString(), 'category'=>'Data', 'biller'=> 'Airtel Data Bundles_Prepaid', 'percent'=>'1.4'],
