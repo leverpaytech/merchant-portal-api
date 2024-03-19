@@ -3584,6 +3584,8 @@
                                     "customerId",
                                     "amount",
                                     "paymentCode",
+                                    "billerName",
+                                    "itemName",
                                     "customerEmail",
                                     "customerMobile",
                                     "refrenceNo",
@@ -3600,6 +3602,18 @@
                                     },
                                     "paymentCode": {
                                         "description": "This is returned from get-biller-payment-items and it should be hidden",
+                                        "type": "string"
+                                    },
+                                    "itemName": {
+                                        "description": "This is returned from get-biller-payment-items as Name. The field should be hidden",
+                                        "type": "string"
+                                    },
+                                    "billerName": {
+                                        "description": "This is returned from get-biller-payment-items as BillerName  and it should be hidden",
+                                        "type": "string"
+                                    },
+                                    "billerCategoryId": {
+                                        "description": "This is returned from get-biller-payment-items as BillerCategoryId  and it should be hidden",
                                         "type": "string"
                                     },
                                     "customerEmail": {
