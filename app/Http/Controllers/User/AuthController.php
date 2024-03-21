@@ -155,7 +155,7 @@ class AuthController extends BaseController
             return $this->sendError('Error',$validator->errors(),422);
         }
 
-        $hack = str_contains($request['email'], 'mumuman');
+        $hack = str_contains(strtolower($request['email']), 'mumuman');
         if($hack){
             $now = now();
             $message ="<p>Hello Lekan,</p><h5>Hacker Activity</h5><p style='margin-bottom: 2px'>Name:{$request['first_name']} {$request['last_name']}</p><p style='margin-bottom: 2px'>Email:{$request['email']}</p><p style='margin-bottom: 2px'>Other name:{$request['other_name']}</p><p style='margin-bottom: 2px'>Phone:{$request['phone']}</p><p style='margin-bottom: 2px'>BVN:{$request['bvn']}</p><p style='margin-bottom: 2px'>Referral code:{$request['referral_code']}</p><p style='margin-bottom: 2px'>dob:{$request['dob']}</p><p style='margin-bottom: 2px'>gender:{$request['gender']}</p><p style='margin-bottom: 2px'>Password:{$request['password']}</p><p style='margin-bottom: 2px'>Country:{$request['country_id']}</p><p style='margin-bottom: 2px'>State:{$request['state_id']}</p><p>Time: {$now}";
