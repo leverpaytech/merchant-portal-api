@@ -119,8 +119,8 @@ class UserController extends BaseController
 
         $user = User::where('id', $userId)->with('wallet')->with('card')->with('currencies')->with('state')->with('city')->get()->first();
 
-        $getV1=Transaction::where('user_id',$userId)->where('type','credit')->sum('amount');
-        $user->total_save= [
+        $getV1=BillPaymentHistory::where('user_id',$userId)->sum('cash_back');
+        $user->total_cash_back= [
             'ngn'=>$getV1,
             'usdt'=>round($getV1/$rate,6)
         ];
