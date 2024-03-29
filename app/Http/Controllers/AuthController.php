@@ -442,7 +442,7 @@ class AuthController extends BaseController
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => $request->email,
+            'email' => 'required|email',
             'token' => 'required|string',
             'new_password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
