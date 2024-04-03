@@ -8,6 +8,6 @@ use Illuminate\Support\Facades\DB;
 class ReportController extends Controller
 {
     public function getTodayTransactions(){
-        $users = DB::table('users')->join('transactions', 'transactions);
+        $users = DB::table('users')->join('transactions', 'transactions');
     }
 }

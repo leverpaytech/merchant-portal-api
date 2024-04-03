@@ -117,7 +117,7 @@ class DatabaseSeeder extends Seeder
             ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'GLO QuickCharge (Top-up)', 'percent'=>'2'],
             ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'MTN Direct Top-up (Postpaid)', 'percent'=>'1.1'],
             ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'MTN Direct Top-up (Prepaid)', 'percent'=>'1.1'],
-            ['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'GLO QuickCharge (Top-up)', 'percent'=>'2'],
+            //['uuid' => Str::uuid()->toString(), 'category'=>'Airtime', 'biller'=> 'GLO QuickCharge (Top-up)', 'percent'=>'2'],
         ]);
     }
 }

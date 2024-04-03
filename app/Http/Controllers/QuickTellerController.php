@@ -185,6 +185,96 @@ class QuickTellerController extends BaseController
   }
 
   /**
+   * @OA\Get(
+   *     path="/api/v1/user/quickteller/get-biller-payment-items-by-amount",
+   *     tags={"Quick Teller"},
+   *     summary="Get biller payment items by amount",
+   *     operationId="Get biller payment items  by amount",
+   *
+   *     @OA\Parameter(
+   *         name="billerId",
+   *         in="query",
+   *         required=true,
+   *         description="This is returned from get-billers-by-category-id as Id",
+   *         @OA\Schema(type="string")
+   *     ),
+   *
+   *    @OA\Parameter(
+   *         name="amount",
+   *         in="query",
+   *         required=true,
+   *         description="Amount to recharge",
+   *         @OA\Schema(type="string")
+   *     ),
+  
+   * 
+   *     @OA\Response(
+   *         response=200,
+   *         description="Success"
+   *     ),
+   *
+   *     security={
+   *         {"bearer_token": {}}
+   *     }
+   * )
+  **/
+  public function getBillerPaymentItemByAmount(Request $request)
+  {
+    if (!Auth::user()->id) {
+      return $this->sendError('Unauthorized Access', [], 401);
+    }
+
+    $billerId = $request->query('billerId');
+    $amount = $request->query('amount');
+
+    if($amount < 50)
+    {
+      return response()->json('Invalid Amount', 422);
+    }
+
+    $targetAmount=$amount*100;
+
+    $accessToken=QuickTellerService::generateAccessToken();
+    if(empty($accessToken))
+    {
+      return response()->json('No token generated', 422);
+    }
+
+    $jsonData=QuickTellerService::billerPaymentItems($accessToken,$billerId);
+    $data = json_decode($jsonData, true);
+
+    $closestItem = null;
+    $closestDifference = PHP_INT_MAX;
+
+
+    foreach ($data['PaymentItems'] as $item) 
+    {
+      // if (isset($item['Amount']) && intval($item['Amount']) >= $targetAmount) 
+      // {
+      //   $item['ReferenceNo'] = base64_encode("2176-" . uniqid());
+      //   $matchingItem = $item;
+      //   break;
+      // }
+      if (isset($item['Amount'])) {
+        $itemAmount = intval($item['Amount']);
+        $difference = abs($itemAmount - $targetAmount);
+        if ($itemAmount >= $targetAmount && $difference < $closestDifference) {
+            $closestItem = $item;
+            $closestDifference = $difference;
+        }
+      }
+    }
+
+    if ($closestItem) 
+    {
+      return response()->json([$closestItem, 'Biller Payment Item By Amount']);
+    }else{
+      return response()->json('No matching item found for the given amount.', 422);
+    }
+    
+  }
+
+  /**
  * @OA\Post(
  ** path="/api/v1/user/quickteller/validate-customer",
   *   tags={"Quick Teller"},
@@ -240,7 +330,7 @@ class QuickTellerController extends BaseController
 
     if ($validator->fails())
     {
-        return $this->sendError('Error',$validator->errors(),422);
+      return $this->sendError('Error',$validator->errors(),422);
     }
     if (!Auth::user()->id) {
       return $this->sendError('Unauthorized Access', [], 401);
@@ -313,7 +403,7 @@ class QuickTellerController extends BaseController
   public function sendBillPayment(Request $request)
   {
     $data = $request->all();
-    
+
     $validator = Validator::make($data, [
         'customerId' => 'required|string',
         'amount' => 'required|numeric',
@@ -355,6 +445,12 @@ class QuickTellerController extends BaseController
     $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
 
+    $sCshBk=QuickTellerDiscount::where('biller', $billerName)->get(['percent'])->first();
+    if($sCshBk)
+    {
+      $cashBack=round(($sCshBk->percent/(100))*$amount);
+    }
+    return response()->json($sCshBk);
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
     if (!$checkPin) {
       return response()->json('Invalid pin', 422);
@@ -414,8 +510,8 @@ class QuickTellerController extends BaseController
       DB::commit();
       if($cashBack > 0)
       {
-        //$msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
-        $msg="Your transaction was successful";
+        $msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
+        //$msg="Your transaction was successful";
       }
       else{
         $msg="Your transaction was successful";
