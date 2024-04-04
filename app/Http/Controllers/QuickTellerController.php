@@ -174,10 +174,23 @@ class QuickTellerController extends BaseController
     $jsonData=QuickTellerService::billerPaymentItems($accessToken,$billerId);
 
     $data = json_decode($jsonData, true);
+    
+    $data = collect($data['PaymentItems']);
 
-    // Add referenceNo at the top getTransaction
-    $data['PaymentItems']['ReferenceNo'] = base64_encode("2176-".uniqid());;
+    $data->transform(function ($item) {
+        $amountInKobo = intval($item['Amount']); // Amount in kobo
+        $amountInNaira = $amountInKobo / 100; // Convert kobo to naira
+        $item['Amount'] = $amountInNaira; // Update the amount
+        // Add referenceNo at the top getTransaction
+        $item['ReferenceNo'] = base64_encode("2176-".uniqid());
+        // if(intval($item['BillerCategoryId'])!=3 and intval($item['BillerCategoryId'])!=4)
+        // {
+        //   $item['Amount']=$item['Amount']+80;
+        // }
+        return $item;
+    });
 
+    
     // Convert back to JSON
     //$json_with_reference = json_encode($data);
 
@@ -246,29 +259,28 @@ class QuickTellerController extends BaseController
     $closestItem = null;
     $closestDifference = PHP_INT_MAX;
     
-
-
     foreach ($data['PaymentItems'] as $item) 
     {
       if (isset($item['Amount'])) {
-        $itemAmount = intval($item['Amount']);
-        $difference = abs($itemAmount - $targetAmount);
-        if ($itemAmount >= $targetAmount && $difference < $closestDifference) 
-        {
-          $item['ReferenceNo'] = base64_encode("2176-" . uniqid());
-          $closestItem = $item;
-          $closestDifference = $difference;
-        }
+          $itemAmount = intval($item['Amount']);
+          $difference = $targetAmount - $itemAmount;
+          if ($itemAmount <= $targetAmount && $difference < $closestDifference) {
+              $item['ReferenceNo'] = base64_encode("2176-" . uniqid());
+              $item['Amount']= ($item['Amount']/100);
+              $closestItem = $item;
+              $closestDifference = $difference;
+          }
       }
     }
-
-    if ($closestItem) 
-    {
-      return response()->json([$closestItem, 'Biller Payment Item By Amount']);
-    }else{
-      return response()->json('No matching item found for the given amount.', 422);
-    }
     
+    //$paymentItem = collect($closestItem['PaymentItems']);
+
+    if ($closestItem) {
+        return response()->json([$closestItem, 'Biller Payment Item By Amount']);
+    } else {
+        return response()->json('No matching item found for the given amount.', 422);
+    }
+      
   }
 
   /**
