@@ -366,7 +366,7 @@ class QuickTellerController extends BaseController
     *    @OA\RequestBody(
     *      @OA\MediaType( mediaType="multipart/form-data",
     *          @OA\Schema(
-    *              required={"customerId","amount","paymentCode","billerName","itemName","customerEmail","customerMobile","refrenceNo","pin"},
+    *              required={"customerId","amount","paymentCode","billerCategoryId","billerName","itemName","customerEmail","customerMobile","refrenceNo","pin"},
     *              @OA\Property( property="customerId", type="string", description="e.g Phone Number or Meter Token"),
     *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
     *              @OA\Property( property="paymentCode", type="string", description="This is returned from get-biller-payment-items and it should be hidden"),
@@ -453,14 +453,14 @@ class QuickTellerController extends BaseController
     $amount=$data['amount'];
     $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
+    $charges=0;
+    if($billerCategoryId !=3 and $billerCategoryId !=4)
+    {
+      $charges=100;
+    }
 
-    // $sCshBk=QuickTellerDiscount::where('biller', $billerName)->get(['percent'])->first();
-    // if($sCshBk)
-    // {
-    //   $cashBack=round(($sCshBk->percent/(100))*$amount);
-    // }
-    // return response()->json($sCshBk);
-
+    $tAmount=($amount+$charges);
+    
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
     if (!$checkPin) {
       return response()->json('Invalid pin', 422);
@@ -470,8 +470,8 @@ class QuickTellerController extends BaseController
     if ($checkRefNo) {
         return response()->json('Duplicate Transactions', 422);
     }
-
-    $checkBalance = $this->checkWalletBalance($userId, $amount);
+    
+    $checkBalance = $this->checkWalletBalance($userId, $tAmount);
     if (!$checkBalance) {
       return response()->json('Insufficient wallet balance', 422);
     }
@@ -511,7 +511,8 @@ class QuickTellerController extends BaseController
       'itemName' =>  $itemName,
       'customerEmail'=>$customerEmail,
       'customerMobile'=>$customerMobile,
-      'msg' => $responseData['ResponseDescription']
+      'msg' => !empty($responseData['RechargePIN'])?$responseData['RechargePIN']:'',
+      'transaction_fee'=>$charges
     ];
     DB::beginTransaction();
     try{
@@ -534,9 +535,13 @@ class QuickTellerController extends BaseController
         'phone_number'=>$nin['customerId'],
         'token number'=>$nin['msg'],
         'Successful'=>'Successful',
-        'transaction_ref'=>$nin['referenceNo']
+        'transaction_ref'=>$nin['referenceNo'],
+        'transaction_fee'=>$charges,
+        'total_amount'=>$tAmount,
+        'service_provider'=>$billerName
       ];
       //send mail
+    
       ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.27b39400-ae24-11ee-a9af-525400103106.18ce91d9940" ,$message, $customerEmail);
 
       $result = [

@@ -3623,6 +3623,7 @@
                                     "customerId",
                                     "amount",
                                     "paymentCode",
+                                    "billerCategoryId",
                                     "billerName",
                                     "itemName",
                                     "customerEmail",
