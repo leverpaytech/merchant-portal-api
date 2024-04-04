@@ -245,22 +245,19 @@ class QuickTellerController extends BaseController
 
     $closestItem = null;
     $closestDifference = PHP_INT_MAX;
+    
 
 
     foreach ($data['PaymentItems'] as $item) 
     {
-      // if (isset($item['Amount']) && intval($item['Amount']) >= $targetAmount) 
-      // {
-      //   $item['ReferenceNo'] = base64_encode("2176-" . uniqid());
-      //   $matchingItem = $item;
-      //   break;
-      // }
       if (isset($item['Amount'])) {
         $itemAmount = intval($item['Amount']);
         $difference = abs($itemAmount - $targetAmount);
-        if ($itemAmount >= $targetAmount && $difference < $closestDifference) {
-            $closestItem = $item;
-            $closestDifference = $difference;
+        if ($itemAmount >= $targetAmount && $difference < $closestDifference) 
+        {
+          $item['ReferenceNo'] = base64_encode("2176-" . uniqid());
+          $closestItem = $item;
+          $closestDifference = $difference;
         }
       }
     }
@@ -445,12 +442,13 @@ class QuickTellerController extends BaseController
     $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
 
-    $sCshBk=QuickTellerDiscount::where('biller', $billerName)->get(['percent'])->first();
-    if($sCshBk)
-    {
-      $cashBack=round(($sCshBk->percent/(100))*$amount);
-    }
-    return response()->json($sCshBk);
+    // $sCshBk=QuickTellerDiscount::where('biller', $billerName)->get(['percent'])->first();
+    // if($sCshBk)
+    // {
+    //   $cashBack=round(($sCshBk->percent/(100))*$amount);
+    // }
+    // return response()->json($sCshBk);
+
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
     if (!$checkPin) {
       return response()->json('Invalid pin', 422);
@@ -472,7 +470,7 @@ class QuickTellerController extends BaseController
     }
 
     $cashBack=0;
-    $sCshBk=QuickTellerDiscount::where('biller', $itemName)->get(['percent'])->first();
+    $sCshBk=QuickTellerDiscount::where('biller', $billerName)->get(['percent'])->first();
     if($sCshBk)
     {
       $cashBack=round(($sCshBk->percent/(100))*$amount);
