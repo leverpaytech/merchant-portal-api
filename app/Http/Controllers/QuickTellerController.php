@@ -174,14 +174,113 @@ class QuickTellerController extends BaseController
     $jsonData=QuickTellerService::billerPaymentItems($accessToken,$billerId);
 
     $data = json_decode($jsonData, true);
+    
+    $data = collect($data['PaymentItems']);
 
-    // Add referenceNo at the top getTransaction
-    $data['PaymentItems']['ReferenceNo'] = base64_encode("2176-".uniqid());;
+    $data->transform(function ($item) {
+        $amountInKobo = intval($item['Amount']); // Amount in kobo
+        $amountInNaira = $amountInKobo / 100; // Convert kobo to naira
+        $item['Amount'] = $amountInNaira; // Update the amount
+        // Add referenceNo at the top getTransaction
+        $item['ReferenceNo'] = base64_encode("2176-".uniqid());
+        // if(intval($item['BillerCategoryId'])!=3 and intval($item['BillerCategoryId'])!=4)
+        // {
+        //   $item['Amount']=$item['Amount']+80;
+        // }
+        return $item;
+    });
 
+    
     // Convert back to JSON
     //$json_with_reference = json_encode($data);
 
     return $data;
+  }
+
+  /**
+   * @OA\Get(
+   *     path="/api/v1/user/quickteller/get-biller-payment-items-by-amount",
+   *     tags={"Quick Teller"},
+   *     summary="Get biller payment items by amount",
+   *     operationId="Get biller payment items  by amount",
+   *
+   *     @OA\Parameter(
+   *         name="billerId",
+   *         in="query",
+   *         required=true,
+   *         description="This is returned from get-billers-by-category-id as Id",
+   *         @OA\Schema(type="string")
+   *     ),
+   *
+   *    @OA\Parameter(
+   *         name="amount",
+   *         in="query",
+   *         required=true,
+   *         description="Amount to recharge",
+   *         @OA\Schema(type="string")
+   *     ),
+  
+   * 
+   *     @OA\Response(
+   *         response=200,
+   *         description="Success"
+   *     ),
+   *
+   *     security={
+   *         {"bearer_token": {}}
+   *     }
+   * )
+  **/
+  public function getBillerPaymentItemByAmount(Request $request)
+  {
+    if (!Auth::user()->id) {
+      return $this->sendError('Unauthorized Access', [], 401);
+    }
+
+    $billerId = $request->query('billerId');
+    $amount = $request->query('amount');
+
+    if($amount < 50)
+    {
+      return response()->json('Invalid Amount', 422);
+    }
+
+    $targetAmount=$amount*100;
+
+    $accessToken=QuickTellerService::generateAccessToken();
+    if(empty($accessToken))
+    {
+      return response()->json('No token generated', 422);
+    }
+
+    $jsonData=QuickTellerService::billerPaymentItems($accessToken,$billerId);
+    $data = json_decode($jsonData, true);
+
+    $closestItem = null;
+    $closestDifference = PHP_INT_MAX;
+    
+    foreach ($data['PaymentItems'] as $item) 
+    {
+      if (isset($item['Amount'])) {
+          $itemAmount = intval($item['Amount']);
+          $difference = $targetAmount - $itemAmount;
+          if ($itemAmount <= $targetAmount && $difference < $closestDifference) {
+              $item['ReferenceNo'] = base64_encode("2176-" . uniqid());
+              $item['Amount']= ($item['Amount']/100);
+              $closestItem = $item;
+              $closestDifference = $difference;
+          }
+      }
+    }
+    
+    //$paymentItem = collect($closestItem['PaymentItems']);
+
+    if ($closestItem) {
+        return response()->json([$closestItem, 'Biller Payment Item By Amount']);
+    } else {
+        return response()->json('No matching item found for the given amount.', 422);
+    }
+      
   }
 
   /**
@@ -240,7 +339,7 @@ class QuickTellerController extends BaseController
 
     if ($validator->fails())
     {
-        return $this->sendError('Error',$validator->errors(),422);
+      return $this->sendError('Error',$validator->errors(),422);
     }
     if (!Auth::user()->id) {
       return $this->sendError('Unauthorized Access', [], 401);
@@ -267,7 +366,7 @@ class QuickTellerController extends BaseController
     *    @OA\RequestBody(
     *      @OA\MediaType( mediaType="multipart/form-data",
     *          @OA\Schema(
-    *              required={"customerId","amount","paymentCode","billerName","itemName","customerEmail","customerMobile","refrenceNo","pin"},
+    *              required={"customerId","amount","paymentCode","billerCategoryId","billerName","itemName","customerEmail","customerMobile","refrenceNo","pin"},
     *              @OA\Property( property="customerId", type="string", description="e.g Phone Number or Meter Token"),
     *              @OA\Property( property="amount", type="string", description="amount to acquire service"),
     *              @OA\Property( property="paymentCode", type="string", description="This is returned from get-biller-payment-items and it should be hidden"),
@@ -313,7 +412,7 @@ class QuickTellerController extends BaseController
   public function sendBillPayment(Request $request)
   {
     $data = $request->all();
-    
+
     $validator = Validator::make($data, [
         'customerId' => 'required|string',
         'amount' => 'required|numeric',
@@ -354,7 +453,14 @@ class QuickTellerController extends BaseController
     $amount=$data['amount'];
     $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
+    $charges=0;
+    if($billerCategoryId !=3 and $billerCategoryId !=4)
+    {
+      $charges=100;
+    }
 
+    $tAmount=($amount+$charges);
+    
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
     if (!$checkPin) {
       return response()->json('Invalid pin', 422);
@@ -364,8 +470,8 @@ class QuickTellerController extends BaseController
     if ($checkRefNo) {
         return response()->json('Duplicate Transactions', 422);
     }
-
-    $checkBalance = $this->checkWalletBalance($userId, $amount);
+    
+    $checkBalance = $this->checkWalletBalance($userId, $tAmount);
     if (!$checkBalance) {
       return response()->json('Insufficient wallet balance', 422);
     }
@@ -376,7 +482,7 @@ class QuickTellerController extends BaseController
     }
 
     $cashBack=0;
-    $sCshBk=QuickTellerDiscount::where('biller', $itemName)->get(['percent'])->first();
+    $sCshBk=QuickTellerDiscount::where('biller', $billerName)->get(['percent'])->first();
     if($sCshBk)
     {
       $cashBack=round(($sCshBk->percent/(100))*$amount);
@@ -405,7 +511,8 @@ class QuickTellerController extends BaseController
       'itemName' =>  $itemName,
       'customerEmail'=>$customerEmail,
       'customerMobile'=>$customerMobile,
-      'msg' => $responseData['ResponseDescription']
+      'msg' => !empty($responseData['RechargePIN'])?$responseData['RechargePIN']:'',
+      'transaction_fee'=>$charges
     ];
     DB::beginTransaction();
     try{
@@ -414,8 +521,8 @@ class QuickTellerController extends BaseController
       DB::commit();
       if($cashBack > 0)
       {
-        //$msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
-        $msg="Your transaction was successful";
+        $msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
+        //$msg="Your transaction was successful";
       }
       else{
         $msg="Your transaction was successful";
@@ -428,9 +535,13 @@ class QuickTellerController extends BaseController
         'phone_number'=>$nin['customerId'],
         'token number'=>$nin['msg'],
         'Successful'=>'Successful',
-        'transaction_ref'=>$nin['referenceNo']
+        'transaction_ref'=>$nin['referenceNo'],
+        'transaction_fee'=>$charges,
+        'total_amount'=>$tAmount,
+        'service_provider'=>$billerName
       ];
       //send mail
+    
       ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.27b39400-ae24-11ee-a9af-525400103106.18ce91d9940" ,$message, $customerEmail);
 
       $result = [

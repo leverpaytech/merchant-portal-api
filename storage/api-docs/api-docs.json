@@ -3514,6 +3514,45 @@
                 ]
             }
         },
+        "/api/v1/user/quickteller/get-biller-payment-items-by-amount": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Get biller payment items by amount",
+                "operationId": "Get biller payment items  by amount",
+                "parameters": [
+                    {
+                        "name": "billerId",
+                        "in": "query",
+                        "description": "This is returned from get-billers-by-category-id as Id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "Amount to recharge",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/quickteller/validate-customer": {
             "post": {
                 "tags": [
@@ -3584,6 +3623,7 @@
                                     "customerId",
                                     "amount",
                                     "paymentCode",
+                                    "billerCategoryId",
                                     "billerName",
                                     "itemName",
                                     "customerEmail",

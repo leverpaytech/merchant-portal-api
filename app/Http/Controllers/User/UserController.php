@@ -119,7 +119,7 @@ class UserController extends BaseController
 
         $user = User::where('id', $userId)->with('wallet')->with('card')->with('currencies')->with('state')->with('city')->get()->first();
 
-        $getV1=BillPaymentHistory::where('user_id',$userId)->sum('cash_back');
+        $getV1=BillPaymentHistory::where('user_id',$userId)->where('provider_name','QUICK TELLER')->sum('cash_back');
         $user->total_cash_back= [
             'ngn'=>$getV1,
             'usdt'=>round($getV1/$rate,6)
