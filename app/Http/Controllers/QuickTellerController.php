@@ -449,13 +449,28 @@ class QuickTellerController extends BaseController
     $amount=$data['amount'];
     $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
+
+    $amountDd=$amount;
+    $amountGv=$amount2;
     $charges=0;
+
     if($billerCategoryId !=3 and $billerCategoryId !=4 and $billerCategoryId !=63)
     {
       $charges=100;
+      if($billerCategoryId==2)
+      {
+        $amountDd=($amount+$charges);
+        $amountGv=$amount*100;
+        $amount=$amount;
+      }else if($billerCategoryId==1)
+      {
+        $amountDd=$amount;
+        $amountGv=($amount-$charges)*100;
+        $amount=($amount-$charges);
+      } 
     }
-
-    $tAmount=($amount+$charges);
+    $tAmount =  $amount + $charges;
+    
     
     $checkPin = $this->checkPinValidity($userId, $data['pin']);
     if (!$checkPin) {
@@ -467,7 +482,7 @@ class QuickTellerController extends BaseController
         return response()->json('Duplicate Transactions', 422);
     }
     
-    $checkBalance = $this->checkWalletBalance($userId, $tAmount);
+    $checkBalance = $this->checkWalletBalance($userId, $amountDd);
     if (!$checkBalance) {
       return response()->json('Insufficient wallet balance', 422);
     }
@@ -485,9 +500,9 @@ class QuickTellerController extends BaseController
     }
     
 
-    $newBalance=($getLeverPayAccount->balance + $amount)-$cashBack;
+    $newBalance=($getLeverPayAccount->balance + $amount + $charges)-$cashBack;
 
-    $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,'development@leverpay.io',$customerMobile,$amount2,$refrenceNo);
+    $jsonData=QuickTellerService::sendBillPayment($accessToken,$paymentCode,$customerId,'development@leverpay.io',$customerMobile,$amountGv,$refrenceNo);
     $responseData = json_decode($jsonData, TRUE);
 
     //return $responseData;
@@ -500,6 +515,7 @@ class QuickTellerController extends BaseController
       'referenceNo'=>$refrenceNo,
       'customerId'=>$customerId,
       'amount'=>$amount,
+      'amountDd'=>$amountDd,
       'cash_back'=>$cashBack,
       'paymentCode'=>$paymentCode,
       'billerName' =>  $billerName,
@@ -593,12 +609,11 @@ class QuickTellerController extends BaseController
     $getOldBal=Wallet::where('user_id', $userId)->get(['withdrawable_amount', 'amount'])->first();
     
     $extra=json_encode($nin);
-    $wBal=($nin['amount']-$cashBack)+$nin['transaction_fee'];
+    $wBal=($nin['amountDd']-$cashBack);
     $new_user_wall=$getOldBal->withdrawable_amount-$wBal;
     WalletService::subtractFromWallet($userId, $wBal, 'naira');
 
-    $newBalance=$newBalance+$nin['transaction_fee'];
-
+  
     DB::table('lever_pay_account_no')->where('id', 3)->update(['balance' => $newBalance]);
     
     BillPaymentHistory::create([
