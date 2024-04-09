@@ -185,7 +185,7 @@ class WebhookController extends Controller
                 <p> Best regards, </p>
                 <p> Leverpay </p>
             ";
-            SmsService::sendMail('', $html, 'Wallet Credit', $user->email);
+            // SmsService::sendMail('', $html, 'Wallet Credit', $user->email);
             $body = [
                 "customer_name"=>$user['first_name'],
                 "date"=>Carbon::create($request['tranDateTime'])->toDayDateTimeString(),
