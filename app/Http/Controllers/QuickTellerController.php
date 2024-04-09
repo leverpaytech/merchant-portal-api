@@ -597,6 +597,8 @@ class QuickTellerController extends BaseController
     $new_user_wall=$getOldBal->withdrawable_amount-$wBal;
     WalletService::subtractFromWallet($userId, $wBal, 'naira');
 
+    $newBalance=$newBalance+$nin['transaction_fee'];
+
     DB::table('lever_pay_account_no')->where('id', 3)->update(['balance' => $newBalance]);
     
     BillPaymentHistory::create([
