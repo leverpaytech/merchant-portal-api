@@ -125,11 +125,7 @@ class QuickTellerController extends BaseController
     $jsonData=QuickTellerService::billersByCategoryId($accessToken,$categoryId);
 
     $data = json_decode($jsonData, true);
-    // Access the Category
-    $category = $data['BillerList']['Category'];
-    //$categoryJson = json_encode($category);
-
-    return $category;
+    return $data['BillerList']['Category'];
   }
 
   /**
@@ -454,7 +450,7 @@ class QuickTellerController extends BaseController
     $amount2=$amount*100; //conver it to kobo
     $refrenceNo=base64_decode($data['refrenceNo']);
     $charges=0;
-    if($billerCategoryId !=3 and $billerCategoryId !=4)
+    if($billerCategoryId !=3 and $billerCategoryId !=4 and $billerCategoryId !=63)
     {
       $charges=100;
     }
@@ -548,7 +544,8 @@ class QuickTellerController extends BaseController
         'message'=>$msg,
         'reference' => $nin['referenceNo'], 
         'cashback'=>$cashBack,
-        'token'=>$nin['msg']
+        'token'=>$nin['msg'],
+        'transaction_fee'=>$nin['transaction_fee']
       ];
       //$customerEmail
       return response()->json($result, 200);
@@ -596,7 +593,7 @@ class QuickTellerController extends BaseController
     $getOldBal=Wallet::where('user_id', $userId)->get(['withdrawable_amount', 'amount'])->first();
     
     $extra=json_encode($nin);
-    $wBal=$nin['amount']-$cashBack;
+    $wBal=($nin['amount']-$cashBack)+$nin['transaction_fee'];
     $new_user_wall=$getOldBal->withdrawable_amount-$wBal;
     WalletService::subtractFromWallet($userId, $wBal, 'naira');
 
@@ -606,8 +603,8 @@ class QuickTellerController extends BaseController
         'user_id' => $userId,
         'customerId' => $nin['customerId'],
         'unit_purchased' => 0,
-        'price' => $nin['amount'],
-        'amount' => $nin['amount'],
+        'price' => $wBal,
+        'amount' => $wBal,
         'cash_back'=>$cashBack,
         'category' => $nin['billerName'],
         'biller' => '-',
@@ -627,14 +624,15 @@ class QuickTellerController extends BaseController
         "itemName"=>$nin['itemName'],
         "paymentCode"=>$nin['paymentCode'],
         "provider"=>"Quick Teller",
-        "token"=>$nin['msg']
+        "token"=>$nin['msg'],
+        "transaction_fee"=>$nin['transaction_fee']
     ]);
 
     Transaction::create([
         'user_id' =>  $userId,
         'reference_no' => $nin['referenceNo'],
         'tnx_reference_no' => $nin['referenceNo'],
-        'amount' => $nin['amount'],
+        'amount' => $wBal,
         'balance' => $new_user_wall,
         'type' => 'debit',
         'merchant' => 'Bills',
@@ -642,7 +640,7 @@ class QuickTellerController extends BaseController
         'transaction_details' => $details
     ]);
 
-    $activity['activity']="Quick Teller bill payment of ".$nin['itemName']." for N".$nin['amount'];
+    $activity['activity']="Quick Teller bill payment of ".$nin['itemName']." for N".$wBal;
     $activity['user_id']=$userId;
 
     ActivityLog::createActivity($activity);
