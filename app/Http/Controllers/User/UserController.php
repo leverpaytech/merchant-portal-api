@@ -1982,7 +1982,7 @@ class UserController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'pin' => 'required|numeric|unique:bill_payment_pins',
+            'pin' => 'required|numeric|digits:4',
             'confirm_new_pin' => 'required|numeric|same:pin'
         ]);
 
