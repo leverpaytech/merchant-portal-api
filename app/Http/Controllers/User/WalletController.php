@@ -490,7 +490,7 @@ class WalletController extends BaseController
         ActivityLog::createActivity($data2);
         $this->validate($request, [
             'email'=>'required|email',
-            'amount'=>'required|numeric|min:1000'
+            'amount'=>'required|numeric|min:1'
         ]);
 
         $user= Auth::user();

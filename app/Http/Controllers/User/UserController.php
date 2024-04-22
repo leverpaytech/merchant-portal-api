@@ -1832,7 +1832,8 @@ class UserController extends BaseController
             'amount' => $nin['amount'],
             'balance' => $new_user_wall,
             'type' => 'debit',
-            'merchant' => $nin['paymentItem'],
+            // 'merchant' => $nin['paymentItem'],
+            "merchant"=>'Bills',
             'status' => 1,
             'transaction_details' => $details
         ]);
