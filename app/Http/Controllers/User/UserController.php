@@ -1895,7 +1895,8 @@ class UserController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'pin' => 'required|numeric|unique:bill_payment_pins',
+            //'pin' => 'required|numeric|unique:bill_payment_pins',
+            'pin' => 'required|numeric|digits:4',
             'confirm_pin' => 'required|numeric|same:pin'
         ]);
 
@@ -1910,9 +1911,9 @@ class UserController extends BaseController
             return $this->sendError('Unauthorized Access',[],401);
         $userId = Auth::user()->id;
 
-        if($userId >= 204 && $userId <= 209){
-            $pin = intval($pin) + 1000;
-        }
+        // if($userId >= 204 && $userId <= 209){
+        //     $pin = intval($pin) + 1000;
+        // }
 
         $checkIfUserExist=BillPaymentPin::where('user_id', $userId)->first();
         if($checkIfUserExist)
@@ -1981,7 +1982,7 @@ class UserController extends BaseController
         $data = $request->all();
 
         $validator = Validator::make($data, [
-            'pin' => 'required|numeric|unique:bill_payment_pins',
+            'pin' => 'required|numeric|digits:4',
             'confirm_new_pin' => 'required|numeric|same:pin'
         ]);
 
