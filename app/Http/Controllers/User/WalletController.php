@@ -536,7 +536,7 @@ class WalletController extends BaseController
             'otp' => $otp,
             'amount'=>$request['amount']
         ];
-        ZeptomailService::sendTemplateZeptoMail("LeverPay Transfer OTP " ,"Dear {$user->first_name}, ".$content, $user->email);
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.d1682570-b562-11ee-8d93-525400e3c1b1.18d18985147",$msg,$user->email);
 
         $data2['activity']="You submitted a request to transfer {$request['amount']}";
         $data2['user_id']=$user->id;
