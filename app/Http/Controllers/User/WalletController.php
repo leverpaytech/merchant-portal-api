@@ -572,12 +572,12 @@ class WalletController extends BaseController
         if($user->wallet->withdrawable_amount < $trans['amount']){
             return $this->sendError("Insufficient balance",[],400);
         }
-
-        DB::transaction( function() use($trans, $user) {
-            $ext = 'LP_'.Uuid::generate()->string;
+        $trans_ref = 'LP_'.Uuid::generate()->string;
+        $ext = 'LP_'.Uuid::generate()->string;
+        DB::transaction( function() use($trans, $user, $trans_ref, $ext) {
             $transaction = new Transaction();
             $transaction->user_id = $user->id;
-            $transaction->reference_no	= 'LP_'.Uuid::generate()->string;
+            $transaction->reference_no	= $trans_ref;
             $transaction->tnx_reference_no	= $ext;
             $transaction->amount =$trans['amount'];
             $transaction->balance = floatval($user->wallet->withdrawable_amount) - floatval($trans['amount']);
@@ -623,12 +623,26 @@ class WalletController extends BaseController
         $data2['user_id']=$user->id;
         ActivityLog::createActivity($data2);
 
-        $content = "Transfer of {$request['amount']} is successful";
-        SmsService::sendMail("Dear {$user->first_name},", $content, "Transfer Successful", $user->email);
-
-        $content = "You have received {$request['amount']} from {$user->first_name} {$user->last_name}";
+        // $content = "You have received {$request['amount']} from {$user->first_name} {$user->last_name}";
         //SmsService::sendMail("Dear {$trans->recipient->first_name},", $content, "Wallet Credit", $trans->receiver_id);
-        ZeptomailService::sendMailZeptoMail("Wallet Credit", "Dear {$trans->recipient->first_name}, ".$content, $trans->receiver_id);
+
+        $msg = [
+            'customer_name' => $user->first_name,
+            'customer_receiver_name'=>$trans->recipient->first_name,
+            'date' => now(),
+            'amount'=>'NGN'.$trans['amount'],
+            'transaction_ref'=> $trans_ref,
+            'receiver_transaction_ref'=>$ext,
+            'receiver_email'=>$trans->recipient->email,
+            'receiver_name'=>$trans->recipient->first_name.' '.$trans->recipient->first_name,
+            'sender_name'=> $user->first_name . ' '.$user->last_name,
+            'sender_email'=>$user->email
+        ];
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.0f878050-04a8-11ef-ae90-525400fa05f6.18f201a1cd5",$msg,$user->email);
+
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.bb3dc8a0-04a8-11ef-ae90-525400fa05f6.18f201e822a",$msg,$trans->recipient->email);
+
+        // ZeptomailService::sendMailZeptoMail("Wallet Credit", "Dear {$trans->recipient->first_name}, ".$content, $trans->receiver_id);
 
         return $this->successfulResponse([], 'Transfer successful');
     }
