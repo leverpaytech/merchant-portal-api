@@ -626,7 +626,7 @@ class WalletController extends BaseController
         // $content = "You have received {$request['amount']} from {$user->first_name} {$user->last_name}";
         //SmsService::sendMail("Dear {$trans->recipient->first_name},", $content, "Wallet Credit", $trans->receiver_id);
 
-        $msg = [
+        $data = [
             'customer_name' => $user->first_name,
             'customer_receiver_name'=>$trans->recipient->first_name,
             'date' => now(),
@@ -638,9 +638,9 @@ class WalletController extends BaseController
             'sender_name'=> $user->first_name . ' '.$user->last_name,
             'sender_email'=>$user->email
         ];
-        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.0f878050-04a8-11ef-ae90-525400fa05f6.18f201a1cd5",$msg,$user->email);
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.0f878050-04a8-11ef-ae90-525400fa05f6.18f201a1cd5",$data,$user->email);
 
-        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.bb3dc8a0-04a8-11ef-ae90-525400fa05f6.18f201e822a",$msg,$trans->recipient->email);
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.bb3dc8a0-04a8-11ef-ae90-525400fa05f6.18f201e822a",$data,$trans->recipient->email);
 
         // ZeptomailService::sendMailZeptoMail("Wallet Credit", "Dear {$trans->recipient->first_name}, ".$content, $trans->receiver_id);
 

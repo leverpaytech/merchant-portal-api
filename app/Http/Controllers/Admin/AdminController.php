@@ -407,8 +407,16 @@ class AdminController extends BaseController
         $topup->status = 2;
         $topup->save();
 
-        $content="Dear {$user->first_name}, the topup request for {$topup->amount} has been declined, contact our support with further evidence for help";
-        ZeptomailService::sendMailZeptoMail("Topup Request Declined" ,$content, $user->email);
+        // $content="Dear {$user->first_name}, the topup request for {$topup->amount} has been declined, contact our support with further evidence for help";
+        // ZeptomailService::sendMailZeptoMail("Topup Request Declined" ,$content, $user->email);
+
+        $data = [
+            'customer_name' => $user->first_name,
+            'date' => now(),
+            'amount'=>'NGN'.$topup->amount,
+            'transaction_ref'=> $topup['reference'],
+        ];
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.362f8c30-04a7-11ef-ae90-525400fa05f6.18f20148c73",$data,$user->email);
 
         return $this->successfulResponse([], 'Request cancelled');
     }
