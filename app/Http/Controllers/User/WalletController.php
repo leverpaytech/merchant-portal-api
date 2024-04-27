@@ -534,7 +534,7 @@ class WalletController extends BaseController
         $msg = [
             'name' => $user->first_name,
             'otp' => $otp,
-            'amount'=>$request['amount']
+            'amount'=>'NGN'.$request['amount']
         ];
         ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.d1682570-b562-11ee-8d93-525400e3c1b1.18d18985147",$msg,$user->email);
 
