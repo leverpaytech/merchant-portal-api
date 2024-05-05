@@ -506,7 +506,7 @@ class QuickTellerController extends BaseController
     $responseData = json_decode($jsonData, TRUE);
 
     //return $responseData;
-    if($responseData['ResponseCode'] !="90000" and $responseData['ResponseCode'] !=="90009")
+    if($responseData['ResponseCode'] !="90000" and $responseData['ResponseCode'] !="90009")
     {
       return response()->json($responseData, 422);
     }
