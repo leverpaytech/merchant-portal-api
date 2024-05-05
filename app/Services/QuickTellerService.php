@@ -124,7 +124,7 @@ class QuickTellerService
             'paymentCode' => $paymentCode,
             'requestReference' => $refrenceNo
         ));
-        return $fieldsString;
+        //return $fieldsString;
         /*{
             "PaymentCode": "48001",
             "CustomerId": "0000000001",
