@@ -553,11 +553,12 @@ class QuickTellerController extends BaseController
         'user_firstname'=>$user->first_name,
         'phone_number'=>$nin['customerId'],
         'token number'=>$nin['msg'],
-        'Successful'=>($nin['status']=="90000"?'Successful':'Pending'),
+        //'Successful'=>($nin['status']=="90000"?'Successful':'Pending'),
         'transaction_ref'=>$nin['referenceNo'],
         'transaction_fee'=>$charges,
         'total_amount'=>$tAmount,
-        'service_provider'=>$billerName
+        'service_provider'=>$billerName,
+        'status' => ($nin['status']=="90000"?'Successful':'Pending')
       ];
       //send mail
     
