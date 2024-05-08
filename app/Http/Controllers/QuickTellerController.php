@@ -506,9 +506,9 @@ class QuickTellerController extends BaseController
     $responseData = json_decode($jsonData, TRUE);
 
     //return $responseData;
-    if($responseData['ResponseCode'] !="90000")
+    if($responseData['ResponseCode'] !="90000" and $responseData['ResponseCode'] !="90009")
     {
-      return response()->json('Transaction Failed, '.$responseData['ResponseDescription'], 422);
+      return response()->json($responseData, 422);
     }
 
     $nin=[
@@ -524,20 +524,27 @@ class QuickTellerController extends BaseController
       'customerEmail'=>$customerEmail,
       'customerMobile'=>$customerMobile,
       'msg' => !empty($responseData['RechargePIN'])?$responseData['RechargePIN']:'',
-      'transaction_fee'=>$charges
+      'transaction_fee'=>$charges,
+      'status' => $responseData['ResponseCode']
     ];
     DB::beginTransaction();
     try{
 
       $this->performTransaction($userId, $nin, $newBalance, $cashBack);
       DB::commit();
-      if($cashBack > 0)
+      if($nin['status'] !="90000")
       {
-        $msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
-        //$msg="Your transaction was successful";
+        $msg="Your transaction is pending, it will be process shortly";
       }
       else{
-        $msg="Your transaction was successful";
+        if($cashBack > 0)
+        {
+          $msg="Your transaction was successful and Leverpay has given you a  (Cashback Reward of: #".number_format($cashBack,2).")";
+          //$msg="Your transaction was successful";
+        }
+        else{
+          $msg="Your transaction was successful";
+        }
       }
 
       $message=[
@@ -546,11 +553,12 @@ class QuickTellerController extends BaseController
         'user_firstname'=>$user->first_name,
         'phone_number'=>$nin['customerId'],
         'token number'=>$nin['msg'],
-        'Successful'=>'Successful',
+        //'Successful'=>($nin['status']=="90000"?'Successful':'Pending'),
         'transaction_ref'=>$nin['referenceNo'],
         'transaction_fee'=>$charges,
         'total_amount'=>$tAmount,
-        'service_provider'=>$billerName
+        'service_provider'=>$billerName,
+        'status' => ($nin['status']=="90000"?'Successful':'Pending')
       ];
       //send mail
     
@@ -653,7 +661,7 @@ class QuickTellerController extends BaseController
         'balance' => $new_user_wall,
         'type' => 'debit',
         'merchant' => 'Bills',
-        'status' => 1,
+        'status' => ($nin['msg']=="90000"?1:0),
         'transaction_details' => $details
     ]);
 
