@@ -3838,8 +3838,7 @@
                                     "password",
                                     "first_name",
                                     "last_name",
-                                    "phone",
-                                    "bvn"
+                                    "phone"
                                 ],
                                 "properties": {
                                     "first_name": {
@@ -3852,9 +3851,6 @@
                                         "type": "string"
                                     },
                                     "gender": {
-                                        "type": "string"
-                                    },
-                                    "bvn": {
                                         "type": "string"
                                     },
                                     "dob": {
