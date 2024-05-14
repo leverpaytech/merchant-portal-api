@@ -403,7 +403,7 @@ class WalletController extends BaseController
         {
             $details=json_decode($transaction->transaction_details);
 
-            if($details->provider=="Quick Teller")
+            if(isset($details->provider) and $details->provider=="Quick Teller")
             {
                 $transaction->merchant=$details->billerName;
             }
