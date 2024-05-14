@@ -405,7 +405,7 @@ class WalletController extends BaseController
 
             if(isset($details->provider) and $details->provider=="Quick Teller")
             {
-                $transaction->merchant=$details->billerName;
+                $transaction->merchant=isset($details->billerName)?$details->billerName:'bills payment';
             }
 
             if(!empty($details->invoice_uuid))
