@@ -363,23 +363,22 @@ class WalletController extends BaseController
     }
 
     /**
-     * @OA\Get(
-     ** path="/api/v1/user/get-user-transactions",
-     *   tags={"User"},
-     *   summary="Get user transactions",
-     *   operationId="get user transactions details",
-     *
-     *
-     *   @OA\Response(
-     *      response=200,
-     *       description="Success",
-     *     ),
-     *     security={
-     *       {"bearer_token": {}}
-     *     }
-     *
-     *)
-     **/
+    * @OA\Get(
+    *     path="/api/v1/user/get-user-transactions",
+    *     tags={"User"},
+    *     summary="Get user transactions",
+    *     operationId="get user transactions details",
+    * 
+    *     @OA\Response(
+    *         response=200,
+    *         description="Success"
+    *     ),
+    *
+    *     security={
+    *         {"bearer_token": {}}
+    *     }
+    * )
+    **/
     public function getUserTransaction()
     {
         $userId=Auth::user()->id;
