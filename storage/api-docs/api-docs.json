@@ -5179,7 +5179,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -5256,7 +5256,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -5293,7 +5293,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -5312,7 +5312,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
@@ -5382,7 +5382,7 @@
                 },
                 "security": [
                     {
-                        "api_key": []
+                        "bearer_token": []
                     }
                 ]
             }
