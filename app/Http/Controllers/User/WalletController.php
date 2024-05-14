@@ -403,6 +403,11 @@ class WalletController extends BaseController
         {
             $details=json_decode($transaction->transaction_details);
 
+            if($details->provider=="Quick Teller")
+            {
+                $transaction->merchant=$details->billerName;
+            }
+
             if(!empty($details->invoice_uuid))
             {
                 $invoice_uuid=$details->invoice_uuid;
