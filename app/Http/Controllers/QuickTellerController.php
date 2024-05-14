@@ -482,10 +482,10 @@ class QuickTellerController extends BaseController
         return response()->json('Duplicate Transactions', 422);
     }
     
-    $checkBalance = $this->checkWalletBalance($userId, $amountDd);
-    if (!$checkBalance) {
-      return response()->json('Insufficient wallet balance', 422);
-    }
+    // $checkBalance = $this->checkWalletBalance($userId, $amountDd);
+    // if (!$checkBalance) {
+    //   return response()->json('Insufficient wallet balance', 422);
+    // }
 
     $getLeverPayAccount = $this->getLeverPayAccount(); 
     if (!$getLeverPayAccount->balance) {
@@ -508,7 +508,21 @@ class QuickTellerController extends BaseController
     //return $responseData;
     if($responseData['ResponseCode'] !="90000" and $responseData['ResponseCode'] !="90009")
     {
-      return response()->json($responseData, 422);
+      if($responseData['ResponseCode'] == "90051")
+      {
+        $subject="Notification";
+        $message="<p>Insufficient Funds for the purchased of ".$billerName." at N".number_format($amount,2)."</p>";
+        ZeptomailService::sendMailZeptoMail($subject ,$message, 'development@leverpay.io');
+        return response()->json('Transaction Failed, Please try again later', 422);
+      }
+      else if($responseData['ResponseCode'] == "90006")
+      {
+        return response()->json('Transaction Failed, Invalid phone no. or id', 422);
+      }
+      else{
+        return response()->json('Transaction Failed, Please try again later', 422);
+      }
+      //return response()->json($responseData, 422);
     }
 
     $nin=[

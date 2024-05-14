@@ -61,7 +61,7 @@ class WalletController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -193,7 +193,7 @@ class WalletController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -248,7 +248,7 @@ class WalletController extends BaseController
      *      description="Forbidden"
      *   ),
      *   security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *   }
      *)
      **/
@@ -318,7 +318,7 @@ class WalletController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -375,7 +375,7 @@ class WalletController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
@@ -694,7 +694,7 @@ class WalletController extends BaseController
      *       description="Success",
      *     ),
      *     security={
-     *       {"api_key": {}}
+     *       {"bearer_token": {}}
      *     }
      *
      *)
