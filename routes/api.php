@@ -222,7 +222,7 @@ Route::prefix('v1')->group( function(){
                 Route::get('get-biller-payment-items', [QuickTellerController::class,'getBillerPaymentItems']);
                 Route::get('get-biller-payment-items-by-amount', [QuickTellerController::class,'getBillerPaymentItemByAmount']);
                 Route::get('get-customer-transaction', [QuickTellerController::class,'getTransaction']);
-                Route::post('submit-bill-payment', [QuickTellerController::class,'sendBillPayment']);
+                // Route::post('submit-bill-payment', [QuickTellerController::class,'sendBillPayment']);
                 Route::post('validate-customer', [QuickTellerController::class,'validateCustomer']);
 
             });
