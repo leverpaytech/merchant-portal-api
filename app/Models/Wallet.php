@@ -15,14 +15,14 @@ class Wallet extends Model
         'updated_at'
     ];
 
-    public function setWithdrawableAmountAttribute($value)
-    {
-        $this->attributes['withdrawable_amount'] = $value < 0 ? 0 : $value;
-    }
+    // public function setWithdrawableAmountAttribute($value)
+    // {
+    //     $this->attributes['withdrawable_amount'] = $value < 0 ? 0 : $value;
+    // }
 
-    public function setAmountAttribute($value)
-    {
-        $this->attributes['amount'] = $value < 0 ? 0 : $value;
-    }
+    // public function setAmountAttribute($value)
+    // {
+    //     $this->attributes['amount'] = $value < 0 ? 0 : $value;
+    // }
 
 }

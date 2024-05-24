@@ -130,13 +130,13 @@ class UserController extends BaseController
             'usdt'=>round($getV2/$rate,6)
         ];
         $user->wallet->amount=[
-            'ngn'=>($user->wallet->amount < 0)?0:$user->wallet->amount,
-            'usdt'=>($user->wallet->amount > 0)?round($user->wallet->amount/$rate,6):0
+            'ngn'=>$user->wallet->amount,
+            'usdt'=>$user->wallet->amount
         ];
 
         $user->wallet->withdrawable_amount=[
-            'ngn'=>($user->wallet->withdrawable_amount < 0)?0:$user->wallet->withdrawable_amount,
-            'usdt'=>($user->wallet->withdrawable_amount < 0)?0:round($user->wallet->withdrawable_amount/$rate,6)
+            'ngn'=>$user->wallet->withdrawable_amount,
+            'usdt'=>$user->wallet->withdrawable_amount
         ];
 
         $invoices = Invoice::where('user_id', $userId)
