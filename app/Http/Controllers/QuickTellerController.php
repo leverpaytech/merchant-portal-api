@@ -482,10 +482,10 @@ class QuickTellerController extends BaseController
         return response()->json('Duplicate Transactions', 422);
     }
     
-    // $checkBalance = $this->checkWalletBalance($userId, $amountDd);
-    // if (!$checkBalance) {
-    //   return response()->json('Insufficient wallet balance', 422);
-    // }
+    $checkBalance = $this->checkWalletBalance($userId, $amountDd);
+    if (!$checkBalance) {
+      return response()->json('Insufficient wallet balance', 422);
+    }
 
     $getLeverPayAccount = $this->getLeverPayAccount(); 
     if (!$getLeverPayAccount->balance) {
