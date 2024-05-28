@@ -2588,8 +2588,7 @@
                                     "last_name",
                                     "address",
                                     "business_name",
-                                    "phone",
-                                    "country_id"
+                                    "phone"
                                 ],
                                 "properties": {
                                     "first_name": {

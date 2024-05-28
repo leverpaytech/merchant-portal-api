@@ -83,7 +83,7 @@ class AuthController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"email","password", "first_name","last_name","address", "business_name", "phone", "country_id"},
+     *              required={"email","password", "first_name","last_name","address", "business_name", "phone"},
      *              @OA\Property( property="first_name", type="string"),
      *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="other_name", type="string"),
@@ -146,7 +146,7 @@ class AuthController extends BaseController
             'business_name'=>'required|string|unique:merchants,business_name',
             'state_id' => 'nullable|integer',
             'city_id' => 'nullable|integer',
-            'country_id' => 'required',
+            'country_id' => 'nullable',
             'role_id' => 'nullable',
             'referral_code'=> 'nullable',
             'gender'=>'nullable',
