@@ -179,7 +179,7 @@ class WalletController extends BaseController
         //SmsService::sendMail("", $html2, "user funding request notification", $to);
         ZeptomailService::sendMailZeptoMail("user funding request notification", $html2, $to);
 
-        return $this->successfulResponse([], 'Topup request submitted successfulss');
+        return $this->successfulResponse([], 'Topup request submitted successful');
     }
 
     /**
