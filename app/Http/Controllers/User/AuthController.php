@@ -144,7 +144,7 @@ class AuthController extends BaseController
             'phone' => 'required|unique:users',
             'state_id' => 'nullable|integer',
             'city_id' => 'nullable|integer',
-            'country_id' => 'required',
+            'country_id' => 'nullable',
             'referral_code'=> 'nullable',
             'password' => ['required', Password::min(8)->symbols()->uncompromised() ]
         ]);
