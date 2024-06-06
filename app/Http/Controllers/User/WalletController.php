@@ -134,7 +134,7 @@ class WalletController extends BaseController
         $this->validate($request, [
             'amount'=>'required|numeric|min:1',
             'reference'=>'nullable',
-            'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
+            // 'document' => 'required|mimes:jpeg,png,jpg,pdf|max:4048'
         ]);
 
         $topup = new TopupRequest;
@@ -150,6 +150,8 @@ class WalletController extends BaseController
             } catch (\Exception $ex) {
                 return $this->sendError($ex->getMessage());
             }
+        }else{
+            $topup->image_url = '';
         }
 
         $topup->user_id = Auth::id();
@@ -368,7 +370,7 @@ class WalletController extends BaseController
     *     tags={"User"},
     *     summary="Get user transactions",
     *     operationId="get user transactions details",
-    * 
+    *
     *     @OA\Response(
     *         response=200,
     *         description="Success"
