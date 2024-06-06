@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Webpatser\Uuid\Uuid;
 use App\Services\WalletService;
@@ -167,17 +168,16 @@ class WalletController extends BaseController
         $user=User::where('id',Auth::id())->get(['first_name','last_name','email'])->first();
         $details=$user->first_name." ".$user->last_name." ".$user->email;
         //sent user funding request notification
-        $html2 = "
-            <2 style='margin-bottom: 8px'>Details</h2>
+        $html2 = "<h2 style='margin-bottom: 8px'>Details</h2>
             <div style='margin-bottom: 8px'>User: {$details} </div>
             <div style='margin-bottom: 8px'>Amount: {$request['amount']} </div>
             <div style='margin-bottom: 8px'>Refrence ID: {$topup->reference} </div>
             <div style='margin-bottom: 8px'>Document: {$topup->image_url} </div>
         ";
-        $to="contact@leverpay.io";
+        $to="development@leverpay.io";
 
         //SmsService::sendMail("", $html2, "user funding request notification", $to);
-        ZeptomailService::sendMailZeptoMail("user funding request notification", $html2, $to);
+        ZeptomailService::sendMailZeptoMail("Testing User Topup Request Notification", $html2, $to);
 
         return $this->successfulResponse([], 'Topup request submitted successful');
     }
