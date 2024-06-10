@@ -171,6 +171,7 @@ Route::prefix('v1')->group( function(){
 
                 Route::get('get-referral-code', [UserController::class, 'getReferralCode']);
                 Route::get('get-referrals', [UserController::class, 'getReferrals']);
+                Route::post('claim-referral-bonus', [UserController::class, 'referralBonus']);
 
                 Route::get('/invoice-detatails/{uuid}', [InvoiceController::class, 'getUserInvoiceByUuid']);
 

@@ -9,7 +9,7 @@ use App\Http\Resources\CardResource;
 use App\Models\ActivityLog;
 use App\Models\Currency;
 use App\Models\{DocumentType, User,Transaction,ExchangeRate,UserBank,Kyc,UserReferral,Invoice,creptoFundingHistory};
-use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,LeverPayAccountNo,VfdDiscount};
+use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,LeverPayAccountNo,VfdDiscount,ClaimedBonus};
 use App\Services\{SmsService,WalletService};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1158,12 +1158,13 @@ class UserController extends BaseController
                 $totalBonus += 50;
             }
         }
-    
+        
+        $claimedBonus=ClaimedBonus::where('user_id', $userId)->sum('amount');
 
         $result=[
             'referral_code'=>$user->referral_code,
             'total_point'=>($countRef*5)+5,  //5point is added for newly signup user
-            'referral_bonus' => $totalBonus
+            'referral_bonus' => ($totalBonus-$claimedBonus)
         ];
 
         return response()->json($result, 200);
@@ -1948,7 +1949,7 @@ class UserController extends BaseController
         return $this->successfulResponse($response, 'New Pin successfully created');
     }
 
-        /**
+    /**
      * @OA\Post(
      ** path="/api/v1/user/vfd/reset-billpayment-pin",
      *   tags={"VFD Bill Payment"},
@@ -2088,4 +2089,100 @@ class UserController extends BaseController
         return $this->successfulResponse($discount, 'VFD cash back rate');
     }
 
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/claim-referral-bonus",
+     *   tags={"User"},
+     *   summary="Claim Referral Bonus",
+     *   operationId="Claim Referral Bonus",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"amunt"},
+     *              @OA\Property( property="amount", type="string", description="Referral bonus total amount")
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+    public function referralBonus(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'amount' => 'required|numeric'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->sendError('Error',$validator->errors(),422);
+        }
+
+        if(!Auth::user()->id)
+            return $this->sendError('Unauthorized Access',[],401);
+        $userId = Auth::user()->id;
+
+        $claimedBonus=ClaimedBonus::where('user_id', $userId)->sum('amount');
+
+        $referrals = UserReferral::where('referral_id', $userId)->get();
+        
+        $totalBonus = 0;
+        foreach ($referrals as $referral) 
+        {
+            $deposit = $referral->user->transactions()->where('type', 'credit')->sum('amount'); 
+            
+            if ($deposit >= 1000) {
+                $totalBonus += 100;
+            } elseif ($deposit >= 500) {
+                $totalBonus += 50;
+            }
+        }
+        $unClaim = $totalBonus - $claimedBonus; 
+        $amount = $data['amount'];
+
+        if($amount > $unClaim)
+        {
+            return $this->sendError('Error! transaction failed',[],422);
+            exit();
+        }
+
+        DB::transaction(function () use($userId, $amount){
+            ClaimedBonus::create([
+                'user_id' => $userId,
+                'amount' => $amount
+            ]);
+
+            WalletService::addToWallet($userId, $amount, 'naira');
+        });
+
+        return response()->json('Referral bonus successfully claimed', 200);
+    }
 }
