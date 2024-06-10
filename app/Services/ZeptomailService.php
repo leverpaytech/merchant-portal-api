@@ -25,7 +25,7 @@ class ZeptomailService
                 "from": { "address": "noreply@leverpay.io"},
                 "to": [{"email_address": {"address": '.$email.', "name": "LeverPay"}}],
                 "subject":'.$subject.',
-                "htmlbody":"'.$message.'",
+                "htmlbody":"'.preg_replace('/\n/', '', $message).'",
             }',
             CURLOPT_HTTPHEADER => array(
                 "accept: application/json",
