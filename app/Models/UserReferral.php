@@ -25,11 +25,12 @@ class UserReferral extends Model
     ];
 
     public function user(){
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function referer()
+    public function referral()
     {
         return $this->belongsTo(User::class, 'referral_id', 'id');
     }
+
 }

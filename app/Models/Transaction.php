@@ -27,4 +27,14 @@ class Transaction extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function scopeCredits($query)
+    {
+        return $query->where('type', 'credit');
+    }
+
+    public function scopeDebits($query)
+    {
+        return $query->where('type', 'debit');
+    }
 }

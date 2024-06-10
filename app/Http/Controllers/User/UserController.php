@@ -1145,9 +1145,25 @@ class UserController extends BaseController
         $user=User::where('id', $userId)->get(['referral_code'])->first();
         $countRef=UserReferral::where('referral_id', $userId)->count();
 
+        $referrals = UserReferral::where('referral_id', $userId)->get();
+        
+        $totalBonus = 0;
+        foreach ($referrals as $referral) 
+        {
+            $deposit = $referral->user->transactions()->where('type', 'credit')->sum('amount'); 
+            
+            if ($deposit >= 1000) {
+                $totalBonus += 100;
+            } elseif ($deposit >= 500) {
+                $totalBonus += 50;
+            }
+        }
+    
+
         $result=[
             'referral_code'=>$user->referral_code,
-            'total_point'=>($countRef*5)+5  //5point is added for newly signup user
+            'total_point'=>($countRef*5)+5,  //5point is added for newly signup user
+            'referral_bonus' => $totalBonus
         ];
 
         return response()->json($result, 200);
