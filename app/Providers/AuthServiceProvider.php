@@ -29,14 +29,14 @@ class AuthServiceProvider extends ServiceProvider
             'admin' => 'Admin permission',
         ]);
 
-        // Passport::tokensExpireIn(now()->addHour());
-        // Passport::refreshTokensExpireIn(now()->addDays(1));
-        // Passport::personalAccessTokensExpireIn(now()->addDays(1));
+        Passport::tokensExpireIn(now()->addDays(2));
+        Passport::refreshTokensExpireIn(now()->addDays(2));
+        Passport::personalAccessTokensExpireIn(now()->addDays(2));
 
         // Set token expiration times
-        Passport::tokensExpireIn(now()->addMinutes(5));
-        Passport::refreshTokensExpireIn(now()->addMinutes(5));
-        Passport::personalAccessTokensExpireIn(now()->addMinutes(5));
+        // Passport::tokensExpireIn(now()->addMinutes(5));
+        // Passport::refreshTokensExpireIn(now()->addMinutes(5));
+        // Passport::personalAccessTokensExpireIn(now()->addMinutes(5));
 
         $this->registerPolicies();
     }
