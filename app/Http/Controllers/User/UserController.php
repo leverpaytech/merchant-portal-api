@@ -2133,11 +2133,11 @@ class UserController extends BaseController
      *       {"bearer_token": {}}
      *   }
      *)
-     **/
+    **/
     public function referralBonus(Request $request)
     {
         $data = $request->all();
-
+        
         $validator = Validator::make($data, [
             'amount' => 'required|numeric'
         ]);
@@ -2171,7 +2171,7 @@ class UserController extends BaseController
 
         if($amount > $unClaim)
         {
-            return $this->sendError('Error! transaction failed',[],422);
+            return $this->sendError('Transaction failed, Try again letter',[], 422);
             exit();
         }
 
@@ -2184,6 +2184,11 @@ class UserController extends BaseController
             WalletService::addToWallet($userId, $amount, 'naira');
         });
 
-        return response()->json('Referral bonus successfully claimed', 200);
+        $response = [
+            'success' => true,
+            'message' => "Referral bonus successfully claimed"
+        ];
+
+        return response()->json($response, 200);
     }
 }
