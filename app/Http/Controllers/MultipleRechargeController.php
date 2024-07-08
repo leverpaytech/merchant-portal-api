@@ -26,9 +26,9 @@ class MultipleRechargeController extends Controller
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"phone_numbers"},
-     *              @OA\Property( property="phone_numbers", type="array"),
-     *              @OA\Property( property="total_amount", type="digits"),
-     *              @OA\Property( property="name", type="string"),
+     *              @OA\Property( property="phone_numbers", type="array", @OA\Items(type="string") ),
+     *              @OA\Property( property="total_amount", type="number", format="float", description="Total amount"),
+     *              @OA\Property( property="name", type="string", description="Name"),
      *          ),
      *      ),
      *   ),

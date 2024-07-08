@@ -2101,7 +2101,7 @@ class UserController extends BaseController
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
      *              required={"amount"},
-     *              @OA\Property( property="amount", type="string", description="Referral bonus total amount")
+     *              @OA\Property( property="amount", type="number", description="Referral bonus total amount")
      *          ),
      *      ),
      *   ),

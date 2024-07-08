@@ -5171,7 +5171,7 @@
                                 "properties": {
                                     "amount": {
                                         "description": "Referral bonus total amount",
-                                        "type": "string"
+                                        "type": "number"
                                     }
                                 },
                                 "type": "object"
