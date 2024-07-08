@@ -5166,7 +5166,7 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "amunt"
+                                    "amount"
                                 ],
                                 "properties": {
                                     "amount": {

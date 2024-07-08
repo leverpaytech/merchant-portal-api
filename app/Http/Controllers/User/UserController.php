@@ -1319,6 +1319,7 @@ class UserController extends BaseController
                     'transaction_hash'=>$transactionHash,
                     'amount'=>$amount
                 ]);
+                
                 TopupRequest::create([
                     'user_id'=>$userId,
                     'reference'=>$transactionHash,
@@ -2099,7 +2100,7 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
-     *              required={"amunt"},
+     *              required={"amount"},
      *              @OA\Property( property="amount", type="string", description="Referral bonus total amount")
      *          ),
      *      ),
