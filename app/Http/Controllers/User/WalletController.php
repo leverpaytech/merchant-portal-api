@@ -665,8 +665,8 @@ class WalletController extends BaseController
      * @OA\Post(
      ** path="/api/v1/user/generate-account",
      *   tags={"User"},
-     *   summary="Generate unique account no.",
-     *   operationId="Generate unique account no.",
+     *   summary="Generate unique account no",
+     *   operationId="Generate unique account no",
      *
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
@@ -706,7 +706,9 @@ class WalletController extends BaseController
      *   }
      *)
      **/
-    public function generateAccount(Request $request){
+
+    public function generateAccount(Request $request)
+    {
         $this->validate($request,[
             'type'=> 'required|string',
             'amount'=>'nullable|numeric|min:1'
