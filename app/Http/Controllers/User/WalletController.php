@@ -486,7 +486,7 @@ class WalletController extends BaseController
      *       {"bearer_token": {}}
      *   }
      *)
-     **/
+    **/
 
     public function transfer(Request $request)
     {
@@ -552,7 +552,53 @@ class WalletController extends BaseController
         return $this->successfulResponse($transfer, 'OTP sent');
     }
 
-    public function verifyTransfer(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/verify-transfer",
+     *   tags={"User"},
+     *   summary="Verify transfer",
+     *   operationId="Verify transfer",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid","otp"},
+     *              @OA\Property( property="otp", type="number"),
+     *              @OA\Property( property="uuid", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+    **/
+    public function verifyTransfer(Request $request)
+    {
         $this->validate($request, [
             'otp'=>'required|numeric',
             'uuid'=>'required|string'
