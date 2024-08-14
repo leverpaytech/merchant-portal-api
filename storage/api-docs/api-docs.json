@@ -5379,6 +5379,10 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
+                                "required": [
+                                    "email",
+                                    "amount"
+                                ],
                                 "properties": {
                                     "email": {
                                         "type": "string"

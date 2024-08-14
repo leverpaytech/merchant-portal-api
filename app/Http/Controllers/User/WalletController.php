@@ -453,6 +453,7 @@ class WalletController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
+     *              required={"email","amount"},
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="amount", type="number"),
      *          ),
