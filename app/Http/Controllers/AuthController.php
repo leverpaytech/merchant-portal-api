@@ -60,9 +60,8 @@ class AuthController extends BaseController
         return $sms;
     }
 
-
-
-    public function verifyTransferTransaction(Request $request){
+    public function verifyTransferTransaction(Request $request)
+    {
         $this->validate($request, [
             'uuid'=>'required',
             'amount'=>'required',

@@ -453,6 +453,7 @@ class WalletController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
+     *              required={"email","amount"},
      *              @OA\Property( property="email", type="string"),
      *              @OA\Property( property="amount", type="number"),
      *          ),
@@ -486,7 +487,7 @@ class WalletController extends BaseController
      *       {"bearer_token": {}}
      *   }
      *)
-     **/
+    **/
 
     public function transfer(Request $request)
     {
@@ -552,7 +553,53 @@ class WalletController extends BaseController
         return $this->successfulResponse($transfer, 'OTP sent');
     }
 
-    public function verifyTransfer(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/verify-transfer",
+     *   tags={"User"},
+     *   summary="Verify transfer",
+     *   operationId="Verify transfer",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"uuid","otp"},
+     *              @OA\Property( property="otp", type="number"),
+     *              @OA\Property( property="uuid", type="string"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+    **/
+    public function verifyTransfer(Request $request)
+    {
         $this->validate($request, [
             'otp'=>'required|numeric',
             'uuid'=>'required|string'
@@ -661,7 +708,54 @@ class WalletController extends BaseController
         return $this->successfulResponse($acc, '');
     }
 
-    public function generateAccount(Request $request){
+    /**
+     * @OA\Post(
+     ** path="/api/v1/user/generate-account",
+     *   tags={"User"},
+     *   summary="Generate unique account no",
+     *   operationId="Generate unique account no",
+     *
+     *    @OA\RequestBody(
+     *      @OA\MediaType( mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"type"},
+     *              @OA\Property( property="type", type="string"),
+     *              @OA\Property( property="amount", type="number"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *       description="Success",
+     *      @OA\MediaType(
+     *           mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *       description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="not found"
+     *   ),
+     *   @OA\Response(
+     *      response=403,
+     *      description="Forbidden"
+     *   ),
+     *   security={
+     *       {"bearer_token": {}}
+     *   }
+     *)
+     **/
+
+    public function generateAccount(Request $request)
+    {
         $this->validate($request,[
             'type'=> 'required|string',
             'amount'=>'nullable|numeric|min:1'

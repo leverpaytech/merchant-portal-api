@@ -228,6 +228,13 @@ Route::prefix('v1')->group( function(){
 
             });
 
+            //multiple recharge
+            // Route::prefix('multiple')->group(function () {
+            //     Route::post('/recharge/save-template', [RechargeController::class, 'saveTemplate']);
+            //     Route::get('/recharge/templates', [RechargeController::class, 'listTemplates']);
+            //     Route::post('/recharge', [RechargeController::class, 'rechargeMultipleNumbers']);
+            // });
+
 
         });
     });

@@ -5166,12 +5166,12 @@
                         "multipart/form-data": {
                             "schema": {
                                 "required": [
-                                    "amunt"
+                                    "amount"
                                 ],
                                 "properties": {
                                     "amount": {
                                         "description": "Referral bonus total amount",
-                                        "type": "string"
+                                        "type": "number"
                                     }
                                 },
                                 "type": "object"
@@ -5379,8 +5379,121 @@
                     "content": {
                         "multipart/form-data": {
                             "schema": {
+                                "required": [
+                                    "email",
+                                    "amount"
+                                ],
                                 "properties": {
                                     "email": {
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "type": "number"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/verify-transfer": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Verify transfer",
+                "operationId": "Verify transfer",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "uuid",
+                                    "otp"
+                                ],
+                                "properties": {
+                                    "otp": {
+                                        "type": "number"
+                                    },
+                                    "uuid": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/generate-account": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Generate unique account no",
+                "operationId": "Generate unique account no",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "type"
+                                ],
+                                "properties": {
+                                    "type": {
                                         "type": "string"
                                     },
                                     "amount": {
