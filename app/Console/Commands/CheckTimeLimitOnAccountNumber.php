@@ -31,11 +31,11 @@ class CheckTimeLimitOnAccountNumber extends Command
      */
     public function handle()
     {
-        $account = Account::where('created_at', '<', Carbon::now()->subMinutes(60))->where('bank', 'providus')->where('type','!=', 'reserved')->update(['accountNumber' => DB::raw('CONCAT(id, "_",accountNumber)')]);
-        $a = Carbon::now();
-        $message ="<p>Hello Lekan,</p><p style='margin-bottom: 8px'>Testing CronJob</p><h4 style='margin-bottom: 8px'>{$a}</h4>";
-        $ubject="LeverPay CronJob Test";
-        $response=ZeptomailService::sendMailZeptoMail($ubject ,$message, "ilelaboyealekan@gmail.com");
+        Account::where('created_at', '<', Carbon::now()->subMinutes(60))->where('bank', 'providus')->where('type', '!=', 'reserved')->update(['accountNumber' => DB::raw('CONCAT(id, "_",accountNumber)')]);
+        // $a = Carbon::now();
+        // $message ="<p>Hello Lekan,</p><p style='margin-bottom: 8px'>Testing CronJob</p><h4 style='margin-bottom: 8px'>{$a}</h4>";
+        // $ubject="LeverPay CronJob Test";
+        // $response=ZeptomailService::sendMailZeptoMail($ubject ,$message, "ilelaboyealekan@gmail.com");
 
         return Command::SUCCESS;
     }
