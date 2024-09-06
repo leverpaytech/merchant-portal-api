@@ -330,4 +330,13 @@ Route::prefix('v1/leverchain')->group(function() {
     Route::post('transaction/verify-card-otp', [ExternalCheckout::class, 'verifyCardOTP']);
 });
 
+//brails-kyc
+Route::prefix('v1/brails-kyc')->group( function(){
+    Route::middleware('auth:api')->group(function () {
+        Route::post('send-phone-verification-otp', [KycController::class, 'phoneNumberVerification']);
+        Route::post('send-email-verification-otp', [KycController::class, 'emailNumberVerification']);
+        Route::post('verify-otp', [KycController::class, 'verifyOTP']);
+    });
+});
+
 Route::get('/levey/docs/{token}', [SwaggerUiController::class, 'index'])->where('token', '762815492636284');
