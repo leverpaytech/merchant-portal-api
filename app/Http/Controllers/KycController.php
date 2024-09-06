@@ -201,7 +201,6 @@ class KycController extends BaseController
         return $this->sendError('Error', 'Failed to send Verification OTP', 422);
     }
     
-    
     /**
     * @OA\Post(
     ** path="/api/v1/brails-kyc/verify-otp",
