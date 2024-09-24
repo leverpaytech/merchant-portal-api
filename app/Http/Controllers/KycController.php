@@ -258,48 +258,33 @@ class KycController extends BaseController
 
         // Handle validation errors
         if ($validator->fails()) {
-            return $this->sendError('Error', $validator->errors(), 422);
+            return $this->sendError('Validation Error', $validator->errors(), 422);
         }
 
         $user_id = Auth::user()->id;
-
-        // Determine the verification type and set variables accordingly
-        if (strtolower($data['type']) == "phone") {
-            $kyc = KycVerification::where('id', $user_id)
-                ->where('phone_verification_code', $data['otp'])
-                ->first();
-            $column = "phone_verified_at";
-            $typeCode = "phone_verification_code";
-            $verificationType = "Phone";
-            return $this->successfulResponse([], $kyc, 200);
-        } elseif (strtolower($data['type']) == "email") {
-            $kyc = KycVerification::where('id', $user_id)
-                ->where('email_verification_code', $data['otp'])
-                ->first();
-            $column = "email_verified_at";
-            $typeCode = "email_verification_code";
-            $verificationType = "Email";
-            return $this->successfulResponse([], $kyc, 200);
-        } else {
-            return $this->sendError('Error', 'Invalid verification type', 422);
-        }
+        $verificationType = strtolower($data['type']);
+        $column = $verificationType === 'phone' ? 'phone_verified_at' : 'email_verified_at';
+        $typeCode = $verificationType === 'phone' ? 'phone_verification_code' : 'email_verification_code';
         
+        $kyc = KycVerification::where('id', $user_id)
+            ->where($typeCode, $data['otp'])
+            ->first();
+
         if ($kyc) {
             $kyc->$column = now();
-            $kyc->$typeCode=1;
+            $kyc->$typeCode = 1; // Assuming 1 means verified
             $kyc->save();
 
-            $data['activity']="Vrifying ".$verificationType." using OTP sent";
-            $data['user_id']=$user_id;
+            // Log the activity
+            $data['activity'] = "Verifying " . ucfirst($verificationType) . " using OTP sent";
+            $data['user_id'] = $user_id;
             ActivityLog::createActivity($data);
 
-            return $this->successfulResponse([], $verificationType . ' successfully verified', 200);
-            
+            return $this->successfulResponse([], ucfirst($verificationType) . ' successfully verified', 200);
         } else {
-            return $this->sendError('Error', 'OTP Verification Failed'.$kyc, 422);
+            return $this->sendError('Verification Error', 'OTP verification failed. Please check the OTP or the verification method.', 422);
         }
     }
-
 
     // public function addKyc(Request $request)
     // {
