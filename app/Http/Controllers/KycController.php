@@ -24,7 +24,7 @@ class KycController extends BaseController
     *      @OA\MediaType( mediaType="multipart/form-data",
     *          @OA\Schema(
     *              required={"phone"},
-    *              @OA\Property( property="phone", type="string", description="Valid phone number with country code. (e.g 2348136908764) "),
+    *              @OA\Property( property="phone", type="string", description="Valid phone number (e.g 08136908764) "),
     *          ),
     *      ),
     *   ),
@@ -64,26 +64,27 @@ class KycController extends BaseController
         $validator = Validator::make($request->all(), [
             'phone' => [
                 'required',
-                'regex:/^\d{3}\d{10}$/', // Ensure the phone number (country code + phone) is exactly 11 digits
+                'regex:/^\d{11}$/', // Ensure the phone number  is exactly 11 digits
+                // 'regex:/^\d{3}\d{10}$/', // Ensure the phone number (country code + phone) is exactly 11 digits
                 Rule::unique('users', 'phone')->ignore($user_id), // Unique check in 'users' table, ignoring the current user
             ],
         ], [
-            'phone.regex' => 'The phone number must include a valid country code and must be 11 digits. (eg. 2349033262626)',
+            'phone.regex' => 'The phone number must include a valid country code and must be 11 digits. (eg. 09033262626)',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Error', $validator->errors(), 422);
         }
 
-        $actPhn="0".substr($request->phone,3,strlen($request->phone));
+        $actPhn="234".substr($request->phone,1,strlen($request->phone));
 
-        $user=User::where('id',$user_id)->where('phone', $actPhn)->first();
+        $user=User::where('id',$user_id)->where('phone', $request->phone)->first();
         if(!$user)
         {
             return $this->sendError('Error', 'The phone number provided does not exist', 422);
         }
 
-        $phoneNumber = $request->phone;
+        $phoneNumber = $actPhn;
         $code=rand(100000,999999);
 
         $message="{$code} is your OTP. For enquiry: visit www.leverpay.io";

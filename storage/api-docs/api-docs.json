@@ -2552,7 +2552,7 @@
                                 ],
                                 "properties": {
                                     "phone": {
-                                        "description": "Valid phone number with country code. (e.g 2348136908764) ",
+                                        "description": "Valid phone number (e.g 08136908764) ",
                                         "type": "string"
                                     }
                                 },
