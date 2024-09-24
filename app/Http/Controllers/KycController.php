@@ -266,7 +266,7 @@ class KycController extends BaseController
         $column = $verificationType === 'phone' ? 'phone_verified_at' : 'email_verified_at';
         $typeCode = $verificationType === 'phone' ? 'phone_verification_code' : 'email_verification_code';
         
-        $kyc = KycVerification::where('id', $user_id)->first();
+        $kyc = KycVerification::where('user_id', $user_id)->first();
         
         if($kyc->$typeCode==$data['otp'])
         {
@@ -310,7 +310,7 @@ class KycController extends BaseController
     {
         $user_id = Auth::user()->id;
 
-        $kyc = KycVerification::where('id', $user_id)->first();
+        $kyc = KycVerification::where('user_id', $user_id)->first();
 
         if (!$kyc) {
             return $this->sendError('Error', 'KYC record not found for this user', 422);
