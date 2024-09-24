@@ -271,6 +271,7 @@ class KycController extends BaseController
             $column = "phone_verified_at";
             $typeCode = "phone_verification_code";
             $verificationType = "Phone";
+            return $this->successfulResponse([], $kyc . ' successfully verified', 200);
         } elseif (strtolower($data['type']) == "email") {
             $kyc = KycVerification::where('id', $user_id)
                 ->where('email_verification_code', $data['otp'])
@@ -278,6 +279,7 @@ class KycController extends BaseController
             $column = "email_verified_at";
             $typeCode = "email_verification_code";
             $verificationType = "Email";
+            return $this->successfulResponse([], $kyc . ' successfully verified', 200);
         } else {
             return $this->sendError('Error', 'Invalid verification type', 422);
         }
@@ -294,7 +296,7 @@ class KycController extends BaseController
             return $this->successfulResponse([], $verificationType . ' successfully verified', 200);
             
         } else {
-            return $this->sendError('Error', 'OTP Verification Failed', 422);
+            return $this->sendError('Error', 'OTP Verification Failed'.$kyc, 422);
         }
     }
 
