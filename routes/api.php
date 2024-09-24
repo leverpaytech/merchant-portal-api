@@ -336,6 +336,8 @@ Route::prefix('v1/brails-kyc')->group( function(){
         Route::post('send-phone-verification-otp', [KycController::class, 'phoneNumberVerification']);
         Route::post('send-email-verification-otp', [KycController::class, 'emailNumberVerification']);
         Route::post('verify-otp', [KycController::class, 'verifyOTP']);
+        Route::get('check-kyc-status', [KycController::class, 'getKYCStatus']);
+        
     });
 });
 

@@ -289,6 +289,45 @@ class KycController extends BaseController
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/brails-kyc/check-kyc-status",
+     *     tags={"Brails KYC"},
+     *     summary="Check KYC Status",
+     *     operationId="Check KYC Status",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success"
+     *     ),
+     *
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
+    **/
+    public function getKYCStatus()
+    {
+        $user_id = Auth::user()->id;
+
+        $kyc = KycVerification::where('id', $user_id)->first();
+
+        if (!$kyc) {
+            return $this->sendError('Error', 'KYC record not found for this user', 422);
+        }
+
+        $kyc_status = [
+            'phone' => $kyc->phone_verification_code == 1 ? 'verified' : 'not verified',
+            'email' => $kyc->email_verification_code == 1 ? 'verified' : 'not verified',
+            'nin' => $kyc->nin_details ? 'verified' : 'not verified',
+            'bvn' => $kyc->bvn_details ? 'verified' : 'not verified',
+            'proof_of_address' => $kyc->proof_of_address ? 'verified' : 'not verified',
+            'live_face_verification' => $kyc->live_face_verification ? 'verified' : 'not verified',
+        ];
+
+        return $this->successfulResponse($kyc_status, 'KYC status retrieved successfully', 200);
+    }
+
     // public function addKyc(Request $request)
     // {
     //     $data = $request->all();
