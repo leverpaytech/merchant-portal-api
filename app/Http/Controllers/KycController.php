@@ -269,7 +269,7 @@ class KycController extends BaseController
         $kyc = KycVerification::where('id', $user_id)
             ->where($typeCode, $data['otp'])
             ->first();
-
+        return $this->successfulResponse([], $kyc, 200);
         if ($kyc) {
             $kyc->$column = now();
             $kyc->$typeCode = 1; // Assuming 1 means verified
