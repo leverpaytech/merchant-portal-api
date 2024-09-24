@@ -266,11 +266,10 @@ class KycController extends BaseController
         $column = $verificationType === 'phone' ? 'phone_verified_at' : 'email_verified_at';
         $typeCode = $verificationType === 'phone' ? 'phone_verification_code' : 'email_verification_code';
         
-        $kyc = KycVerification::where('id', $user_id)
-            ->where($typeCode, $data['otp'])
-            ->first();
-        return $this->successfulResponse([], $kyc, 200);
-        if ($kyc) {
+        $kyc = KycVerification::where('id', $user_id)->first();
+        
+        if($kyc->$typeCode==$data['otp'])
+        {
             $kyc->$column = now();
             $kyc->$typeCode = 1; // Assuming 1 means verified
             $kyc->save();
@@ -281,6 +280,10 @@ class KycController extends BaseController
             ActivityLog::createActivity($data);
 
             return $this->successfulResponse([], ucfirst($verificationType) . ' successfully verified', 200);
+        }
+        elseif($kyc->$typeCode==1)
+        {
+            return $this->successfulResponse([], ucfirst($verificationType) . ' already verified', 200);
         } else {
             return $this->sendError('Verification Error', 'OTP verification failed. Please check the OTP or the verification method.', 422);
         }
