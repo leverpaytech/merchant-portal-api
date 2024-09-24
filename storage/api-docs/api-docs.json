@@ -2697,6 +2697,25 @@
                 ]
             }
         },
+        "/api/v1/brails-kyc/check-kyc-status": {
+            "get": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Check KYC Status",
+                "operationId": "Check KYC Status",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/logout": {
             "get": {
                 "tags": [
