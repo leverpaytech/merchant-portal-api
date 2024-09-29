@@ -178,15 +178,12 @@ class KycController extends BaseController
         }
 
         $code=rand(100000,999999);
-        //$message="<h3>Hi ".$user->first_name."!</h3><p>{$code} is your OTP. <br/>For enquiry: contact@leverpay.io or visit www.leverpay.io</p>";
-        //$subject="Email Verification";
-        //$response=ZeptomailService::sendMailZeptoMail($subject ,$message, $request->email);
         $message=[
             'name'=>$user->first_name,
             'otp'=>$code
         ];
         //send mail
-        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.a105eb80-7b4e-11ef-ba81-5254000b1a0e.19229b0e238" ,$message, $request->email);
+        $response=ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.a105eb80-7b4e-11ef-ba81-5254000b1a0e.19229b0e238" ,$message, $request->email);
 
         if($response)
         {
@@ -288,7 +285,7 @@ class KycController extends BaseController
             ActivityLog::createActivity($data);
             $getUser=User::where('id', $user_id)->first();
             $message=[
-                'name'=>getUser->first_name
+                'name'=>$getUser->first_name
             ];
             if($verificationType=='phone')
             {
