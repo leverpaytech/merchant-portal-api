@@ -90,6 +90,7 @@ class KycController extends BaseController
         $message="{$code} is your OTP. For enquiry: visit www.leverpay.io";
         
         $response=SmsService::sendSms($message,$phoneNumber);
+        
 
         if($response)
         {
@@ -177,9 +178,15 @@ class KycController extends BaseController
         }
 
         $code=rand(100000,999999);
-        $message="<h3>Hi ".$user->first_name."!</h3><p>{$code} is your OTP. <br/>For enquiry: contact@leverpay.io or visit www.leverpay.io</p>";
-        $subject="Email Verification";
-        $response=ZeptomailService::sendMailZeptoMail($subject ,$message, $request->email);
+        //$message="<h3>Hi ".$user->first_name."!</h3><p>{$code} is your OTP. <br/>For enquiry: contact@leverpay.io or visit www.leverpay.io</p>";
+        //$subject="Email Verification";
+        //$response=ZeptomailService::sendMailZeptoMail($subject ,$message, $request->email);
+        $message=[
+            'name'=>$user->first_name,
+            'otp'=>$code
+        ];
+        //send mail
+        ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.a105eb80-7b4e-11ef-ba81-5254000b1a0e.19229b0e238" ,$message, $request->email);
 
         if($response)
         {
@@ -279,6 +286,20 @@ class KycController extends BaseController
             $data['activity'] = "Verifying " . ucfirst($verificationType) . " using OTP sent";
             $data['user_id'] = $user_id;
             ActivityLog::createActivity($data);
+            $getUser=User::where('id', $user_id)->first();
+            $message=[
+                'name'=>getUser->first_name
+            ];
+            if($verificationType=='phone')
+            {
+                //send mail
+                ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.5a0f2920-7b5e-11ef-ba81-5254000b1a0e.1922a17ecb2" ,$message, $getUser->email);
+            }
+            else{
+                //send mail
+                ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.80540ec1-7b4f-11ef-ba81-5254000b1a0e.19229b699aa" ,$message, $getUser->email);
+            }
+            
 
             return $this->successfulResponse([], ucfirst($verificationType) . ' successfully verified', 200);
         }
