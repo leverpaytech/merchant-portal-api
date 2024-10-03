@@ -16,6 +16,29 @@ class QuickTellerController extends BaseController
 {
   /**
    * @OA\Get(
+   *     path="/api/v1/user/quickteller/generate-acess-token",
+   *     tags={"Quick Teller"},
+   *     summary="Generate Access token",
+   *     operationId="Generate Access token",
+   *
+   *     @OA\Response(
+   *         response=200,
+   *         description="Success"
+   *     ),
+   *
+   *     security={
+   *         {"bearer_token": {}}
+   *     }
+   * )
+  **/
+  public function generateToken()
+  {
+    return QuickTellerService::generateAccessToken();
+    
+  }
+
+  /**
+   * @OA\Get(
    *     path="/api/v1/user/quickteller/get-billers",
    *     tags={"Quick Teller"},
    *     summary="Get billers",

@@ -3595,6 +3595,25 @@
                 ]
             }
         },
+        "/api/v1/user/quickteller/generate-acess-token": {
+            "get": {
+                "tags": [
+                    "Quick Teller"
+                ],
+                "summary": "Generate Access token",
+                "operationId": "Generate Access token",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/user/quickteller/get-billers": {
             "get": {
                 "tags": [

@@ -216,7 +216,8 @@ Route::prefix('v1')->group( function(){
 
 
 
-            Route::prefix('quickteller')->group(function () {
+            Route::prefix('quickteller')->group(function () { 
+                Route::get('generate-acess-token', [QuickTellerController::class,'generateToken']);
                 Route::get('get-billers', [QuickTellerController::class,'getBillers']);
                 Route::get('get-billers-categories', [QuickTellerController::class,'getBillersCategories']);
                 Route::get('get-billers-by-category-id', [QuickTellerController::class,'getBillersCategoryId']);
