@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "beyondcode/laravel-websockets": "^1.14",
         "cloudinary-labs/cloudinary-laravel": "^2.0",
         "darkaonline/l5-swagger": "^8.5",
         "doctrine/dbal": "^3.6",
@@ -18,6 +19,7 @@
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
         "phpseclib/phpseclib": "^3.0",
+        "pusher/pusher-php-server": "^7.2",
         "webpatser/laravel-uuid": "^4.0"
     },
     "require-dev": {

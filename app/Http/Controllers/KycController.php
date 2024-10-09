@@ -424,9 +424,27 @@ class KycController extends BaseController
             $user->last_name,
             $accessToken
         );
+        //return response()->json($ninVerificationResult['nin']);
 
+        if(isset($ninVerificationResult['error']))
+        {
+            return $this->sendError('Error', $ninVerificationResult['error'], 422); 
+        }
+        
+        $kyc = KycVerification::updateOrCreate(
+            ['user_id' => $user->id ],
+            [
+                'nin' => $request->nin,
+                'nin_details' => $ninVerificationResult['nin']
+            ]
+        );
+
+        $data['activity']="NIN  Verification (".$request->nin.") for brails KYC verification";
+        $data['user_id']=$user->id;
+        ActivityLog::createActivity($data);
         // Return the result from the API call
-        return response()->json($ninVerificationResult);
+        //return response()->json($ninVerificationResult['nin']);
+        return $this->successfulResponse([], 'NIN successfully submitted', 200);
     }
 
     /**
@@ -500,20 +518,113 @@ class KycController extends BaseController
         $accessToken = QoreIdService::generateAccessToken();
 
         // Call the verifyBVN method with the required parameters
-        $ninVerificationResult = QoreIdService::verifyBVN(
+        $bvnVerificationResult = QoreIdService::verifyBVN(
             $request->bvn,
             $user->first_name,
             $user->last_name,
             $accessToken
         );
+        //return response()->json($bvnVerificationResult['error']);
+        if(isset($bvnVerificationResult['error']))
+        {
+            return $this->sendError('Error', $bvnVerificationResult['error'], 422); 
+        }
+        
+        $kyc = KycVerification::updateOrCreate(
+            ['user_id' => $user->id ],
+            [
+                'bvn' => $request->bvn,
+                'bvn_details' => $bvnVerificationResult['bvn_match']['fieldMatches']
+            ]
+        );
 
-        // Return the result from the API call
-        return response()->json($ninVerificationResult);
+        $data['activity']="BVN  Verification (".$request->bvn.") for brails KYC verification";
+        $data['user_id']=$user->id;
+        ActivityLog::createActivity($data);
+        return $this->successfulResponse([], 'BVN successfully submitted', 200);
+
+        
     }
     
+    /**
+    * @OA\Post(
+    ** path="/api/v1/brails-kyc/verify-address",
+    *   tags={"Brails KYC"},
+    *   summary="Contact Address Verification",
+    *   operationId="Contact Address Verification",
+    *
+    *   @OA\RequestBody(
+    *      @OA\MediaType(mediaType="multipart/form-data",
+    *          @OA\Schema(
+    *              required={"address","proof_of_address"},
+    *              @OA\Property(property="address", type="string", description="Contact Address"),
+    *              @OA\Property(property="proof_of_address", type="file", description="Upload proof of address (format jpg, png, or pdf)"),
+    *          ),
+    *      ),
+    *   ),
+    *
+    *   @OA\Response(
+    *      response=200,
+    *       description="Success",
+    *      @OA\MediaType(
+    *           mediaType="application/json",
+    *      )
+    *   ),
+    *   @OA\Response(
+    *      response=401,
+    *       description="Unauthenticated"
+    *   ),
+    *   @OA\Response(
+    *      response=400,
+    *      description="Bad Request"
+    *   ),
+    *   @OA\Response(
+    *      response=404,
+    *      description="Not found"
+    *   ),
+    *   @OA\Response(
+    *      response=403,
+    *      description="Forbidden"
+    *   ),
+    *   security={
+    *       {"bearer_token": {}}
+    *   }
+    *)
+    **/
     public function verifyAddress(Request $request)
     {
+        // Get all input data
+        $data = $request->all();
 
+        // Validation rules
+        $validator = Validator::make($data, [
+            'proof_of_address' => 'required|mimes:jpeg,png,jpg,pdf|max:4096', // Restrict file type and size
+            'address' => 'required|string', // Address must be provided
+        ]);
+
+        // If validation fails, return a 422 error with validation messages
+        if ($validator->fails()) {
+            return $this->sendError('Error', $validator->errors(), 422);
+        }
+
+        // Retrieve the authenticated user's ID
+        $user_id = Auth::user()->id;
+
+        // Find the user's KYC record
+        $kyc = KycVerification::where('user_id', $user_id)->first();
+
+        // Upload the proof of address to Cloudinary
+        $pAddressUrl = Cloudinary::upload($request->file('proof_of_address')->getRealPath(), [
+            'folder' => 'leverpay/kyc'
+        ])->getSecurePath();
+
+        // Update the KYC record with the new address and proof of address URL
+        $kyc->contact_address = $data['address'];
+        $kyc->proof_of_address = $pAddressUrl;
+        $kyc->save();
+
+        // Return a success response
+        return $this->successfulResponse([], 'Address successfully submitted', 200);
     }
 
     // public function addKyc(Request $request)

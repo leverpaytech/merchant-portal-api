@@ -46,12 +46,18 @@ class QoreIdService
             'lastname' => $lastname
         ];
 
-        // Make the API request
+        // Make the API request with first_name and Last_name
+        // $response = Http::withHeaders([
+        //     'Accept' => 'application/json',
+        //     'Authorization' => 'Bearer ' . $accessToken,
+        //     'Content-Type' => 'application/json',
+        // ])->post($url, $fields);
+        
         $response = Http::withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $accessToken,
             'Content-Type' => 'application/json',
-        ])->post($url, $fields); 
+        ])->post($url);
 
         // Handle error if response is not successful
         if ($response->failed()) {
@@ -64,7 +70,7 @@ class QoreIdService
 
     public static function verifyBVN($bvn, $firstname, $lastname, $accessToken)
     {
-        $url = env('QOREID_BASE_URL')."/v1/ng/identities/bvn-basic/{$bvn}";
+        $url = env('QOREID_BASE_URL')."/v1/ng/identities/bvn-match/{$bvn}";
         
         $fields = [
             'firstname' => $firstname,

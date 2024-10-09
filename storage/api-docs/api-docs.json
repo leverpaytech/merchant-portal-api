@@ -2716,6 +2716,167 @@
                 ]
             }
         },
+        "/api/v1/brails-kyc/verify-nin": {
+            "post": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "NIN Verification",
+                "operationId": "NIN Verification",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nin"
+                                ],
+                                "properties": {
+                                    "nin": {
+                                        "description": "Enter 11 digits valid NIN Number",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/brails-kyc/verify-bvn": {
+            "post": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "BVN Verification",
+                "operationId": "BVN Verification",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "bvn"
+                                ],
+                                "properties": {
+                                    "bvn": {
+                                        "description": "Enter 11 digits valid BVN Number",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/brails-kyc/verify-address": {
+            "post": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Contact Address Verification",
+                "operationId": "Contact Address Verification",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "address",
+                                    "proof_of_address"
+                                ],
+                                "properties": {
+                                    "address": {
+                                        "description": "Contact Address",
+                                        "type": "string"
+                                    },
+                                    "proof_of_address": {
+                                        "description": "Upload proof of address (format jpg, png, or pdf)",
+                                        "type": "file"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/logout": {
             "get": {
                 "tags": [
@@ -3924,6 +4085,92 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/brails-kyc/selfie/start": {
+            "post": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Start Selfie",
+                "operationId": "Start Selfie",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/brails-kyc/selfie/send": {
+            "post": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Send Selfie Image",
+                "operationId": "Send Selfie Image",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "image_data"
+                                ],
+                                "properties": {
+                                    "image_data": {
+                                        "description": "Selfie Image Data",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
                     }
                 },
                 "security": [

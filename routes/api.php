@@ -31,6 +31,7 @@ use App\Http\Controllers\External\CheckoutController as ExternalCheckout;
 use App\Http\Controllers\External\MerchantController as ExternalMerchant;
 use App\Http\Controllers\SwaggerUiController;
 use App\Http\Controllers\QuickTellerController;
+use App\Http\Controllers\SelfieController;
 
 /*
 |--------------------------------------------------------------------------
@@ -341,7 +342,10 @@ Route::prefix('v1/brails-kyc')->group( function(){
 
         Route::post('verify-nin', [KycController::class, 'ninVerification']);
         Route::post('verify-bvn', [KycController::class, 'bvnVerification']);
-        
+        Route::post('verify-address', [KycController::class, 'verifyAddress']);
+
+        Route::post('selfie/start', [SelfieController::class, 'start']);
+        Route::post('selfie/send', [SelfieController::class, 'stop']);
     });
 });
 
