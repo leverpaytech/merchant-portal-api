@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Models\{Kyc,ActivityLog,User,KycVerification};
-use App\Services\{SmsService,ZeptomailService};
+use App\Services\{SmsService,ZeptomailService,QoreIdService};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -342,9 +342,178 @@ class KycController extends BaseController
             'bvn' => $kyc->bvn_details ? 'verified' : 'not verified',
             'proof_of_address' => $kyc->proof_of_address ? 'verified' : 'not verified',
             'live_face_verification' => $kyc->live_face_verification ? 'verified' : 'not verified',
+            'admin_approval_status' => $kyc->status,
         ];
 
         return $this->successfulResponse($kyc_status, 'KYC status retrieved successfully', 200);
+    }
+
+    /**
+    * @OA\Post(
+    ** path="/api/v1/brails-kyc/verify-nin",
+    *   tags={"Brails KYC"},
+    *   summary="NIN Verification",
+    *   operationId="NIN Verification",
+    *
+    *    @OA\RequestBody(
+    *      @OA\MediaType( mediaType="multipart/form-data",
+    *          @OA\Schema(
+    *              required={"nin"},
+    *              @OA\Property( property="nin", type="string", description="Enter 11 digits valid NIN Number"),
+    *          ),
+    *      ),
+    *   ),
+    *
+    *   @OA\Response(
+    *      response=200,
+    *       description="Success",
+    *      @OA\MediaType(
+    *           mediaType="application/json",
+    *      )
+    *   ),
+    *   @OA\Response(
+    *      response=401,
+    *       description="Unauthenticated"
+    *   ),
+    *   @OA\Response(
+    *      response=400,
+    *      description="Bad Request"
+    *   ),
+    *   @OA\Response(
+    *      response=404,
+    *      description="Not found"
+    *   ),
+    *   @OA\Response(
+    *      response=403,
+    *      description="Forbidden"
+    *   ),
+    *   security={
+    *       {"bearer_token": {}}
+    *   }
+    *)
+    **/
+    public function ninVerification(Request $request)
+    {
+        // Ensure the user is authenticated
+        if (!Auth::check()) {
+            return $this->sendError('Unauthorized Access', [], 401);
+        }
+
+        $user = Auth::user();
+
+        // Validate the NIN input
+        $validator = Validator::make($request->all(), [
+            'nin' => [
+                'required',
+                'numeric',
+                'regex:/^\d{11}$/', // Ensure NIN is exactly 11 digits
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors(), 422);
+        }
+
+        // Generate access token using QoreIdService
+        $accessToken = QoreIdService::generateAccessToken();
+
+        // Call the verifyNIN method with the required parameters
+        $ninVerificationResult = QoreIdService::verifyNIN(
+            $request->nin,
+            $user->first_name,
+            $user->last_name,
+            $accessToken
+        );
+
+        // Return the result from the API call
+        return response()->json($ninVerificationResult);
+    }
+
+    /**
+    * @OA\Post(
+    ** path="/api/v1/brails-kyc/verify-bvn",
+    *   tags={"Brails KYC"},
+    *   summary="BVN Verification",
+    *   operationId="BVN Verification",
+    *
+    *    @OA\RequestBody(
+    *      @OA\MediaType( mediaType="multipart/form-data",
+    *          @OA\Schema(
+    *              required={"bvn"},
+    *              @OA\Property( property="bvn", type="string", description="Enter 11 digits valid BVN Number"),
+    *          ),
+    *      ),
+    *   ),
+    *
+    *   @OA\Response(
+    *      response=200,
+    *       description="Success",
+    *      @OA\MediaType(
+    *           mediaType="application/json",
+    *      )
+    *   ),
+    *   @OA\Response(
+    *      response=401,
+    *       description="Unauthenticated"
+    *   ),
+    *   @OA\Response(
+    *      response=400,
+    *      description="Bad Request"
+    *   ),
+    *   @OA\Response(
+    *      response=404,
+    *      description="Not found"
+    *   ),
+    *   @OA\Response(
+    *      response=403,
+    *      description="Forbidden"
+    *   ),
+    *   security={
+    *       {"bearer_token": {}}
+    *   }
+    *)
+    **/
+
+    public function bvnVerification(Request $request)
+    {
+        // Ensure the user is authenticated
+        if (!Auth::check()) {
+            return $this->sendError('Unauthorized Access', [], 401);
+        }
+
+        $user = Auth::user();
+
+        // Validate the BVN input
+        $validator = Validator::make($request->all(), [
+            'bvn' => [
+                'required',
+                'numeric',
+                'regex:/^\d{11}$/', // Ensure NIN is exactly 11 digits
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors(), 422);
+        }
+
+        // Generate access token using QoreIdService
+        $accessToken = QoreIdService::generateAccessToken();
+
+        // Call the verifyBVN method with the required parameters
+        $ninVerificationResult = QoreIdService::verifyBVN(
+            $request->bvn,
+            $user->first_name,
+            $user->last_name,
+            $accessToken
+        );
+
+        // Return the result from the API call
+        return response()->json($ninVerificationResult);
+    }
+    
+    public function verifyAddress(Request $request)
+    {
+
     }
 
     // public function addKyc(Request $request)

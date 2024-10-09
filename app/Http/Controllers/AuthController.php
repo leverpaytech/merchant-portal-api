@@ -243,7 +243,7 @@ class AuthController extends BaseController
 
         $user->verify_email_token = $verifyToken;
         $user->save();
-
+ 
         $message = "<p>Hello {$user['first_name']},</p><p style='margin-bottom: 8px'>We are excited to have you here. Below is your verification token</p><h4 style='margin-bottom: 8px'>{$verifyToken}</h4>";
         ZeptomailService::sendMailZeptoMail("LeveryPay Verification Code" ,$message, $request['email']);
         SmsService::sendSms("Hi {$user['first_name']}, Welcome to Leverpay, to continue your verification code is {$verifyToken}", $user['phone']);

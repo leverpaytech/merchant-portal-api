@@ -178,7 +178,7 @@ class AuthController extends BaseController
         $data['zip_code'] = $request->getClientIp();
         $data['bvn'] = '000000000';
 
-        try{
+        try{ 
             DB::beginTransaction();
             $user = User::create($data);
 
