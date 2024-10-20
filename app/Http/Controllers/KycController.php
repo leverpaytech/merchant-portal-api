@@ -627,6 +627,159 @@ class KycController extends BaseController
         return $this->successfulResponse([], 'Address successfully submitted', 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/brails-kyc/get-kyc-list",
+     *     tags={"Brails KYC"},
+     *     summary="Get kyc list",
+     *     operationId="Get kyc list",
+     *
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by KYC status: all, approved, pending, declined",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *             enum={"all", "approved", "pending", "declined"},
+     *             default="all"
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success"
+     *     ),
+     *
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
+    */
+    public function getKycForApproval(Request $request)
+    {
+        $status = $request->query('status');
+        if($status=='all')
+        {
+            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
+        }
+        else{
+            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+                ->where('kyc_verifications.status', $status)
+                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
+        }
+        
+        if (!$kycs) {
+            return $this->sendError('Error', 'No Available KYC', 422);
+        }
+        $kycs = $kycs->map(function ($kyc) {
+            // Transforming or adding fields
+            return [
+                'uuid' => $kyc->uuid,
+                'first_name' => $kyc->first_name,
+                'last_name' => $kyc->first_name,
+
+                'phone' => $kyc->phone,
+                'phone_status' => $kyc->phone_verification_code == 1 ? 'verified' : 'not verified',
+
+                'email' => $kyc->email,
+                'email_status' => $kyc->email_verification_code == 1 ? 'verified' : 'not verified',
+
+                'nin' => $kyc->nin,
+                'nin_status' => $kyc->nin_details ? 'verified' : 'not verified',
+                'nin_details' => $kyc->nin_details,
+
+                'bvn' => $kyc->bvn,
+                'bvn_status' => $kyc->bvn_details ? 'verified' : 'not verified',
+                'bvn_details' => $kyc->bvn_details,
+
+                'contact_address' => $kyc->contact_address,
+                'proof_of_address' => $kyc->proof_of_address ? 'verified' : 'not verified',
+                'live_face_verification' => $kyc->live_face_verification ? 'verified' : 'not verified',
+                'admin_approval_status' => $kyc->status,
+                
+            ];
+        });
+
+        return $this->successfulResponse($kycs, 'KYC list retrieved successfully', 200);
+    }
+
+    /**
+    * @OA\Post(
+    ** path="/api/v1/brails-kyc/approve-reject-kyc",
+    *   tags={"Brails KYC"},
+    *   summary="Admin (approve or reject kyc by admin)",
+    *   operationId="Admin (approve or reject kyc by admin)",
+    *
+    *   @OA\RequestBody(
+    *      @OA\MediaType(mediaType="multipart/form-data",
+    *          @OA\Schema(
+    *              required={"status","uuid"},
+    *              @OA\Property(property="uuid", type="string", description=""),
+    *              @OA\Property(property="status", type="strinf", enum={"approved", "pending", "declined"}, default="approved", description=""),
+    *              @OA\Property(property="admin_comment", type="string", description=""),
+    *          ),
+    *      ),
+    *   ),
+    * 
+    *   @OA\Response(
+    *      response=200,
+    *       description="Success",
+    *      @OA\MediaType(
+    *           mediaType="application/json",
+    *      )
+    *   ),
+    *   @OA\Response(
+    *      response=401,
+    *       description="Unauthenticated"
+    *   ),
+    *   @OA\Response(
+    *      response=400,
+    *      description="Bad Request"
+    *   ),
+    *   @OA\Response(
+    *      response=404,
+    *      description="Not found"
+    *   ),
+    *   @OA\Response(
+    *      response=403,
+    *      description="Forbidden"
+    *   ),
+    *   security={
+    *       {"bearer_token": {}}
+    *   }
+    *)
+    **/
+    public function kycApproval(Request $request)
+    {
+        // Get all input data
+        $data = $request->all();
+
+        // Validation rules
+        $validator = Validator::make($data, [
+            'status' => 'required|string',
+            'uuid' => 'required|string',
+            'admin_comment' => 'nullable|string',
+        ]);
+
+        // If validation fails, return a 422 error with validation messages
+        if ($validator->fails()) {
+            return $this->sendError('Error', $validator->errors(), 422);
+        }
+
+        //
+        // Find the user's KYC record
+        $kyc = KycVerification::where('uuid', $data['uuid'])->first();
+
+        $kyc->status = $data['status'];
+        $kyc->admin_comment = $data['admin_comment'];
+        $kyc->save();
+
+        // Return a success response
+        return $this->successfulResponse([], "KYC successfully ".ucwords($data['status'])." ", 200);
+    }
+
     // public function addKyc(Request $request)
     // {
     //     $data = $request->all();

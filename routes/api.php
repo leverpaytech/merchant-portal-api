@@ -346,6 +346,9 @@ Route::prefix('v1/brails-kyc')->group( function(){
 
         Route::post('selfie/start', [SelfieController::class, 'start']);
         Route::post('selfie/send', [SelfieController::class, 'stop']);
+
+        Route::get('get-kyc-list', [KycController::class, 'getKycForApproval']);
+        Route::post('approve-reject-kyc', [KycController::class, 'kycApproval']);
     });
 });
 

@@ -2877,6 +2877,110 @@
                 ]
             }
         },
+        "/api/v1/brails-kyc/get-kyc-list": {
+            "get": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Get kyc list",
+                "operationId": "Get kyc list",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by KYC status: all, approved, pending, declined",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "all",
+                            "enum": [
+                                "all",
+                                "approved",
+                                "pending",
+                                "declined"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/brails-kyc/approve-reject-kyc": {
+            "post": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Admin (approve or reject kyc by admin)",
+                "operationId": "Admin (approve or reject kyc by admin)",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "status",
+                                    "uuid"
+                                ],
+                                "properties": {
+                                    "uuid": {
+                                        "description": "",
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "description": "",
+                                        "type": "strinf",
+                                        "default": "approved",
+                                        "enum": [
+                                            "approved",
+                                            "pending",
+                                            "declined"
+                                        ]
+                                    },
+                                    "admin_comment": {
+                                        "description": "",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/logout": {
             "get": {
                 "tags": [
