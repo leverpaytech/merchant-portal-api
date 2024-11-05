@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\ContactUs;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
-use App\Services\SmsService;
+use App\Services\{SmsService,ZeptomailService};
 
 class ContactUsController extends BaseController
 {
@@ -74,8 +74,8 @@ class ContactUsController extends BaseController
         $to="contact@leverpay.io";
         //$to="abdilkura@gmail.com";
         //sent mail
-        SmsService::sendMail($data['subject'], $html, "Contact message", $to);
-
+        //SmsService::sendMail($data['subject'], $html, "Contact message", $to);
+        ZeptomailService::sendMailZeptoMail($data['subject'], $html, $to);
         return $this->successfulResponse($contact, 'Message successfully sent, please keep an eye on your inbox and spam box for our response');
     }
 }

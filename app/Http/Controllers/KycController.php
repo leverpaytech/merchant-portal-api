@@ -658,6 +658,10 @@ class KycController extends BaseController
     */
     public function getKycForApproval(Request $request)
     {
+        //return ZeptomailService::sendMailZeptoMail('Testing' ,'Test Message', 'abdilkura@gmail.com');
+        // $message=['name'=>'Abdul Kura'];
+        // return ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.80540ec1-7b4f-11ef-ba81-5254000b1a0e.19229b699aa" ,$message, 'abdilkura@gmail.com');
+           
         $status = $request->query('status');
         if($status=='all')
         {

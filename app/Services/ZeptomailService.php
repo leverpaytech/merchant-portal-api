@@ -22,14 +22,14 @@ class ZeptomailService
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => '{
-                "from": { "address": "noreply@leverpay.io"},
+                "from": { "address": "development@leverpay.io"},
                 "to": [{"email_address": {"address": '.$email.', "name": "LeverPay"}}],
                 "subject":'.$subject.',
                 "htmlbody":"'.preg_replace('/\n/', '', $message).'",
             }',
             CURLOPT_HTTPHEADER => array(
                 "accept: application/json",
-                "authorization: Zoho-enczapikey wSsVR61x+ETwXfovymKucr8/mglcUl/yQU16jVCn6ySvGKuR9Mc/kkCYUFLyFPgdFGBuRjUVpLJ8nEtV0TcIj9t7yVEGCyiF9mqRe1U4J3x17qnvhDzOXWRdkROLJY8Kxg5skmVoEc4k+g==",
+                "authorization: Zoho-enczapikey ".env('ZEPTOMAIL_TOKEN'),
                 "cache-control: no-cache",
                 "content-type: application/json",
             ),
@@ -62,13 +62,13 @@ class ZeptomailService
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => '{
                 "merge_info":'.$info.',
-                "from": { "address": "noreply@leverpay.io"},
+                "from": { "address": "development@leverpay.io"},
                 "to": [{"email_address": {"address": '.$email.', "name": "LeverPay"}}],
                 "template_key":'.$templateId.',
             }',
             CURLOPT_HTTPHEADER => array(
                 "accept: application/json",
-                "authorization: Zoho-enczapikey wSsVR61x+ETwXfovymKucr8/mglcUl/yQU16jVCn6ySvGKuR9Mc/kkCYUFLyFPgdFGBuRjUVpLJ8nEtV0TcIj9t7yVEGCyiF9mqRe1U4J3x17qnvhDzOXWRdkROLJY8Kxg5skmVoEc4k+g==",
+                "authorization: Zoho-enczapikey ".env('ZEPTOMAIL_TOKEN'),
                 "cache-control: no-cache",
                 "content-type: application/json",
             ),
@@ -112,12 +112,12 @@ class ZeptomailService
                 CURLOPT_CUSTOMREQUEST => "POST",
                 CURLOPT_POSTFIELDS => '{
                 "mail_template_key": "2d6f.117fe6ec4fda4841.k1.d46e9be0-9b7d-11ee-a277-5254004d4100.18c6ee4949e",
-                "from": { "address": "noreply@leverpay.io", "name": "noreply"},
+                "from": { "address": "development@leverpay.io", "name": "noreply"},
                 "to": [{"email_address": {"address": '.$email.', "name": "LeverPay"}}],
                 "merge_info": {"product name":"'.$product_name.'","amount":"'.$price.'","total price":"'.$total.'","vat":"'.$vat.'","due_date":"due_date_value","description":"'.$description.'","transaction_fee":"'.$fee.'","view_invoice_link":"'.$url.'", "Merchant-Name": "'.$merchant.'","customer_name":"'.$customer.'","setreminder_link":"setreminder_link_value"}}',
                 CURLOPT_HTTPHEADER => array(
                 "accept: application/json",
-                "authorization: Zoho-enczapikey wSsVR61x+ETwXfovymKucr8/mglcUl/yQU16jVCn6ySvGKuR9Mc/kkCYUFLyFPgdFGBuRjUVpLJ8nEtV0TcIj9t7yVEGCyiF9mqRe1U4J3x17qnvhDzOXWRdkROLJY8Kxg5skmVoEc4k+g==",
+                "authorization: Zoho-enczapikey ".env('ZEPTOMAIL_TOKEN'),
                 "cache-control: no-cache",
                 "content-type: application/json",
             ),
