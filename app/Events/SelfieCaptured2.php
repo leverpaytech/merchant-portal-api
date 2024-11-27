@@ -6,9 +6,8 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class SelfieCaptured implements ShouldBroadcast
+class SelfieCaptured
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -24,3 +23,4 @@ class SelfieCaptured implements ShouldBroadcast
         return new Channel('selfie');
     }
 }
+

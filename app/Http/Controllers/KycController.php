@@ -10,6 +10,7 @@ use App\Services\{SmsService,ZeptomailService,QoreIdService};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class KycController extends BaseController
 {
@@ -595,7 +596,7 @@ class KycController extends BaseController
     {
         // Get all input data
         $data = $request->all();
-
+        
         // Validation rules
         $validator = Validator::make($data, [
             'proof_of_address' => 'required|mimes:jpeg,png,jpg,pdf|max:4096', // Restrict file type and size
