@@ -737,9 +737,10 @@ class KycController extends BaseController
     */
     public function getUserKycDetails(Request $request)
     {
-        $allUsers = User::where('id', '>', 0)->get(['phone']);
+        $allUsers = User::where('id', '>', 0)->get(['id','phone']);
 
         $allUsers->transform(function ($user) {
+            $id = $user->id;
             $phone = $user->phone;
 
             // Remove spaces and special characters (optional but recommended)
@@ -759,6 +760,7 @@ class KycController extends BaseController
             if (!str_starts_with($phone, '0')) {
                 $phone = '0' . $phone;
             }
+            User::where('id', $id)->update(['phone', $phone]);
 
             // Ensure phone is exactly 11 digits
             if (preg_match('/^0\d{10}$/', $phone)) {
@@ -769,9 +771,10 @@ class KycController extends BaseController
         });
 
         // Output the transformed phone numbers
-        $allUsers->each(function ($phone) {
-            echo $phone . "<br/>";
-        });
+        dd(User::where('id', '>', 0)->get(['phone']));
+        // $allUsers->each(function ($phone) {
+        //     echo $phone . "<br/>";
+        // });
 
 
         $user_id = Auth::user()->id;
