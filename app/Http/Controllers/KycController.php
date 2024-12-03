@@ -737,40 +737,37 @@ class KycController extends BaseController
     */
     public function getUserKycDetails(Request $request)
     {
-        $allUsers = User::where('id', '>', 0)->get(['id','phone']);
+        $allUsers = User::where('id', '>', 0)->get(['id', 'phone']);
 
-        $allUsers->transform(function ($user) {
+        foreach ($allUsers as $user) {
             $id = $user->id;
             $phone = $user->phone;
 
-            echo $id."_".$phone."<br/>";
-
-            // Remove spaces and special characters (optional but recommended)
+            // Remove spaces and non-numeric characters
             $phone = preg_replace('/\D/', '', $phone);
 
-            // Remove '+234' and replace with '0'
-            if (str_starts_with($phone, '234')) {
+            // Handle country code +234 or 234
+            if (str_starts_with($phone, '+234')) {
+                $phone = '0' . substr($phone, 4);
+            } elseif (str_starts_with($phone, '234')) {
                 $phone = '0' . substr($phone, 3);
             }
 
-            // Remove '+234' and replace with '0'
-            if (str_starts_with($phone, '+234')) {
-                $phone = '0' . substr($phone, 4);
-            }
-
-            // If it doesn't start with '0', prepend '0'
+            // Ensure phone starts with '0'
             if (!str_starts_with($phone, '0')) {
                 $phone = '0' . $phone;
             }
-            //User::where('id', $id)->update(['phone', $phone]);
 
-            // Ensure phone is exactly 11 digits
+            // Validate phone length (11 digits)
             if (preg_match('/^0\d{10}$/', $phone)) {
-                //echo $phone."<br/>"; 
+                // Update valid phone numbers in the database
+                User::where('id', $id)->update(['phone' => $phone]);
             } else {
-                return 'Invalid number: ' . $user->phone; // Flag invalid number
+                // Optionally log invalid numbers for review
+                error_log("Invalid phone number for user ID $id: {$user->phone}");
             }
-        });
+        }
+
 
         // Output the transformed phone numbers
         //dd(User::where('id', '>', 0)->get(['phone']));
