@@ -743,6 +743,8 @@ class KycController extends BaseController
             $id = $user->id;
             $phone = $user->phone;
 
+            echo $id."_".$phone."<br/>";
+
             // Remove spaces and special characters (optional but recommended)
             $phone = preg_replace('/\D/', '', $phone);
 
@@ -764,7 +766,7 @@ class KycController extends BaseController
 
             // Ensure phone is exactly 11 digits
             if (preg_match('/^0\d{10}$/', $phone)) {
-                echo $phone."<br/>"; 
+                //echo $phone."<br/>"; 
             } else {
                 return 'Invalid number: ' . $user->phone; // Flag invalid number
             }
