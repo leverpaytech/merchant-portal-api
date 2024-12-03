@@ -717,18 +717,6 @@ class KycController extends BaseController
      *     summary="Get user kyc details",
      *     operationId="Get user kyc details",
      *
-     *     @OA\Parameter(
-     *         name="status",
-     *         in="query",
-     *         description="Filter by KYC status: all, approved, pending, declined",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *             enum={"all", "approved", "pending", "declined"},
-     *             default="all"
-     *         )
-     *     ),
-     *
      *     @OA\Response(
      *         response=200,
      *         description="Success"
@@ -739,26 +727,13 @@ class KycController extends BaseController
      *     }
      * )
     */
-    public function getUserKycDetails(Request $request)
+    public function getUserKycDetails()
     {
-        //return ZeptomailService::sendMailZeptoMail('Testing' ,'Test Message', 'abdilkura@gmail.com');
-        // $message=['name'=>'Abdul Kura'];
-        // return ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.80540ec1-7b4f-11ef-ba81-5254000b1a0e.19229b699aa" ,$message, 'abdilkura@gmail.com');
-        
-        $status = $request->query('status');
         $user_id = Auth::user()->id;
-        if($status=='all')
-        {
-            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
-                ->where('kyc_verifications.user_id', $user_id)
-                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
-        }
-        else{
-            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
-                ->where('kyc_verifications.status', $status)
-                ->where('kyc_verifications.user_id', $user_id)
-                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
-        }
+        
+        $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+            ->where('kyc_verifications.user_id', $user_id)
+            ->get(['kyc_verifications.*','users.first_name','users.last_name']);
         
         if (!$kycs) {
             return $this->sendError('Error', 'No Available KYC', 422);
