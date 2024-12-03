@@ -737,6 +737,11 @@ class KycController extends BaseController
     */
     public function getUserKycDetails(Request $request)
     {
+        $allUsers=User::where('id', '>', 0)->get(['phone']);
+        $allUsers->transform(function ($user){
+            echo $user->phone."<br/>";
+        });
+        
         $user_id = Auth::user()->id;
         $uuid = $request->query('uuid');
 
