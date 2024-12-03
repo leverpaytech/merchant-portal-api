@@ -741,31 +741,9 @@ class KycController extends BaseController
 
         foreach ($allUsers as $user) {
             $id = $user->id;
-            $phone = $user->phone;
+            echo $phone = $user->phone."<br/>";
 
-            // Remove spaces and non-numeric characters
-            $phone = preg_replace('/\D/', '', $phone);
-
-            // Handle country code +234 or 234
-            if (str_starts_with($phone, '+234')) {
-                $phone = '0' . substr($phone, 4);
-            } elseif (str_starts_with($phone, '234')) {
-                $phone = '0' . substr($phone, 3);
-            }
-
-            // Ensure phone starts with '0'
-            if (!str_starts_with($phone, '0')) {
-                $phone = '0' . $phone;
-            }
-
-            // Validate phone length (11 digits)
-            if (preg_match('/^0\d{10}$/', $phone)) {
-                // Update valid phone numbers in the database
-                User::where('id', $id)->update(['phone' => $phone]);
-            } else {
-                // Optionally log invalid numbers for review
-                error_log("Invalid phone number for user ID $id: {$user->phone}");
-            }
+            
         }
 
 
