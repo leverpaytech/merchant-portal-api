@@ -737,11 +737,43 @@ class KycController extends BaseController
     */
     public function getUserKycDetails(Request $request)
     {
-        $allUsers=User::where('id', '>', 0)->get(['phone']);
-        $allUsers->transform(function ($user){
-            echo $user->phone."<br/>";
+        $allUsers = User::where('id', '>', 0)->get(['phone']);
+
+        $allUsers->transform(function ($user) {
+            $phone = $user->phone;
+
+            // Remove spaces and special characters (optional but recommended)
+            $phone = preg_replace('/\D/', '', $phone);
+
+            // Remove '+234' and replace with '0'
+            if (str_starts_with($phone, '234')) {
+                $phone = '0' . substr($phone, 3);
+            }
+
+            // Remove '+234' and replace with '0'
+            if (str_starts_with($phone, '+234')) {
+                $phone = '0' . substr($phone, 4);
+            }
+
+            // If it doesn't start with '0', prepend '0'
+            if (!str_starts_with($phone, '0')) {
+                $phone = '0' . $phone;
+            }
+
+            // Ensure phone is exactly 11 digits
+            if (preg_match('/^0\d{10}$/', $phone)) {
+                return $phone; // Return valid phone number
+            } else {
+                return 'Invalid number: ' . $user->phone; // Flag invalid number
+            }
         });
-        
+
+        // Output the transformed phone numbers
+        $allUsers->each(function ($phone) {
+            echo $phone . "<br/>";
+        });
+
+
         $user_id = Auth::user()->id;
         $uuid = $request->query('uuid');
 
