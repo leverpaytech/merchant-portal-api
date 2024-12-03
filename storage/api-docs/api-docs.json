@@ -2882,8 +2882,45 @@
                 "tags": [
                     "Brails KYC"
                 ],
-                "summary": "Get kyc list",
-                "operationId": "Get kyc list",
+                "summary": "Get all kyc list",
+                "operationId": "Get all kyc list",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by KYC status: all, approved, pending, declined",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "all",
+                            "enum": [
+                                "all",
+                                "approved",
+                                "pending",
+                                "declined"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/brails-kyc/get-user-kyc-details": {
+            "get": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Get user kyc details",
+                "operationId": "Get user kyc details",
                 "parameters": [
                     {
                         "name": "status",

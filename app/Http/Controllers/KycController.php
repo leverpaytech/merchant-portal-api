@@ -632,8 +632,8 @@ class KycController extends BaseController
      * @OA\Get(
      *     path="/api/v1/brails-kyc/get-kyc-list",
      *     tags={"Brails KYC"},
-     *     summary="Get kyc list",
-     *     operationId="Get kyc list",
+     *     summary="Get all kyc list",
+     *     operationId="Get all kyc list",
      *
      *     @OA\Parameter(
      *         name="status",
@@ -708,6 +708,91 @@ class KycController extends BaseController
         });
 
         return $this->successfulResponse($kycs, 'KYC list retrieved successfully', 200);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/brails-kyc/get-user-kyc-details",
+     *     tags={"Brails KYC"},
+     *     summary="Get user kyc details",
+     *     operationId="Get user kyc details",
+     *
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="query",
+     *         description="Filter by KYC status: all, approved, pending, declined",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *             enum={"all", "approved", "pending", "declined"},
+     *             default="all"
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success"
+     *     ),
+     *
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
+    */
+    public function getUserKycDetails(Request $request)
+    {
+        //return ZeptomailService::sendMailZeptoMail('Testing' ,'Test Message', 'abdilkura@gmail.com');
+        // $message=['name'=>'Abdul Kura'];
+        // return ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.80540ec1-7b4f-11ef-ba81-5254000b1a0e.19229b699aa" ,$message, 'abdilkura@gmail.com');
+        
+        $status = $request->query('status');
+        $user_id = Auth::user()->id;
+        if($status=='all')
+        {
+            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+                ->where('kyc_verifications.user_id', $user_id)
+                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
+        }
+        else{
+            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+                ->where('kyc_verifications.status', $status)
+                ->where('kyc_verifications.user_id', $user_id)
+                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
+        }
+        
+        if (!$kycs) {
+            return $this->sendError('Error', 'No Available KYC', 422);
+        }
+        $kycs = $kycs->map(function ($kyc) {
+            // Transforming or adding fields
+            return [
+                'uuid' => $kyc->uuid,
+                'first_name' => $kyc->first_name,
+                'last_name' => $kyc->first_name,
+
+                'phone' => $kyc->phone,
+                'phone_status' => $kyc->phone_verification_code == 1 ? 'verified' : 'not verified',
+
+                'email' => $kyc->email,
+                'email_status' => $kyc->email_verification_code == 1 ? 'verified' : 'not verified',
+
+                'nin' => $kyc->nin,
+                'nin_status' => $kyc->nin_details ? 'verified' : 'not verified',
+                'nin_details' => $kyc->nin_details,
+
+                'bvn' => $kyc->bvn,
+                'bvn_status' => $kyc->bvn_details ? 'verified' : 'not verified',
+                'bvn_details' => $kyc->bvn_details,
+
+                'contact_address' => $kyc->contact_address,
+                'proof_of_address' => $kyc->proof_of_address ? 'verified' : 'not verified',
+                'live_face_verification' => $kyc->live_face_verification ? 'verified' : 'not verified',
+                'admin_approval_status' => $kyc->status,
+                
+            ];
+        });
+
+        return $this->successfulResponse($kycs, 'User KYC Details retrieved successfully', 200);
     }
 
     /**
