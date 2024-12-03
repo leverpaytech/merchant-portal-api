@@ -225,7 +225,7 @@ class QuickTellerController extends BaseController
    *
    *     @OA\Parameter(
    *         name="billerId",
-   *         in="query",
+   *         in="query", 
    *         required=true,
    *         description="This is returned from get-billers-by-category-id as Id",
    *         @OA\Schema(type="string")

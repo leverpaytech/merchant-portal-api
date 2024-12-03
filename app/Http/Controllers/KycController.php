@@ -717,6 +717,14 @@ class KycController extends BaseController
      *     summary="Get user kyc details",
      *     operationId="Get user kyc details",
      *
+    *     @OA\Parameter(
+   *         name="uuid",
+   *         in="query",
+   *         required=true,
+   *         description="user uuid",
+   *         @OA\Schema(type="string")
+   *     ),
+     * 
      *     @OA\Response(
      *         response=200,
      *         description="Success"
@@ -727,12 +735,13 @@ class KycController extends BaseController
      *     }
      * )
     */
-    public function getUserKycDetails()
+    public function getUserKycDetails(Request $request)
     {
         $user_id = Auth::user()->id;
-        
+        $uuid = $request->query('uuid');
+
         $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
-            ->where('kyc_verifications.user_id', $user_id)
+            ->where('users.uuid', $uuid)
             ->get(['kyc_verifications.*','users.first_name','users.last_name']);
         
         if (!$kycs) {

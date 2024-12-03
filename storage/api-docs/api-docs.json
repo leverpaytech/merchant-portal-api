@@ -2921,6 +2921,17 @@
                 ],
                 "summary": "Get user kyc details",
                 "operationId": "Get user kyc details",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "query",
+                        "description": "user uuid",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Success"
