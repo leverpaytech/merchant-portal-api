@@ -764,7 +764,7 @@ class KycController extends BaseController
 
             // Ensure phone is exactly 11 digits
             if (preg_match('/^0\d{10}$/', $phone)) {
-                return $phone; // Return valid phone number
+                echo $phone."<br/>"; 
             } else {
                 return 'Invalid number: ' . $user->phone; // Flag invalid number
             }
@@ -772,9 +772,9 @@ class KycController extends BaseController
 
         // Output the transformed phone numbers
         //dd(User::where('id', '>', 0)->get(['phone']));
-        $allUsers->each(function ($phone) {
-            echo $phone . "<br/>";
-        });
+        // $allUsers->each(function ($phone) {
+        //     echo $phone . "<br/>";
+        // });
 
 
         $user_id = Auth::user()->id;
