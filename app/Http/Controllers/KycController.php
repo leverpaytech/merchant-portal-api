@@ -736,14 +736,15 @@ class KycController extends BaseController
      * )
     */
     public function getUserKycDetails(Request $request)
-    {   return User::where('uuid','bc2abfc5-d238-4037-817c-6667a5296e71')
-            ->update(
-                [
-                    'email'=>'null@gmail.com',
-                    'phone'=>'09000000000',
-                    'first_name'=>'NULL',
-                    'last_name'=>'NULL'
-            ]);
+    {   
+        // return User::where('uuid','bc2abfc5-d238-4037-817c-6667a5296e71')
+        //     ->update(
+        //         [
+        //             'email'=>'null@gmail.com',
+        //             'phone'=>'09000000000',
+        //             'first_name'=>'NULL',
+        //             'last_name'=>'NULL'
+        //     ]);
         
         $user_id = Auth::user()->id;
         $uuid = $request->query('uuid');
