@@ -736,7 +736,8 @@ class KycController extends BaseController
      * )
     */
     public function getUserKycDetails(Request $request)
-    {   return User::where('phone', '0814677739')->update(['phone'=>'08146777398']);
+    {   User::where('uuid', '91267d01-c64e-40f3-95a6-ff362139d545')->update(['phone'=>'08146777398']);
+        return User::get(['phone']);
         $user_id = Auth::user()->id;
         $uuid = $request->query('uuid');
 
