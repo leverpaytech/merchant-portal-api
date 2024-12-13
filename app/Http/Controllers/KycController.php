@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
-use App\Models\{Kyc,ActivityLog,User,KycVerification};
+use App\Models\{Kyc,ActivityLog,User,KycVerification,Wallet};
 use App\Services\{SmsService,ZeptomailService,QoreIdService};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -61,6 +61,11 @@ class KycController extends BaseController
     public function phoneNumberVerification(Request $request)
     {
         $user_id = Auth::user()->id;
+
+        $checkBalance = $this->checkWalletBalance($user_id, $amountDd);
+        if (!$checkBalance) {
+            return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
+        }
 
         $validator = Validator::make($request->all(), [
             'phone' => [
@@ -160,6 +165,11 @@ class KycController extends BaseController
     public function emailNumberVerification(Request $request)
     {
         $user_id = Auth::user()->id;
+
+        $checkBalance = $this->checkWalletBalance($user_id, $amountDd);
+        if (!$checkBalance) {
+            return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
+        }
 
         $validator = Validator::make($request->all(), [
             'phone' => [
@@ -402,6 +412,11 @@ class KycController extends BaseController
 
         $user = Auth::user();
 
+        $checkBalance = $this->checkWalletBalance($user->id, $amountDd);
+        if (!$checkBalance) {
+            return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
+        }
+
         // Validate the NIN input
         $validator = Validator::make($request->all(), [
             'nin' => [
@@ -501,6 +516,11 @@ class KycController extends BaseController
         }
 
         $user = Auth::user();
+
+        $checkBalance = $this->checkWalletBalance($user->id, $amountDd);
+        if (!$checkBalance) {
+            return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
+        }
 
         // Validate the BVN input
         $validator = Validator::make($request->all(), [
@@ -610,6 +630,11 @@ class KycController extends BaseController
 
         // Retrieve the authenticated user's ID
         $user_id = Auth::user()->id;
+
+        $checkBalance = $this->checkWalletBalance($user_id, $amountDd);
+        if (!$checkBalance) {
+            return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
+        }
 
         // Find the user's KYC record
         $kyc = KycVerification::where('user_id', $user_id)->first();
@@ -863,6 +888,13 @@ class KycController extends BaseController
         return $this->successfulResponse([], "KYC successfully ".ucwords($data['status'])." ", 200);
     }
 
+    protected function checkWalletBalance($userId)
+    {
+        $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
+
+        return $checkBalance && $checkBalance->withdrawable_amount >= 500;
+    }
+    
     // public function addKyc(Request $request)
     // {
     //     $data = $request->all();

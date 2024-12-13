@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
-use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,ActivityLog,Transaction,QuickTellerDiscount};
+use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,ActivityLog,Transaction,QuickTellerDiscount,KycVerification};
 
 class QuickTellerController extends BaseController
 {
@@ -455,6 +455,13 @@ class QuickTellerController extends BaseController
       return $this->sendError('Unauthorized Access',[],401);
 
     $userId = $user->id;
+
+    //check kyc
+    $kyc = KycVerification::where('user_id', $userId)->where('status', 'approved')->first();
+    if(!$kyc)
+    {
+      return response()->json('No. KYC not approved or not exist ', 422);
+    }
 
     $accessToken=QuickTellerService::generateAccessToken();
     if(empty($accessToken))
