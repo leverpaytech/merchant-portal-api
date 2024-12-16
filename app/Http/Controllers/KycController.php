@@ -62,7 +62,7 @@ class KycController extends BaseController
     {
         $user_id = Auth::user()->id;
 
-        $checkBalance = $this->checkWalletBalance($user_id, $amountDd);
+        $checkBalance = $this->checkWalletBalance($user_id);
         if (!$checkBalance) {
             return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
         }
@@ -166,7 +166,7 @@ class KycController extends BaseController
     {
         $user_id = Auth::user()->id;
 
-        $checkBalance = $this->checkWalletBalance($user_id, $amountDd);
+        $checkBalance = $this->checkWalletBalance($user_id);
         if (!$checkBalance) {
             return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
         }
@@ -412,7 +412,7 @@ class KycController extends BaseController
 
         $user = Auth::user();
 
-        $checkBalance = $this->checkWalletBalance($user->id, $amountDd);
+        $checkBalance = $this->checkWalletBalance($user->id);
         if (!$checkBalance) {
             return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
         }
@@ -517,7 +517,7 @@ class KycController extends BaseController
 
         $user = Auth::user();
 
-        $checkBalance = $this->checkWalletBalance($user->id, $amountDd);
+        $checkBalance = $this->checkWalletBalance($user->id);
         if (!$checkBalance) {
             return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
         }
@@ -631,7 +631,7 @@ class KycController extends BaseController
         // Retrieve the authenticated user's ID
         $user_id = Auth::user()->id;
 
-        $checkBalance = $this->checkWalletBalance($user_id, $amountDd);
+        $checkBalance = $this->checkWalletBalance($user_id);
         if (!$checkBalance) {
             return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
         }
