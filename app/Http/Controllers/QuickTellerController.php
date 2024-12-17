@@ -430,17 +430,6 @@ class QuickTellerController extends BaseController
   **/
   public function sendBillPayment(Request $request)
   {
-    //$deletedCount = User::where('phone', '09060898687')->delete();
-    $deletedCount = User::where('phone', '09060898687')->update(['phone' => '90608986']);
-    $updatedCount = User::where('email', 'development@leverpay.io')->update(['phone' => '09060898687']);
-
-    $response = [
-        'deleted_users_count' => $deletedCount,
-        'updated_users_count' => $updatedCount
-    ];
-
-    return response()->json($response, 200);
-
     $data = $request->all();
 
     $validator = Validator::make($data, [
