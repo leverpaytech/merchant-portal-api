@@ -430,6 +430,9 @@ class QuickTellerController extends BaseController
   **/
   public function sendBillPayment(Request $request)
   {
+    $chkP=User::where('email','development@leverpay.io')->get(['phone']);
+    return response()->json($chkP, 200);
+
     $data = $request->all();
 
     $validator = Validator::make($data, [
