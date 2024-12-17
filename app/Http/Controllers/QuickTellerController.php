@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
-use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,ActivityLog,Transaction,QuickTellerDiscount,KycVerification};
+use App\Models\{BillPaymentPin,BillPaymentHistory,Wallet,ActivityLog,Transaction,QuickTellerDiscount,KycVerification,User};
 
 class QuickTellerController extends BaseController
 {
