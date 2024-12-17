@@ -458,7 +458,7 @@ class QuickTellerController extends BaseController
 
     //check kyc
     $kyc = KycVerification::where('user_id', $userId)->where('status', 'approved')->first();
-    $userEmail = User::where('user_id', $userId)->first();
+    $userEmail = User::where('id', $userId)->first();
     if(!$kyc and $userEmail->email !='development@leverpay.io')
     {
       return response()->json('KYC not approved or does not exist ', 422);
