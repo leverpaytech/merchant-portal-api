@@ -517,10 +517,10 @@ class KycController extends BaseController
 
         $user = Auth::user();
 
-        // $checkBalance = $this->checkWalletBalance($user->id);
-        // if (!$checkBalance) {
-        //     return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
-        // }
+        $checkBalance = $this->checkWalletBalance($user->id);
+        if (!$checkBalance) {
+            return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
+        }
 
         // Validate the BVN input
         $validator = Validator::make($request->all(), [
@@ -705,6 +705,24 @@ class KycController extends BaseController
         }
         $kycs = $kycs->map(function ($kyc) {
             // Transforming or adding fields
+
+            if($kyc->nin_details)
+            {
+                $data = json_decode($kyc->nin_details, true);
+
+                $decodedPhoto = base64_decode($data['photo']);
+
+                $formattedData = json_encode([
+                    'nin' => $data['nin'],
+                    'firstname' => $data['firstname'],
+                    'lastname' => $data['lastname'],
+                    'middlename' => $data['middlename'] ?: null,
+                    'phone' => $data['phone'],
+                    'gender' => strtoupper($data['gender']) === 'F' ? 'Female' : 'Male',
+                    'photo_url' => $decodedPhoto,
+                ]);
+            }
+
             return [
                 'uuid' => $kyc->uuid,
                 'first_name' => $kyc->first_name,
@@ -722,7 +740,7 @@ class KycController extends BaseController
 
                 'bvn' => $kyc->bvn,
                 'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submit',
-                'bvn_details' => $kyc->bvn_details,
+                'bvn_details' => $kyc->bvn_details? $formattedData : $kyc->bvn_details,
 
                 'contact_address' => $kyc->contact_address,
                 'proof_of_address' => $kyc->proof_of_address,
