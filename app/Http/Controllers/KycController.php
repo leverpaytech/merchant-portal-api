@@ -517,10 +517,10 @@ class KycController extends BaseController
 
         $user = Auth::user();
 
-        $checkBalance = $this->checkWalletBalance($user->id);
-        if (!$checkBalance) {
-            return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
-        }
+        // $checkBalance = $this->checkWalletBalance($user->id);
+        // if (!$checkBalance) {
+        //     return $this->sendError('Error', 'Kindly fund your wallet with aleast N500 to proceed wth you kyc', 422);
+        // }
 
         // Validate the BVN input
         $validator = Validator::make($request->all(), [
@@ -539,7 +539,7 @@ class KycController extends BaseController
         $accessToken = QoreIdService::generateAccessToken();
 
         // Call the verifyBVN method with the required parameters
-        $bvnVerificationResult = QoreIdService::verifyBVN(
+        return $bvnVerificationResult = QoreIdService::verifyBVN(
             $request->bvn,
             $user->first_name,
             $user->last_name,
@@ -717,16 +717,16 @@ class KycController extends BaseController
                 'email_status' => $kyc->email_verification_code == 1 ? 'verified' : 'not verified',
 
                 'nin' => $kyc->nin,
-                'nin_status' => $kyc->nin_details ? 'verified' : 'not verified',
+                'nin_status' => $kyc->nin_details ? 'submitted' : 'not submit',
                 'nin_details' => $kyc->nin_details,
 
                 'bvn' => $kyc->bvn,
-                'bvn_status' => $kyc->bvn_details ? 'verified' : 'not verified',
+                'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submit',
                 'bvn_details' => $kyc->bvn_details,
 
                 'contact_address' => $kyc->contact_address,
-                'proof_of_address' => $kyc->proof_of_address ? 'verified' : 'not verified',
-                'live_face_verification' => $kyc->live_face_verification ? 'verified' : 'not verified',
+                'proof_of_address' => $kyc->proof_of_address,
+                'live_face_verification' => $kyc->live_face_verification,
                 'admin_approval_status' => $kyc->status,
                 
             ];
@@ -895,54 +895,4 @@ class KycController extends BaseController
         return $checkBalance && $checkBalance->withdrawable_amount >= 500;
     }
     
-    // public function addKyc(Request $request)
-    // {
-    //     $data = $request->all();
-
-    //     $validator = Validator::make($data, [
-    //         'document_name' => 'required',
-    //         'document_link' => 'required|mimes:jpeg,png,jpg|max:2048'
-    //     ]);
-
-    //     if ($validator->fails())
-    //     {
-    //         return $this->sendError('Error',$validator->errors(),422);
-    //     }
-
-    //     $user_id=Auth::user()->id;
-    //     //$user_id=2;
-    //     $data['user_id']=$user_id;
-
-    //     $uploadUrl = cloudinary()->upload($request->file('document_link')->getRealPath(),
-    //         ['folder'=>'leverpay/kyc']
-    //     )->getSecurePath();
-    //     $data['document_link']=$uploadUrl;
-
-    //     Kyc::create($data);
-    //     User::where('id', $user_id)->update(['kyc_status'=>1]);
-
-    //     $data2['activity']="Add KYC";
-    //     $data2['user_id']=$user_id;
-
-    //     ActivityLog::createActivity($data2);
-
-    //     $response = [
-    //         'success' => true,
-    //         'document_name' => $data['document_name'],
-    //         'document_link' => $uploadUrl,
-    //         'message' => "KYC successfully saved"
-    //     ];
-
-    //     return response()->json($response, 200);
-    // }
-
-    
-    // public function getKycDocument()
-    // {
-    //     $user_id=Auth::user()->id;
-    //     $kycs=Kyc::where('user_id', $user_id)->get();
-
-    //     return $this->successfulResponse($kycs, 'kyc details successfully retrieved');
-
-    // }
 }

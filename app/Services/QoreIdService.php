@@ -36,7 +36,7 @@ class QoreIdService
         $data=$response->json();
         return $data['accessToken'];
     }
-
+ 
     public static function verifyNIN($nin, $firstname, $lastname, $accessToken)
     {
         $url = env('QOREID_BASE_URL')."/v1/ng/identities/nin/{$nin}";
@@ -73,8 +73,8 @@ class QoreIdService
         $url = env('QOREID_BASE_URL')."/v1/ng/identities/bvn-match/{$bvn}";
         
         $fields = [
-            'firstname' => $firstname,
-            'lastname' => $lastname
+            'firstname' => 'Abdusslam', //$firstname,
+            'lastname' => 'Usman'//$lastname
         ];
 
         // Make the API request
