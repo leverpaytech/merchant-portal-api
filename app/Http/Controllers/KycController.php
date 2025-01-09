@@ -710,17 +710,20 @@ class KycController extends BaseController
             {
                 $data = json_decode($kyc->nin_details, true);
 
-                $decodedPhoto = base64_decode($data['photo']);
+                // $decodedPhoto = base64_decode($data['photo']);
 
-                $formattedData = json_encode([
-                    'nin' => $data['nin'],
-                    'firstname' => $data['firstname'],
-                    'lastname' => $data['lastname'],
-                    'middlename' => $data['middlename'] ?: null,
-                    'phone' => $data['phone'],
-                    'gender' => strtoupper($data['gender']) === 'F' ? 'Female' : 'Male',
-                    'photo_url' => $decodedPhoto,
-                ]);
+                // $photoPath = 'decoded_photo.jpg';
+                // file_put_contents($photoPath, $decodedPhoto);
+
+                // $formattedData = json_encode([
+                //     'nin' => $data['nin'],
+                //     'firstname' => $data['firstname'],
+                //     'lastname' => $data['lastname'],
+                //     'middlename' => $data['middlename'] ?: null,
+                //     'phone' => $data['phone'],
+                //     'gender' => strtoupper($data['gender']) === 'F' ? 'Female' : 'Male',
+                //     'photo_url' => $decodedPhoto,
+                // ]);
             }
 
             return [
@@ -736,11 +739,11 @@ class KycController extends BaseController
 
                 'nin' => $kyc->nin,
                 'nin_status' => $kyc->nin_details ? 'submitted' : 'not submit',
-                'nin_details' => $kyc->nin_details,
+                'nin_details' => $kyc->nin_details ? $data : $kyc->nin_details,
 
                 'bvn' => $kyc->bvn,
                 'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submit',
-                'bvn_details' => $kyc->bvn_details? $formattedData : $kyc->bvn_details,
+                'bvn_details' => $kyc->bvn_details ,
 
                 'contact_address' => $kyc->contact_address,
                 'proof_of_address' => $kyc->proof_of_address,
