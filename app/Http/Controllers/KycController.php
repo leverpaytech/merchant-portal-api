@@ -783,15 +783,6 @@ class KycController extends BaseController
     */
     public function getUserKycDetails(Request $request)
     {   
-        // return User::where('uuid','bc2abfc5-d238-4037-817c-6667a5296e71')
-        //     ->update(
-        //         [
-        //             'email'=>'null@gmail.com',
-        //             'phone'=>'09000000000',
-        //             'first_name'=>'NULL',
-        //             'last_name'=>'NULL'
-        //     ]);
-        
         $user_id = Auth::user()->id;
         $uuid = $request->query('uuid');
 
@@ -802,8 +793,13 @@ class KycController extends BaseController
         if (!$kycs) {
             return $this->sendError('Error', 'No Available KYC', 422);
         }
+        
         $kycs = $kycs->map(function ($kyc) {
             // Transforming or adding fields
+            if($kyc->nin_details)
+            {
+                $data = json_decode($kyc->nin_details, true);
+            }
             return [
                 'uuid' => $kyc->uuid,
                 'first_name' => $kyc->first_name,
@@ -816,16 +812,16 @@ class KycController extends BaseController
                 'email_status' => $kyc->email_verification_code == 1 ? 'verified' : 'not verified',
 
                 'nin' => $kyc->nin,
-                'nin_status' => $kyc->nin_details ? 'verified' : 'not verified',
-                'nin_details' => $kyc->nin_details,
+                'nin_status' => $kyc->nin_details ? 'submitted' : 'not submit',
+                'nin_details' => $kyc->nin_details ?  $data : $kyc->nin_details,
 
                 'bvn' => $kyc->bvn,
-                'bvn_status' => $kyc->bvn_details ? 'verified' : 'not verified',
+                'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submit',
                 'bvn_details' => $kyc->bvn_details,
 
                 'contact_address' => $kyc->contact_address,
-                'proof_of_address' => $kyc->proof_of_address ? 'verified' : 'not verified',
-                'live_face_verification' => $kyc->live_face_verification ? 'verified' : 'not verified',
+                'proof_of_address' => $kyc->proof_of_address,
+                'live_face_verification' => $kyc->live_face_verification,
                 'admin_approval_status' => $kyc->status,
                 
             ];
