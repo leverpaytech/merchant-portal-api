@@ -657,14 +657,15 @@ class KycController extends BaseController
      * @OA\Get(
      *     path="/api/v1/brails-kyc/get-kyc-list",
      *     tags={"Brails KYC"},
-     *     summary="Get all kyc list",
-     *     operationId="Get all kyc list",
+     *     summary="Retrieve the list of KYCs",
+     *     operationId="getKycList",
+     *     description="Fetches a list of KYCs filtered by their status. If no filter is applied, all KYCs are retrieved.",
      *
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="Filter by KYC status: all, approved, pending, declined",
      *         required=true,
+     *         description="Filter by KYC status. Valid options are 'all', 'approved', 'pending', or 'declined'.",
      *         @OA\Schema(
      *             type="string",
      *             enum={"all", "approved", "pending", "declined"},
@@ -674,7 +675,35 @@ class KycController extends BaseController
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Success"
+     *         description="Successfully retrieved the KYC list.",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="uuid", type="string", description="Unique identifier for the KYC."),
+     *                 @OA\Property(property="first_name", type="string", description="User's first name."),
+     *                 @OA\Property(property="last_name", type="string", description="User's last name."),
+     *                 @OA\Property(property="phone", type="string", description="User's phone number."),
+     *                 @OA\Property(property="phone_status", type="string", description="Phone verification status."),
+     *                 @OA\Property(property="email", type="string", description="User's email address."),
+     *                 @OA\Property(property="email_status", type="string", description="Email verification status."),
+     *                 @OA\Property(property="nin", type="string", description="User's National Identification Number."),
+     *                 @OA\Property(property="nin_status", type="string", description="NIN verification status."),
+     *                 @OA\Property(property="nin_details", type="object", description="Details from the NIN verification."),
+     *                 @OA\Property(property="bvn", type="string", description="User's Bank Verification Number."),
+     *                 @OA\Property(property="bvn_status", type="string", description="BVN verification status."),
+     *                 @OA\Property(property="bvn_details", type="object", description="Details from the BVN verification."),
+     *                 @OA\Property(property="contact_address", type="string", description="User's contact address."),
+     *                 @OA\Property(property="proof_of_address", type="string", description="Proof of address document."),
+     *                 @OA\Property(property="live_face_verification", type="string", description="Live face verification result."),
+     *                 @OA\Property(property="admin_approval_status", type="string", description="Admin's approval status.")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="No KYCs found or an error occurred."
      *     ),
      *
      *     security={
@@ -682,227 +711,244 @@ class KycController extends BaseController
      *     }
      * )
     */
+
     public function getKycForApproval(Request $request)
     {
-        //return ZeptomailService::sendMailZeptoMail('Testing' ,'Test Message', 'abdilkura@gmail.com');
-        // $message=['name'=>'Abdul Kura'];
-        // return ZeptomailService::sendTemplateZeptoMail("2d6f.117fe6ec4fda4841.k1.80540ec1-7b4f-11ef-ba81-5254000b1a0e.19229b699aa" ,$message, 'abdilkura@gmail.com');
-           
-        $status = $request->query('status');
-        if($status=='all')
-        {
-            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
-                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
+        $status = $request->query('status', 'all'); // Default to 'all' if no status is provided.
+
+        $kycsQuery = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+            ->select(['kyc_verifications.*', 'users.first_name', 'users.last_name']);
+
+        if ($status !== 'all') {
+            $kycsQuery->where('kyc_verifications.status', $status);
         }
-        else{
-            $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
-                ->where('kyc_verifications.status', $status)
-                ->get(['kyc_verifications.*','users.first_name','users.last_name']);
+
+        $kycs = $kycsQuery->get();
+
+        if ($kycs->isEmpty()) {
+            return $this->sendError('No KYCs found', 'No KYCs match the given criteria.', 422);
         }
-        
-        if (!$kycs) {
-            return $this->sendError('Error', 'No Available KYC', 422);
-        }
+
         $kycs = $kycs->map(function ($kyc) {
-            // Transforming or adding fields
-
-            if($kyc->nin_details)
-            {
-                $data = json_decode($kyc->nin_details, true);
-
-                // $decodedPhoto = base64_decode($data['photo']);
-
-                // $photoPath = 'decoded_photo.jpg';
-                // file_put_contents($photoPath, $decodedPhoto);
-
-                // $formattedData = json_encode([
-                //     'nin' => $data['nin'],
-                //     'firstname' => $data['firstname'],
-                //     'lastname' => $data['lastname'],
-                //     'middlename' => $data['middlename'] ?: null,
-                //     'phone' => $data['phone'],
-                //     'gender' => strtoupper($data['gender']) === 'F' ? 'Female' : 'Male',
-                //     'photo_url' => $decodedPhoto,
-                // ]);
-            }
+            $ninDetails = $kyc->nin_details ? json_decode($kyc->nin_details, true) : null;
 
             return [
                 'uuid' => $kyc->uuid,
                 'first_name' => $kyc->first_name,
-                'last_name' => $kyc->first_name,
-
+                'last_name' => $kyc->last_name,
                 'phone' => $kyc->phone,
                 'phone_status' => $kyc->phone_verification_code == 1 ? 'verified' : 'not verified',
-
                 'email' => $kyc->email,
                 'email_status' => $kyc->email_verification_code == 1 ? 'verified' : 'not verified',
-
                 'nin' => $kyc->nin,
-                'nin_status' => $kyc->nin_details ? 'submitted' : 'not submit',
-                'nin_details' => $kyc->nin_details ? $data : $kyc->nin_details,
-
+                'nin_status' => $kyc->nin_details ? 'submitted' : 'not submitted',
+                'nin_details' => $ninDetails,
                 'bvn' => $kyc->bvn,
-                'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submit',
-                'bvn_details' => $kyc->bvn_details ,
-
+                'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submitted',
+                'bvn_details' => $kyc->bvn_details,
                 'contact_address' => $kyc->contact_address,
                 'proof_of_address' => $kyc->proof_of_address,
                 'live_face_verification' => $kyc->live_face_verification,
                 'admin_approval_status' => $kyc->status,
-                
             ];
         });
 
-        return $this->successfulResponse($kycs, 'KYC list retrieved successfully', 200);
+        return $this->successfulResponse($kycs, 'KYC list retrieved successfully.', 200);
     }
 
     /**
      * @OA\Get(
      *     path="/api/v1/brails-kyc/get-user-kyc-details",
      *     tags={"Brails KYC"},
-     *     summary="Get user kyc details",
-     *     operationId="Get user kyc details",
-     *
-    *     @OA\Parameter(
-   *         name="uuid",
-   *         in="query",
-   *         required=true,
-   *         description="user uuid",
-   *         @OA\Schema(type="string")
-   *     ),
+     *     summary="Retrieve User KYC Details",
+     *     description="Fetch detailed Know Your Customer (KYC) information for a user by providing their UUID.",
+     *     operationId="getUserKycDetails",
+     * 
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="query",
+     *         required=true,
+     *         description="Unique identifier (UUID) of the user.",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="123e4567-e89b-12d3-a456-426614174000"
+     *         )
+     *     ),
      * 
      *     @OA\Response(
      *         response=200,
-     *         description="Success"
+     *         description="KYC details retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="uuid", type="string", description="User's UUID"),
+     *                 @OA\Property(property="first_name", type="string", description="User's first name"),
+     *                 @OA\Property(property="last_name", type="string", description="User's last name"),
+     *                 @OA\Property(property="phone", type="string", description="User's phone number"),
+     *                 @OA\Property(property="phone_status", type="string", description="Phone verification status"),
+     *                 @OA\Property(property="email", type="string", description="User's email address"),
+     *                 @OA\Property(property="email_status", type="string", description="Email verification status"),
+     *                 @OA\Property(property="nin", type="string", description="National Identification Number"),
+     *                 @OA\Property(property="nin_status", type="string", description="NIN submission status"),
+     *                 @OA\Property(property="nin_details", type="object", description="Decoded NIN details"),
+     *                 @OA\Property(property="bvn", type="string", description="Bank Verification Number"),
+     *                 @OA\Property(property="bvn_status", type="string", description="BVN submission status"),
+     *                 @OA\Property(property="bvn_details", type="string", description="BVN details"),
+     *                 @OA\Property(property="contact_address", type="string", description="User's contact address"),
+     *                 @OA\Property(property="proof_of_address", type="string", description="Proof of address document"),
+     *                 @OA\Property(property="live_face_verification", type="string", description="Live face verification status"),
+     *                 @OA\Property(property="admin_approval_status", type="string", description="Admin approval status for KYC")
+     *             )
+     *         )
      *     ),
-     *
+     * 
+     *     @OA\Response(
+     *         response=422,
+     *         description="No available KYC details for the specified UUID",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="No Available KYC")
+     *         )
+     *     ),
+     * 
      *     security={
      *         {"bearer_token": {}}
      *     }
      * )
     */
+
     public function getUserKycDetails(Request $request)
-    {   
+    {
         $user_id = Auth::user()->id;
         $uuid = $request->query('uuid');
 
+        // Fetch user KYC details by joining with the 'users' table
         $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
             ->where('users.uuid', $uuid)
-            ->get(['kyc_verifications.*','users.first_name','users.last_name']);
-        
-        if (!$kycs) {
+            ->get(['kyc_verifications.*', 'users.first_name', 'users.last_name']);
+
+        // Return error response if no KYC details found
+        if ($kycs->isEmpty()) {
             return $this->sendError('Error', 'No Available KYC', 422);
         }
-        
+
+        // Transform KYC details
         $kycs = $kycs->map(function ($kyc) {
-            // Transforming or adding fields
-            if($kyc->nin_details)
-            {
-                $data = json_decode($kyc->nin_details, true);
-            }
+            $ninDetails = $kyc->nin_details ? json_decode($kyc->nin_details, true) : null;
+
             return [
                 'uuid' => $kyc->uuid,
                 'first_name' => $kyc->first_name,
-                'last_name' => $kyc->first_name,
-
+                'last_name' => $kyc->last_name,
                 'phone' => $kyc->phone,
                 'phone_status' => $kyc->phone_verification_code == 1 ? 'verified' : 'not verified',
-
                 'email' => $kyc->email,
                 'email_status' => $kyc->email_verification_code == 1 ? 'verified' : 'not verified',
-
                 'nin' => $kyc->nin,
-                'nin_status' => $kyc->nin_details ? 'submitted' : 'not submit',
-                'nin_details' => $kyc->nin_details ?  $data : $kyc->nin_details,
-
+                'nin_status' => $kyc->nin_details ? 'submitted' : 'not submitted',
+                'nin_details' => $ninDetails,
                 'bvn' => $kyc->bvn,
-                'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submit',
+                'bvn_status' => $kyc->bvn_details ? 'submitted' : 'not submitted',
                 'bvn_details' => $kyc->bvn_details,
-
                 'contact_address' => $kyc->contact_address,
                 'proof_of_address' => $kyc->proof_of_address,
                 'live_face_verification' => $kyc->live_face_verification,
                 'admin_approval_status' => $kyc->status,
-                
             ];
         });
 
+        // Return success response
         return $this->successfulResponse($kycs, 'User KYC Details retrieved successfully', 200);
     }
 
     /**
-    * @OA\Post(
-    ** path="/api/v1/brails-kyc/approve-reject-kyc",
-    *   tags={"Brails KYC"},
-    *   summary="Admin (approve or reject kyc by admin)",
-    *   operationId="Admin (approve or reject kyc by admin)",
-    *
-    *   @OA\RequestBody(
-    *      @OA\MediaType(mediaType="multipart/form-data",
-    *          @OA\Schema(
-    *              required={"status","uuid"},
-    *              @OA\Property(property="uuid", type="string", description=""),
-    *              @OA\Property(property="status", type="strinf", enum={"approved", "pending", "declined"}, default="approved", description=""),
-    *              @OA\Property(property="admin_comment", type="string", description=""),
-    *          ),
-    *      ),
-    *   ),
-    * 
-    *   @OA\Response(
-    *      response=200,
-    *       description="Success",
-    *      @OA\MediaType(
-    *           mediaType="application/json",
-    *      )
-    *   ),
-    *   @OA\Response(
-    *      response=401,
-    *       description="Unauthenticated"
-    *   ),
-    *   @OA\Response(
-    *      response=400,
-    *      description="Bad Request"
-    *   ),
-    *   @OA\Response(
-    *      response=404,
-    *      description="Not found"
-    *   ),
-    *   @OA\Response(
-    *      response=403,
-    *      description="Forbidden"
-    *   ),
-    *   security={
-    *       {"bearer_token": {}}
-    *   }
-    *)
-    **/
+     * @OA\Post(
+     *   path="/api/v1/brails-kyc/approve-reject-kyc",
+     *   tags={"Brails KYC"},
+     *   summary="Approve or reject KYC by admin",
+     *   operationId="ApproveOrRejectKYC",
+     *
+     *   @OA\RequestBody(
+     *      @OA\MediaType(
+     *          mediaType="multipart/form-data",
+     *          @OA\Schema(
+     *              required={"status", "uuid"},
+     *              @OA\Property(property="uuid", type="string", description="Unique identifier for the KYC record"),
+     *              @OA\Property(property="status", type="string", enum={"approved", "pending", "declined"}, default="approved", description="KYC approval status"),
+     *              @OA\Property(property="admin_comment", type="string", description="Optional admin comment"),
+     *          ),
+     *      ),
+     *   ),
+     *
+     *   @OA\Response(
+     *      response=200,
+     *      description="Success",
+     *      @OA\MediaType(
+     *          mediaType="application/json",
+     *      )
+     *   ),
+     *   @OA\Response(
+     *      response=400,
+     *      description="Bad Request"
+     *   ),
+     *   @OA\Response(
+     *      response=401,
+     *      description="Unauthenticated"
+     *   ),
+     *   @OA\Response(
+     *      response=404,
+     *      description="KYC record not found"
+     *   ),
+     *   @OA\Response(
+     *      response=500,
+     *      description="Internal Server Error"
+     *   ),
+     *   security={
+     *      {"bearer_token": {}}
+     *   }
+     * )
+    */
+    
     public function kycApproval(Request $request)
     {
-        // Get all input data
-        $data = $request->all();
+        try {
+            // Validate incoming request data
+            $validator = Validator::make($request->all(), [
+                'status' => 'required|string|in:approved,pending,declined',
+                'uuid' => 'required|string',
+                'admin_comment' => 'nullable|string',
+            ]);
 
-        // Validation rules
-        $validator = Validator::make($data, [
-            'status' => 'required|string',
-            'uuid' => 'required|string',
-            'admin_comment' => 'nullable|string',
-        ]);
+            // If validation fails, return a 422 error with validation messages
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error', $validator->errors(), 422);
+            }
 
-        // If validation fails, return a 422 error with validation messages
-        if ($validator->fails()) {
-            return $this->sendError('Error', $validator->errors(), 422);
+            // Extract validated data
+            $data = $validator->validated();
+
+            // Find the KYC record by UUID
+            $kyc = KycVerification::where('uuid', $data['uuid'])->first();
+
+            if (!$kyc) {
+                return $this->sendError('KYC record not found', null, 404);
+            }
+
+            // Update KYC status and admin comment
+            $kyc->status = $data['status'];
+            $kyc->admin_comment = $data['admin_comment'] ?? null;
+            $kyc->save();
+
+            // Return success response
+            return $this->successfulResponse(
+                [],
+                "KYC successfully " . ucfirst($data['status']),
+                200
+            );
+        } catch (\Exception $e) {
+            // Handle unexpected errors
+            return $this->sendError('An unexpected error occurred', $e->getMessage(), 500);
         }
-
-        //
-        // Find the user's KYC record
-        $kyc = KycVerification::where('uuid', $data['uuid'])->first();
-
-        $kyc->status = $data['status'];
-        $kyc->admin_comment = $data['admin_comment'];
-        $kyc->save();
-
-        // Return a success response
-        return $this->successfulResponse([], "KYC successfully ".ucwords($data['status'])." ", 200);
     }
 
     protected function checkWalletBalance($userId)

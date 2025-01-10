@@ -2882,13 +2882,14 @@
                 "tags": [
                     "Brails KYC"
                 ],
-                "summary": "Get all kyc list",
-                "operationId": "Get all kyc list",
+                "summary": "Retrieve the list of KYCs",
+                "description": "Fetches a list of KYCs filtered by their status. If no filter is applied, all KYCs are retrieved.",
+                "operationId": "getKycList",
                 "parameters": [
                     {
                         "name": "status",
                         "in": "query",
-                        "description": "Filter by KYC status: all, approved, pending, declined",
+                        "description": "Filter by KYC status. Valid options are 'all', 'approved', 'pending', or 'declined'.",
                         "required": true,
                         "schema": {
                             "type": "string",
@@ -2904,7 +2905,90 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "Successfully retrieved the KYC list.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "uuid": {
+                                                "description": "Unique identifier for the KYC.",
+                                                "type": "string"
+                                            },
+                                            "first_name": {
+                                                "description": "User's first name.",
+                                                "type": "string"
+                                            },
+                                            "last_name": {
+                                                "description": "User's last name.",
+                                                "type": "string"
+                                            },
+                                            "phone": {
+                                                "description": "User's phone number.",
+                                                "type": "string"
+                                            },
+                                            "phone_status": {
+                                                "description": "Phone verification status.",
+                                                "type": "string"
+                                            },
+                                            "email": {
+                                                "description": "User's email address.",
+                                                "type": "string"
+                                            },
+                                            "email_status": {
+                                                "description": "Email verification status.",
+                                                "type": "string"
+                                            },
+                                            "nin": {
+                                                "description": "User's National Identification Number.",
+                                                "type": "string"
+                                            },
+                                            "nin_status": {
+                                                "description": "NIN verification status.",
+                                                "type": "string"
+                                            },
+                                            "nin_details": {
+                                                "description": "Details from the NIN verification.",
+                                                "type": "object"
+                                            },
+                                            "bvn": {
+                                                "description": "User's Bank Verification Number.",
+                                                "type": "string"
+                                            },
+                                            "bvn_status": {
+                                                "description": "BVN verification status.",
+                                                "type": "string"
+                                            },
+                                            "bvn_details": {
+                                                "description": "Details from the BVN verification.",
+                                                "type": "object"
+                                            },
+                                            "contact_address": {
+                                                "description": "User's contact address.",
+                                                "type": "string"
+                                            },
+                                            "proof_of_address": {
+                                                "description": "Proof of address document.",
+                                                "type": "string"
+                                            },
+                                            "live_face_verification": {
+                                                "description": "Live face verification result.",
+                                                "type": "string"
+                                            },
+                                            "admin_approval_status": {
+                                                "description": "Admin's approval status.",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "No KYCs found or an error occurred."
                     }
                 },
                 "security": [
@@ -2919,22 +3003,124 @@
                 "tags": [
                     "Brails KYC"
                 ],
-                "summary": "Get user kyc details",
-                "operationId": "Get user kyc details",
+                "summary": "Retrieve User KYC Details",
+                "description": "Fetch detailed Know Your Customer (KYC) information for a user by providing their UUID.",
+                "operationId": "getUserKycDetails",
                 "parameters": [
                     {
                         "name": "uuid",
                         "in": "query",
-                        "description": "user uuid",
+                        "description": "Unique identifier (UUID) of the user.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Success"
+                        "description": "KYC details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "uuid": {
+                                                "description": "User's UUID",
+                                                "type": "string"
+                                            },
+                                            "first_name": {
+                                                "description": "User's first name",
+                                                "type": "string"
+                                            },
+                                            "last_name": {
+                                                "description": "User's last name",
+                                                "type": "string"
+                                            },
+                                            "phone": {
+                                                "description": "User's phone number",
+                                                "type": "string"
+                                            },
+                                            "phone_status": {
+                                                "description": "Phone verification status",
+                                                "type": "string"
+                                            },
+                                            "email": {
+                                                "description": "User's email address",
+                                                "type": "string"
+                                            },
+                                            "email_status": {
+                                                "description": "Email verification status",
+                                                "type": "string"
+                                            },
+                                            "nin": {
+                                                "description": "National Identification Number",
+                                                "type": "string"
+                                            },
+                                            "nin_status": {
+                                                "description": "NIN submission status",
+                                                "type": "string"
+                                            },
+                                            "nin_details": {
+                                                "description": "Decoded NIN details",
+                                                "type": "object"
+                                            },
+                                            "bvn": {
+                                                "description": "Bank Verification Number",
+                                                "type": "string"
+                                            },
+                                            "bvn_status": {
+                                                "description": "BVN submission status",
+                                                "type": "string"
+                                            },
+                                            "bvn_details": {
+                                                "description": "BVN details",
+                                                "type": "string"
+                                            },
+                                            "contact_address": {
+                                                "description": "User's contact address",
+                                                "type": "string"
+                                            },
+                                            "proof_of_address": {
+                                                "description": "Proof of address document",
+                                                "type": "string"
+                                            },
+                                            "live_face_verification": {
+                                                "description": "Live face verification status",
+                                                "type": "string"
+                                            },
+                                            "admin_approval_status": {
+                                                "description": "Admin approval status for KYC",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "No available KYC details for the specified UUID",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No Available KYC"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2949,8 +3135,8 @@
                 "tags": [
                     "Brails KYC"
                 ],
-                "summary": "Admin (approve or reject kyc by admin)",
-                "operationId": "Admin (approve or reject kyc by admin)",
+                "summary": "Approve or reject KYC by admin",
+                "operationId": "ApproveOrRejectKYC",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -2961,12 +3147,12 @@
                                 ],
                                 "properties": {
                                     "uuid": {
-                                        "description": "",
+                                        "description": "Unique identifier for the KYC record",
                                         "type": "string"
                                     },
                                     "status": {
-                                        "description": "",
-                                        "type": "strinf",
+                                        "description": "KYC approval status",
+                                        "type": "string",
                                         "default": "approved",
                                         "enum": [
                                             "approved",
@@ -2975,7 +3161,7 @@
                                         ]
                                     },
                                     "admin_comment": {
-                                        "description": "",
+                                        "description": "Optional admin comment",
                                         "type": "string"
                                     }
                                 },
@@ -2991,17 +3177,17 @@
                             "application/json": {}
                         }
                     },
-                    "401": {
-                        "description": "Unauthenticated"
-                    },
                     "400": {
                         "description": "Bad Request"
                     },
-                    "404": {
-                        "description": "Not found"
+                    "401": {
+                        "description": "Unauthenticated"
                     },
-                    "403": {
-                        "description": "Forbidden"
+                    "404": {
+                        "description": "KYC record not found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
                     }
                 },
                 "security": [
