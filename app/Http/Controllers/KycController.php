@@ -680,7 +680,8 @@ class KycController extends BaseController
      *             type="array",
      *             @OA\Items(
      *                 type="object",
-     *                 @OA\Property(property="uuid", type="string", description="Unique identifier for the KYC."),
+     *                 @OA\Property(property="kyc_uuid", type="string", description="Kyc's UUID"),
+     *                 @OA\Property(property="user_uuid", type="string", description="User's UUID"),
      *                 @OA\Property(property="first_name", type="string", description="User's first name."),
      *                 @OA\Property(property="last_name", type="string", description="User's last name."),
      *                 @OA\Property(property="phone", type="string", description="User's phone number."),
@@ -782,7 +783,8 @@ class KycController extends BaseController
      *         @OA\JsonContent(
      *             type="array",
      *             @OA\Items(
-     *                 @OA\Property(property="uuid", type="string", description="User's UUID"),
+     *                 @OA\Property(property="kyc_uuid", type="string", description="Kyc's UUID"),
+     *                 @OA\Property(property="user_uuid", type="string", description="User's UUID"),
      *                 @OA\Property(property="first_name", type="string", description="User's first name"),
      *                 @OA\Property(property="last_name", type="string", description="User's last name"),
      *                 @OA\Property(property="phone", type="string", description="User's phone number"),

@@ -2912,8 +2912,12 @@
                                     "type": "array",
                                     "items": {
                                         "properties": {
-                                            "uuid": {
-                                                "description": "Unique identifier for the KYC.",
+                                            "kyc_uuid": {
+                                                "description": "Kyc's UUID",
+                                                "type": "string"
+                                            },
+                                            "user_uuid": {
+                                                "description": "User's UUID",
                                                 "type": "string"
                                             },
                                             "first_name": {
@@ -3027,7 +3031,11 @@
                                     "type": "array",
                                     "items": {
                                         "properties": {
-                                            "uuid": {
+                                            "kyc_uuid": {
+                                                "description": "Kyc's UUID",
+                                                "type": "string"
+                                            },
+                                            "user_uuid": {
                                                 "description": "User's UUID",
                                                 "type": "string"
                                             },
