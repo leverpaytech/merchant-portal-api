@@ -717,7 +717,7 @@ class KycController extends BaseController
         $status = $request->query('status', 'all'); // Default to 'all' if no status is provided.
 
         $kycsQuery = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
-            ->select(['kyc_verifications.*', 'users.first_name', 'users.last_name']);
+            ->select(['kyc_verifications.*', 'users.uuid as user_uuid','users.first_name', 'users.last_name']);
 
         if ($status !== 'all') {
             $kycsQuery->where('kyc_verifications.status', $status);
@@ -733,7 +733,8 @@ class KycController extends BaseController
             $ninDetails = $kyc->nin_details ? json_decode($kyc->nin_details, true) : null;
 
             return [
-                'uuid' => $kyc->uuid,
+                'kyc_uuid' => $kyc->uuid,
+                'user_uuid' => $kyc->user_uuid,
                 'first_name' => $kyc->first_name,
                 'last_name' => $kyc->last_name,
                 'phone' => $kyc->phone,
@@ -825,7 +826,7 @@ class KycController extends BaseController
         // Fetch user KYC details by joining with the 'users' table
         $kycs = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
             ->where('users.uuid', $uuid)
-            ->get(['kyc_verifications.*', 'users.first_name', 'users.last_name']);
+            ->get(['kyc_verifications.*', 'users.uuid as user_uuid','users.first_name', 'users.last_name']);
 
         // Return error response if no KYC details found
         if ($kycs->isEmpty()) {
@@ -837,7 +838,8 @@ class KycController extends BaseController
             $ninDetails = $kyc->nin_details ? json_decode($kyc->nin_details, true) : null;
 
             return [
-                'uuid' => $kyc->uuid,
+                'kyc_uuid' => $kyc->uuid,
+                'user_uuid' => $kyc->user_uuid,
                 'first_name' => $kyc->first_name,
                 'last_name' => $kyc->last_name,
                 'phone' => $kyc->phone,
@@ -908,7 +910,7 @@ class KycController extends BaseController
      *   }
      * )
     */
-    
+
     public function kycApproval(Request $request)
     {
         try {
