@@ -73,8 +73,8 @@ class QoreIdService
         $url = env('QOREID_BASE_URL')."/v1/ng/identities/bvn-match/{$bvn}";
         
         $fields = [
-            'firstname' => 'Abdusslam', //$firstname,
-            'lastname' => 'Usman'//$lastname
+            'firstname' => $firstname,
+            'lastname' => $lastname
         ];
 
         // Make the API request
