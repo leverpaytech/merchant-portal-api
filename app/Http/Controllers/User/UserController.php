@@ -271,73 +271,86 @@ class UserController extends BaseController
      *)
      **/
     public function updateUserProfile(Request $request)
-    {
-        $userId = Auth::user()->id;
-        $email = Auth::user()->email;
-        $name = Auth::user()->first_name;
+{
+    $userId = Auth::user()->id;
+    $email = Auth::user()->email;
+    $name = Auth::user()->first_name; // Default name (used for email notifications)
 
-        //$data = $request->all();
+    // Validate the request including first_name and last_name
+    $data = $this->validate($request, [
+        'first_name' => 'nullable|string|max:255',
+        'last_name' => 'nullable|string|max:255',
+        'other_name' => 'nullable',
+        'other_email' => 'nullable',
+        'primary_email' => 'nullable',
+        'other_phone' => 'nullable',
+        'primary_phone' => 'nullable',
+        'country_id' => 'nullable',
+        'state_id' => 'nullable',
+        'city_id' => 'nullable',
+        'address' => 'nullable',
+        'gender' => 'nullable',
+        'passport' => 'nullable|mimes:jpeg,png,jpg,gif|max:4096'
+    ]);
 
-        $data = $this->validate($request, [
-            'other_name' => 'nullable',
-            'other_email' => 'nullable',
-            'primary_email' => 'nullable',
-            'other_phone' => 'nullable',
-            'primary_phone' => 'nullable',
-            'country_id' => 'nullable',
-            'state_id' => 'nullable',
-            'city_id' => 'nullable',
-            'address' => 'nullable',
-            'gender' => 'nullable',
-            'passport' => 'nullable|mimes:jpeg,png,jpg,gif|max:4096'
-        ]);
-
-
-        if(!empty($data['passport']))
-        {
-            try
-            {
-                $newname = cloudinary()->upload($request->file('passport')->getRealPath(),
-                    ['folder'=>'leverpay/profile_picture']
-                )->getSecurePath();
-
-                $data['passport']= $newname;
-
-                //add new image
-                //$request->passport->move(public_path('passports'), $newname);
-            } catch (\Exception $ex) {
-                return $this->sendError($ex->getMessage());
-            }
+    // If first_name or last_name is provided, update it
+    if (!empty($data['first_name']) || !empty($data['last_name'])) {
+        if (!empty($data['first_name'])) {
+            Auth::user()->update(['first_name' => $data['first_name']]);
         }
 
-        if(!empty($data['primary_email']) || !empty($data['primary_phone']))
-        {
-            $verifyToken = rand(1000, 9999);
-            $data['change_email_phone_token'] = $verifyToken;
-            // send email
-            // Mail::to($email)->send(new ChangePhoneAndEmailVerifier($name, $verifyToken));
-
-            $html = "<p style='margin-bottom: 8px'>
-                        Below is your verification token
-                    </p>
-                    <h4 style='margin-bottom: 8px'>
-                        {$verifyToken}
-                    </h4>
-                ";
-
-            SmsService::sendMail("Dear {$name},", $html, "Verification Code", $email);
+        if (!empty($data['last_name'])) {
+            Auth::user()->update(['last_name' => $data['last_name']]);
         }
 
-        $user = $this->userModel->updateUser($data,$userId);
-        // $user->firstname
-        $data2['activity']="User Profile Update";
-        $data2['user_id']=$userId;
-
-        ActivityLog::createActivity($data2);
-
-
-        return $this->successfulResponse(new UserResource($user), 'User profile successfully updated');
+        // Update the $name variable for use in notifications or emails
+        $name = Auth::user()->first_name . ' ' . Auth::user()->last_name;
     }
+
+    // Passport file upload (if applicable)
+    if (!empty($data['passport'])) {
+        try {
+            $newname = cloudinary()->upload($request->file('passport')->getRealPath(), [
+                'folder' => 'leverpay/profile_picture'
+            ])->getSecurePath();
+
+            $data['passport'] = $newname;
+        } catch (\Exception $ex) {
+            return $this->sendError($ex->getMessage());
+        }
+    }
+
+    // Handle email or phone verification if primary_email or primary_phone is provided
+    if (!empty($data['primary_email']) || !empty($data['primary_phone'])) {
+        $verifyToken = rand(1000, 9999);
+        $data['change_email_phone_token'] = $verifyToken;
+
+        // Send verification email
+        // Mail::to($email)->send(new ChangePhoneAndEmailVerifier($name, $verifyToken));
+
+        $html = "<p style='margin-bottom: 8px'>
+                    Below is your verification token
+                </p>
+                <h4 style='margin-bottom: 8px'>
+                    {$verifyToken}
+                </h4>
+            ";
+
+        SmsService::sendMail("Dear {$name},", $html, "Verification Code", $email);
+    }
+
+    // Update the user profile with the new data
+    $user = $this->userModel->updateUser($data, $userId);
+
+    // Log the activity
+    $data2['activity'] = "User Profile Update";
+    $data2['user_id'] = $userId;
+    ActivityLog::createActivity($data2);
+
+    // Return the response with the updated user profile
+    return $this->successfulResponse(new UserResource($user), 'User profile successfully updated');
+}
+
 
     /**
      * @OA\Get(
