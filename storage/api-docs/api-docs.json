@@ -3205,6 +3205,55 @@
                 ]
             }
         },
+        "/api/v1/brails-kyc/reset-user-kyc": {
+            "get": {
+                "tags": [
+                    "Brails KYC"
+                ],
+                "summary": "Reset User kyc",
+                "description": "Reset user kyc",
+                "operationId": "resettUserKyc",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "query",
+                        "description": "Unique identifier (UUID) of the user.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "422": {
+                        "description": "No available KYC details for the specified UUID",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "No Available KYC"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
         "/api/v1/merchant/logout": {
             "get": {
                 "tags": [
@@ -4893,6 +4942,12 @@
                         "multipart/form-data": {
                             "schema": {
                                 "properties": {
+                                    "first_name": {
+                                        "type": "string"
+                                    },
+                                    "last_name": {
+                                        "type": "string"
+                                    },
                                     "other_name": {
                                         "type": "string"
                                     },

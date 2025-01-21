@@ -430,6 +430,12 @@ class KycController extends BaseController
             return $this->sendError('Validation Error', $validator->errors(), 422);
         }
 
+        $checkIfNotUse = KycVerification::where('nin', $request->nin)->where('user_id', '!=', $user->id)->first();
+
+        if ($checkIfNotUse) {
+            return $this->sendError('Error', 'NIN already used by someone', 422);
+        }
+
         // Generate access token using QoreIdService
         $accessToken = QoreIdService::generateAccessToken();
 
@@ -535,11 +541,16 @@ class KycController extends BaseController
             return $this->sendError('Validation Error', $validator->errors(), 422);
         }
 
+        $checkIfNotUse = KycVerification::where('bvn', $request->bvn)->where('user_id', '!=', $user->id)->first();
+
+        if ($checkIfNotUse) {
+            return $this->sendError('Error', 'BVN already used by someone', 422);
+        }
         // Generate access token using QoreIdService
         $accessToken = QoreIdService::generateAccessToken();
 
         // Call the verifyBVN method with the required parameters
-        return $bvnVerificationResult = QoreIdService::verifyBVN(
+        $bvnVerificationResult = QoreIdService::verifyBVN(
             $request->bvn,
             $user->first_name,
             $user->last_name,
@@ -941,7 +952,26 @@ class KycController extends BaseController
             // Update KYC status and admin comment
             $kyc->status = $data['status'];
             $kyc->admin_comment = $data['admin_comment'] ?? null;
+            if($kyc->status=='declined')
+            {
+                $kyc->phone=NULL;
+                $kyc->emaill=NULL;
+                $kyc->nin=NULL;
+                $kyc->bvn=NULL;
+                $kyc->nin_details=NULL;
+                $kyc->bvn_details=NULL;
+                $kyc->contact_address=NULL;
+                $kyc->proof_of_address=NULL;
+                $kyc->live_face_verification=NULL;
+                $kyc->phone_verified_at=NULL;
+                $kyc->email_verified_at=NULL;
+                $kyc->nin_verified_at=NULL;
+                $kyc->bvn_verified_at=NULL;
+                $kyc->address_verified_at=NULL;
+                $kyc->live_face_verified_at=NULL;
+            }
             $kyc->save();
+
 
             // Return success response
             return $this->successfulResponse(
@@ -960,6 +990,77 @@ class KycController extends BaseController
         $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
 
         return $checkBalance && $checkBalance->withdrawable_amount >= 500;
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/brails-kyc/reset-user-kyc",
+     *     tags={"Brails KYC"},
+     *     summary="Reset User kyc",
+     *     description="Reset user kyc",
+     *     operationId="resettUserKyc",
+     * 
+     *     @OA\Parameter(
+     *         name="uuid",
+     *         in="query",
+     *         required=true,
+     *         description="Unique identifier (UUID) of the user.",
+     *         @OA\Schema(
+     *             type="string",
+     *             example="123e4567-e89b-12d3-a456-426614174000"
+     *         )
+     *     ),
+     *  
+     *     @OA\Response(
+     *         response=422,
+     *         description="No available KYC details for the specified UUID",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="No Available KYC")
+     *         )
+     *     ),
+     * 
+     *     security={
+     *         {"bearer_token": {}}
+     *     }
+     * )
+    */
+
+    public function resetKyc(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $uuid = $request->query('uuid');
+
+        $check = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+            ->where('users.uuid', $uuid)
+            ->get(['kyc_verifications.id'])
+            ->first();
+
+        if (!$check) {
+            return $this->sendError('Error', 'No Available KYC', 422);
+        }
+
+        // Transform KYC details
+        $kyc=KycVerification::find($check->id);
+        $kyc->phone=NULL;
+        $kyc->emaill=NULL;
+        $kyc->nin=NULL;
+        $kyc->bvn=NULL;
+        $kyc->nin_details=NULL;
+        $kyc->bvn_details=NULL;
+        $kyc->contact_address=NULL;
+        $kyc->proof_of_address=NULL;
+        $kyc->live_face_verification=NULL;
+        $kyc->phone_verified_at=NULL;
+        $kyc->email_verified_at=NULL;
+        $kyc->nin_verified_at=NULL;
+        $kyc->bvn_verified_at=NULL;
+        $kyc->address_verified_at=NULL;
+        $kyc->live_face_verified_at=NULL;
+        $kyc->save();
+
+        // Return success response
+        return $this->successfulResponse([], 'User KYC successfully reset', 200);
     }
     
 }

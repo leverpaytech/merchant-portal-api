@@ -228,6 +228,8 @@ class UserController extends BaseController
      *    @OA\RequestBody(
      *      @OA\MediaType( mediaType="multipart/form-data",
      *          @OA\Schema(
+     *              @OA\Property( property="first_name", type="string"),
+     *              @OA\Property( property="last_name", type="string"),
      *              @OA\Property( property="other_name", type="string"),
      *              @OA\Property( property="other_email", type="string"),
      *              @OA\Property( property="other_phone", type="string"),
@@ -279,6 +281,8 @@ class UserController extends BaseController
         //$data = $request->all();
 
         $data = $this->validate($request, [
+            'first_name' => 'nullable',
+            'last_name' => 'nullable',
             'other_name' => 'nullable',
             'other_email' => 'nullable',
             'primary_email' => 'nullable',
