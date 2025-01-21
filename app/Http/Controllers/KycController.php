@@ -949,31 +949,35 @@ class KycController extends BaseController
             if (!$kyc) {
                 return $this->sendError('KYC record not found', null, 404);
             }
-
+            
             // Update KYC status and admin comment
-            $kyc->status = $data['status'];
-            $kyc->admin_comment = $data['admin_comment'] ?? null;
-            if($kyc->status=='declined')
-            {
-                $kyc->phone=NULL;
-                $kyc->emaill=NULL;
-                $kyc->nin=NULL;
-                $kyc->bvn=NULL;
-                $kyc->nin_details=NULL;
-                $kyc->bvn_details=NULL;
-                $kyc->contact_address=NULL;
-                $kyc->proof_of_address=NULL;
-                $kyc->live_face_verification=NULL;
-                $kyc->phone_verified_at=NULL;
-                $kyc->email_verified_at=NULL;
-                $kyc->nin_verified_at=NULL;
-                $kyc->bvn_verified_at=NULL;
-                $kyc->address_verified_at=NULL;
-                $kyc->live_face_verified_at=NULL;
-            }
-            $kyc->save();
-
-
+            DB::transaction(function () use ($kyc, $data) {
+                $kyc->status = $data['status'];
+                $kyc->admin_comment = $data['admin_comment'] ?? null;
+    
+                if ($kyc->status === 'declined') {
+                    $kyc->update([
+                        'phone' => null,
+                        'email' => null,
+                        'nin' => null,
+                        'bvn' => null,
+                        'nin_details' => null,
+                        'bvn_details' => null,
+                        'contact_address' => null,
+                        'proof_of_address' => null,
+                        'live_face_verification' => null,
+                        'phone_verified_at' => null,
+                        'email_verified_at' => null,
+                        'nin_verified_at' => null,
+                        'bvn_verified_at' => null,
+                        'address_verified_at' => null,
+                        'live_face_verified_at' => null,
+                    ]);
+                } else {
+                    $kyc->save();
+                }
+            });
+    
             // Return success response
             return $this->successfulResponse(
                 [],
@@ -983,9 +987,9 @@ class KycController extends BaseController
         } catch (\Exception $e) {
             // Handle unexpected errors
             return $this->sendError('An unexpected error occurred', $e->getMessage(), 500);
-        }
+        }    
     }
-    
+
     protected function checkWalletBalance($userId)
     {
         $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
