@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\DB;
 
 class KycController extends BaseController
 {
@@ -984,7 +985,7 @@ class KycController extends BaseController
             return $this->sendError('An unexpected error occurred', $e->getMessage(), 500);
         }
     }
-
+    
     protected function checkWalletBalance($userId)
     {
         $checkBalance = Wallet::where('user_id', $userId)->first(['withdrawable_amount', 'amount']);
@@ -1028,39 +1029,47 @@ class KycController extends BaseController
 
     public function resetKyc(Request $request)
     {
-        $user_id = Auth::user()->id;
+        $userId = Auth::id(); // Use Auth::id() for simplicity
         $uuid = $request->query('uuid');
 
-        $check = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
-            ->where('users.uuid', $uuid)
-            ->get(['kyc_verifications.id'])
-            ->first();
+        try {
+            // Fetch KYC record
+            $kyc = KycVerification::join('users', 'users.id', '=', 'kyc_verifications.user_id')
+                ->where('users.uuid', $uuid)
+                ->select('kyc_verifications.*')
+                ->firstOrFail();
 
-        if (!$check) {
-            return $this->sendError('Error', 'No Available KYC', 422);
+            // Reset KYC details in a transaction
+            DB::transaction(function () use ($kyc) {
+                $kyc->update([
+                    'phone' => null,
+                    'email' => null,
+                    'nin' => null,
+                    'bvn' => null,
+                    'nin_details' => null,
+                    'bvn_details' => null,
+                    'contact_address' => null,
+                    'proof_of_address' => null,
+                    'live_face_verification' => null,
+                    'phone_verified_at' => null,
+                    'email_verified_at' => null,
+                    'nin_verified_at' => null,
+                    'bvn_verified_at' => null,
+                    'address_verified_at' => null,
+                    'live_face_verified_at' => null,
+                ]);
+            });
+
+            // Return success response
+            return $this->successfulResponse([], 'User KYC successfully reset', 200);
+        } catch (ModelNotFoundException $e) {
+            // Handle case where UUID does not match
+            return $this->sendError('Error', 'KYC record not found', 404);
+        } catch (\Exception $e) {
+            // Handle unexpected exceptions
+            return $this->sendError('Error', 'An unexpected error occurred ', 500);
         }
-
-        // Transform KYC details
-        $kyc=KycVerification::find($check->id);
-        $kyc->phone=NULL;
-        $kyc->emaill=NULL;
-        $kyc->nin=NULL;
-        $kyc->bvn=NULL;
-        $kyc->nin_details=NULL;
-        $kyc->bvn_details=NULL;
-        $kyc->contact_address=NULL;
-        $kyc->proof_of_address=NULL;
-        $kyc->live_face_verification=NULL;
-        $kyc->phone_verified_at=NULL;
-        $kyc->email_verified_at=NULL;
-        $kyc->nin_verified_at=NULL;
-        $kyc->bvn_verified_at=NULL;
-        $kyc->address_verified_at=NULL;
-        $kyc->live_face_verified_at=NULL;
-        $kyc->save();
-
-        // Return success response
-        return $this->successfulResponse([], 'User KYC successfully reset', 200);
     }
+
     
 }
