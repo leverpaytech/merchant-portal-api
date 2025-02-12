@@ -1297,7 +1297,6 @@ class UserController extends BaseController
 
         $response=EtherscanService::getTransactionDetails($transactionHash);
 
-
         if(isset($response['amount']) && $response['amount'] !=0)
         {
             if($response['amount']==$amount)
