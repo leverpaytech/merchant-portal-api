@@ -1267,7 +1267,7 @@ class UserController extends BaseController
     {
         $data = $request->all();
 
-        $validator = Validator::make($data, [
+        $validator = Validator::make($data, [ 
             'transaction_hash' => 'required|string',
             'amount' => 'required|numeric'
         ]);
@@ -1286,10 +1286,11 @@ class UserController extends BaseController
 
         $checkIfExist=creptoFundingHistory::where('transaction_hash', $transactionHash)->get(['id'])->first();
 
-        if($checkIfExist->id)
+        if(isset($checkIfExist->id))
         {
             return $this->sendError('Invalid Transaction hash',[],402);
         }
+        
         //$apiUrl = config('services.etherscan.api_url');
         //$apiKey = config('services.etherscan.api_key');
         //$response=EtherscanService::getTransactionDetails($address,$apiUrl,$apiKey);

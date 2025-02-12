@@ -179,7 +179,7 @@ Route::prefix('v1')->group( function(){
                 Route::prefix('etherscan')->group(function () {
                     Route::post('validate-transaction', [UserController::class,'fundWalletWithCrepto']);
                 });
-
+ 
                 Route::prefix('vfd')->group(function () {
                     Route::get('check-transaction/{reference_no}', [UserController::class,'checkTransaction']);
                     Route::get('get-biller-categories', [UserController::class,'billerCategories']);
